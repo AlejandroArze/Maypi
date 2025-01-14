@@ -1,0 +1,204 @@
+<div class="w-full max-w-3xl">
+
+    <!-- Form -->
+    <form [formGroup]="editAccountForm">
+
+        <!-- Section -->
+        <div class="w-full">
+            <div class="text-xl">Perfil</div>
+        </div>
+        <div class="grid sm:grid-cols-4 gap-6 w-full mt-8">
+            <!-- Name -->
+            <div class="sm:col-span-4">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Nombres</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:user'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'name'"
+                        matInput>
+                </mat-form-field>
+            </div>
+            <!-- Apellidos -->
+            <div class="sm:col-span-4">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Apellidos</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:user'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'lastname'"
+                        matInput>
+                </mat-form-field>
+            </div>
+           
+            <!-- User -->
+            <div class="sm:col-span-2">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Usuario</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:user-circle'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'username'"
+                        matInput>
+                </mat-form-field>
+            </div>
+            <!-- Password -->
+            <div class="sm:col-span-2">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Contraseña</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:lock-closed'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'password'"
+                        type="password"
+                        matInput>
+                </mat-form-field>
+            </div>
+            
+                        <!-- Email -->
+            <div class="sm:col-span-4">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Correo Electrónico</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:envelope'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'email'"
+                        matInput>
+                </mat-form-field>
+            </div>
+
+            <!-- Photo -->
+<div class="sm:col-span-4">
+    <!-- Label para Foto de perfil -->
+    <label for="photo" class="text-lg font-medium text-gray-700 mb-2 block">Foto de perfil</label>
+  
+    <!-- Input de tipo file estilizado -->
+    <div class="flex items-center space-x-3 mb-4">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="fileInput.click()"
+        class="flex items-center space-x-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-50"
+      >
+        <mat-icon class="icon-size-5">photo_camera</mat-icon>
+        <span>Seleccionar Foto</span>
+      </button>
+      <input
+        type="file"
+        #fileInput
+        accept="image/*"
+        id="photo"
+        [formControlName]="'photo'"
+        (change)="onFileSelected($event)"
+        class="hidden"
+      />
+    </div>
+  
+      <!-- Vista previa de la imagen -->
+  <div *ngIf="imagePreview" class="flex justify-center mt-4">
+    <img
+      [src]="imagePreview"
+      alt="Vista previa de la foto"
+      class="rounded-full w-32 h-32 object-cover border-4 border-gray-300 shadow-lg"
+    />
+  </div>
+  <div *ngIf="!imagePreview">
+    <p class="text-center text-gray-500">No se ha seleccionado ninguna imagen.</p>
+  </div>
+
+  <!-- Nombre de la imagen -->
+  <div *ngIf="imageName" class="mt-2 text-center text-sm text-gray-500">
+    <p>Imagen seleccionada: {{ imageName }}</p>
+  </div>
+
+
+  </div>
+  
+        
+        </div>
+
+        <!-- Divider -->
+        <div class="my-10 border-t"></div>
+
+        <!-- Section -->
+        <div class="w-full">
+            <div class="text-xl">Información del Usuario</div>
+        </div>
+        <div class="grid sm:grid-cols-4 gap-6 w-full mt-8">
+            
+            <!-- Roles -->
+            <div class="sm:col-span-2">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Rol</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:users'"
+                        matPrefix></mat-icon>
+                    <mat-select [formControlName]="'roles'">
+                        <mat-option [value]="'1'">Administrador</mat-option>
+                        <mat-option [value]="'2'">Super Administrador</mat-option>
+                        <mat-option [value]="'3'">Tecnico</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+             <!-- Status -->
+             <div class="sm:col-span-2">
+                <mat-form-field
+                    class="w-full"
+                    [subscriptSizing]="'dynamic'">
+                    <mat-label>Estado</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:shield-check'"
+                        matPrefix></mat-icon>
+                    <mat-select [formControlName]="'status'">
+                        <mat-option [value]="'1'">ACTIVO</mat-option>
+                        <mat-option [value]="'0'">INACTIVO</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="mt-11 mb-10 border-t"></div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end">
+            <button
+                mat-stroked-button
+                type="button">
+                Cancelar
+            </button>
+            <button
+                class="ml-4"
+                mat-flat-button
+                type="submit"
+                (click)="onSubmit()"
+                [color]="'primary'">Actualizar
+            </button>
+        </div>
+    </form>
+
+</div>
