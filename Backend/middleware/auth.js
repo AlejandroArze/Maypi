@@ -12,12 +12,12 @@ module.exports = (requiredRoles) => {
     }
 
     // Verificar el token
-    jwt.verify(token, secretKey, (err, decoded) => {
+    jwt.verify(token, secretKey, (err, decoded) => 
+    {
       if (err) {
         console.error('Error al verificar token:', err.message);
         return res.status(403).json({ message: 'Token no válido' });
       }
-
       // Si el token es válido, guardar los datos del usuario en la solicitud
       req.user = decoded;
 
@@ -31,7 +31,6 @@ module.exports = (requiredRoles) => {
         console.log("Rol insuficiente:", decoded.role);
         return res.status(403).json({ message: "Acceso denegado. No tienes los permisos necesarios." });
       }
-
       // Continuar con el siguiente middleware o controlador
       next();
     });

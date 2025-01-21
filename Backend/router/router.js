@@ -5,6 +5,8 @@ const equipment = require("../controller/equipment");
 const service = require("../controller/service");
 const task = require("../controller/task");
 const management = require("../controller/management");
+const LecturasController = require("../controller/LecturasController");
+
 const multer = require('multer');
 const path = require('path');
 // Configuración de Multer
@@ -45,47 +47,80 @@ router.post("/user", authMiddleware([1,2,3]), upload.single('image'), user.store
 // Ruta para obtener todos los usuarios
 router.get("/users", authMiddleware([1,2,3]), user.getAll); // buscar todos lso usuarios 
 router.get("/user/:usuarios_id", authMiddleware([1,2,3]), user.show); // Obtener un usuario por ID
-router.put("/user/:usuarios_id", authMiddleware([1,2,3]), user.update); // Actualizar un usuario por ID
+router.put("/user/:usuarios_id", authMiddleware([1,2,3]), upload.single('image'), user.update); // Actualizar un usuario por ID
 router.delete("/user/:usuarios_id", authMiddleware([1]), user.destroy); // Eliminar un usuario por ID
+// Ruta para actualizar solo el estado de un usuario por ID
+router.patch("/user/:usuarios_id/status", authMiddleware([1,2,3]), user.updateStatus);
+
 
 
 // Login de usuario
 router.post("/user/login", user.login);
 router.post("/user/loginToken", user.loginToken);
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "user"
+router.get('/user', authMiddleware([1, 2, 3]), user.paginate);
 
-// Rutas protegidas de tipo (admin y manager)
-router.post("/type", authMiddleware([1, 2]), type.store);
-router.get("/type/:tipos_id", authMiddleware([1, 2]), type.show);
-router.put("/type/:tipos_id", authMiddleware([1, 2]), type.update);
-router.delete("/type/:tipos_id", authMiddleware([1, 2]), type.destroy);
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "type"
 
-// Rutas protegidas de equipo (admin y manager)
-router.post("/equipment", authMiddleware([1, 2]), equipment.store);
-router.get("/equipment/:equipos_id", authMiddleware([1, 2]), equipment.show);
-router.get("/equipment", authMiddleware([1, 2]), equipment.paginate);
-router.put("/equipment/:equipos_id", authMiddleware([1, 2]), equipment.update);
-router.delete("/equipment/:equipos_id", authMiddleware([1, 2]), equipment.destroy);
+router.post("/type", authMiddleware([1, 2, 3]), type.store);
+router.get("/type/:tipos_id", authMiddleware([1, 2, 3]), type.show);
+router.put("/type/:tipos_id", authMiddleware([1, 2, 3]), type.update);
+router.delete("/type/:tipos_id", authMiddleware([1, 2, 3]), type.destroy);
+router.get('/type', authMiddleware([1, 2, 3]), type.paginate);
 
-// Rutas protegidas de servicio (admin y manager)
-router.post("/service", authMiddleware([1, 2]), service.store);
-router.get("/service/:servicios_id", authMiddleware([1, 2]), service.show);
-router.put("/service/:servicios_id", authMiddleware([1, 2]), service.update);
-router.delete("/service/:servicios_id", authMiddleware([1, 2]), service.destroy);
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "equipment"
 
-// Rutas protegidas de tareas (admin, manager y user)
+router.post("/equipment", authMiddleware([1, 2, 3]), equipment.store);
+router.get("/equipment/:equipos_id", authMiddleware([1, 2, 3]), equipment.show);
+router.get('/equipment', authMiddleware([1, 2, 3]), equipment.paginate);
+router.put("/equipment/:equipos_id", authMiddleware([1, 2, 3]), equipment.update);
+router.delete("/equipment/:equipos_id", authMiddleware([1, 2, 3]), equipment.destroy);
+
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "service"
+
+
+router.get("/service/board", authMiddleware([1, 2, 3]), service.getServicesByTypeAndTechnician);
+router.get("/service/date-range", authMiddleware([1, 2, 3]), service.getServicesByDateRange);
+router.get("/service/metrics", authMiddleware([1, 2, 3]), service.getMetrics);
+router.get('/service', authMiddleware([1, 2, 3]), service.paginate);
+router.get("/service/:servicios_id", authMiddleware([1, 2, 3]), service.show);
+router.put("/service/:servicios_id", authMiddleware([1, 2, 3]), service.update);
+router.delete("/service/:servicios_id", authMiddleware([1, 2, 3]), service.destroy);
+router.post("/service", authMiddleware([1, 2, 3]), service.store);
+
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "task"
+
+
 router.post("/task", authMiddleware([1, 2, 3]), task.store);
 router.get("/task/:tareas_id", authMiddleware([1, 2, 3]), task.show);
 router.put("/task/:tareas_id", authMiddleware([1, 2, 3]), task.update);
 router.delete("/task/:tareas_id", authMiddleware([1, 2, 3]), task.destroy);
 
-// Rutas protegidas de gestión (admin, manager y user)
+//-----------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "management"
+
+
 router.post("/management", authMiddleware([1, 2, 3]), management.store);
 router.get("/management/:gestions_id", authMiddleware([1, 2, 3]), management.show);
 router.put("/management/:gestions_id", authMiddleware([1, 2, 3]), management.update);
 router.delete("/management/:gestions_id", authMiddleware([1, 2, 3]), management.destroy);
 
+//-------------------------------------------------------------------------------------------------------------------------
+// Rutas relacionadas con "lecturas"
+router.post("/lecturas", authMiddleware([1, 2, 3]), LecturasController.store);
+router.get("/lecturas/:id", authMiddleware([1, 2, 3]), LecturasController.show);
+router.get("/lecturas", authMiddleware([1, 2, 3]), LecturasController.paginate);
+router.put("/lecturas/:id", authMiddleware([1, 2, 3]), LecturasController.update);
+router.delete("/lecturas/:id", authMiddleware([1, 2, 3]), LecturasController.destroy);
 
+// Exporta el router para ser utilizado en otras partes de la aplicación
 module.exports = router;
+
 
 /*// Crea un nuevo router para manejar rutas específicas dentro de una aplicación Express
 const router = require("express").Router();

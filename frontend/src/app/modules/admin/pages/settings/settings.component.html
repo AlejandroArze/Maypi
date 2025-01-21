@@ -85,7 +85,7 @@
                         </ng-container>
                         <!-- Edit Account -->
                         <ng-container *ngSwitchCase="'edit-account'">
-                            <edit-account></edit-account>
+                            <edit-account (panelChanged)="onPanelChanged($event)"></edit-account>
                         </ng-container>
                         <!-- Security -->
                         <ng-container *ngSwitchCase="'security'">

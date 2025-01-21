@@ -7,14 +7,16 @@ const morgan = require("morgan"); // Middleware para registrar solicitudes HTTP
 const router = require('./router/router'); // Importa el enrutador con las rutas de la API
 const path = require("path");
 const multer = require('multer');
-
+const upload = multer();
+const qs = require('qs'); // Para serializar los datos
 // Crea una instancia de la aplicación Express
 const app = express();
-
+const request = require('request');
 // Middleware
 app.use(morgan("dev")); // Log de cada solicitud HTTP
 app.use(express.json()); // Analizar el cuerpo de las solicitudes JSON
 app.use(cors()); // Configuración CORS, puedes personalizarlo según los orígenes permitidos
+app.use(express.urlencoded({ extended: true })); // Si necesitas leer datos del body en POST
 app.use("/api/v1/uploads", express.static(path.join(__dirname, "uploads")));
 
 
@@ -29,6 +31,104 @@ app.get("/", (req, res) => {
 
 // Usa el enrutador para todas las rutas que comienzan con '/api/v1'
 app.use("/api/v1", router);
+
+app.get('/api/bienes', async (req, res) => {
+    try {
+      const codigo = req.query.codigo; // Obtener el código de los parámetros de la consulta
+  console.log("Codigo",codigo);
+      // Realizar la solicitud POST al servidor externo
+    const response = await axios.post('https://appgamc.cochabamba.bo/transparencia/servicio/ws-consulta-bienes.php', {
+        cod_bienes: codigo  // Enviar el código de bienes en el cuerpo de la solicitud
+      });
+      console.log("data",response);
+      // Devolver la respuesta a tu frontend
+      res.json(response.data);
+    } catch (error) {
+      console.error('Error al obtener los bienes:', error);
+      res.status(500).json({ error: 'Error al consultar los bienes' });
+    }
+  });
+
+  app.post('/api/proxy', async (req, res) => {
+    try {
+      const data = qs.stringify(req.body); // Convierte a x-www-form-urlencoded
+  
+      const response = await axios.post(
+        'https://appgamc.cochabamba.bo/transparencia/servicio/ws-consulta-bienes.php',
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+  
+      res.send(response.data);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.post('/api/empleados', async (req, res) => {
+    try {
+      const data = qs.stringify(req.body); // Convierte a x-www-form-urlencoded
+  
+      const response = await axios.post(
+        'https://appgamc.cochabamba.bo/transparencia/servicio/buscar-empleados.php',
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+  
+      res.send(response.data);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.post('/api/v1/proxy/buscar-empleados-ci', upload.none(), async (req, res) => {
+    try {
+        console.log('Datos recibidos en el backend:', req.body); // Debug
+        
+        if (!req.body.dato) {
+            return res.status(400).json({
+                status: false,
+                data: "No ingresaste datos"
+            });
+        }
+
+        const data = qs.stringify({
+            dato: req.body.dato,
+            tipo: 'D'
+        });
+
+        console.log('Datos a enviar a la API externa:', data); // Debug
+
+        const response = await axios.post(
+            'https://appgamc.cochabamba.bo/transparencia/servicio/busqueda_empleados.php',
+            data,
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            }
+        );
+
+        console.log('Respuesta de la API externa:', response.data); // Debug
+
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error en proxy buscar-empleados-ci:', error);
+        res.status(500).json({ 
+            error: 'Error al buscar empleados por CI',
+            details: error.message 
+        });
+    }
+  });
+  
 
 // Intenta conectar a la base de datos usando Sequelize ORM
 sequelize.authenticate()

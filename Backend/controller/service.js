@@ -1,4 +1,5 @@
 // Importa el servicio 'service' desde la carpeta 'service'
+const { Service } = require("../models");
 const serviceService = require("../service/service");
 // Importa una utilidad para responder en formato JSON
 const jsonResponse = require("../http/response/jsonResponse");
@@ -6,6 +7,7 @@ const jsonResponse = require("../http/response/jsonResponse");
 const ServiceDTO = require("../http/request/service/responseDTO");
 // Importa Joi para validación de datos
 const Joi = require("joi");
+const ServiceService = require('../service/service');
 
 class ServiceController {
 
@@ -43,9 +45,12 @@ class ServiceController {
                 ciResponsableEgreso
             } = req.body;
 
+            // Convertir NaN o undefined a null para tecnicoAsignado
+            const tecnicoAsignadoValue = isNaN(tecnicoAsignado) || tecnicoAsignado === undefined ? 
+                null : tecnicoAsignado;
+
             // Asegura que los campos numéricos sean tratados correctamente
             const gestionInt = parseInt(gestion, 10);
-            const tecnicoAsignadoInt = parseInt(tecnicoAsignado, 10);
 
             // Crea un nuevo servicio utilizando el servicio 'serviceService'
             const { servicios_id } = await serviceService.store({
@@ -60,7 +65,7 @@ class ServiceController {
                 telefonoResponsableEgreso,
                 gestion: gestionInt,
                 telefonoSolicitante,
-                tecnicoAsignado: tecnicoAsignadoInt,
+                tecnicoAsignado: tecnicoAsignadoValue,
                 observaciones,
                 tipoResponsableEgreso,
                 estado,
@@ -92,7 +97,7 @@ class ServiceController {
                 telefonoResponsableEgreso,
                 gestionInt,
                 telefonoSolicitante,
-                tecnicoAsignadoInt,
+                tecnicoAsignadoValue,
                 observaciones,
                 tipoResponsableEgreso,
                 estado,
@@ -260,6 +265,10 @@ class ServiceController {
 
             console.log("id ", id);
 
+            // Convertir NaN o undefined a null para tecnicoAsignado
+            const tecnicoAsignadoValue = isNaN(tecnicoAsignado) || tecnicoAsignado === undefined ? 
+                null : tecnicoAsignado;
+
             // Actualiza el servicio en la base de datos
             await serviceService.update({
                 servicios_id: id,
@@ -274,7 +283,7 @@ class ServiceController {
                 telefonoResponsableEgreso,
                 gestion: gestionInt,
                 telefonoSolicitante,
-                tecnicoAsignado: tecnicoAsignadoInt,
+                tecnicoAsignado: tecnicoAsignadoValue,
                 observaciones,
                 tipoResponsableEgreso,
                 estado,
@@ -306,7 +315,7 @@ class ServiceController {
                 telefonoResponsableEgreso,
                 gestionInt,
                 telefonoSolicitante,
-                tecnicoAsignadoInt,
+                tecnicoAsignadoValue,
                 observaciones,
                 tipoResponsableEgreso,
                 estado,
@@ -372,6 +381,76 @@ class ServiceController {
                 500,
                 error.message
             );
+        }
+    }
+    static async paginate(req, res) {
+        try {
+            const { 
+                page = 1,
+                limit = 10,
+                search = '',
+                sort = 'servicios_id',
+                order = 'desc'
+            } = req.query;
+
+            // Llama al servicio de paginación con los parámetros
+            const { count, rows } = await serviceService.paginate({ 
+                page: parseInt(page), 
+                limit: parseInt(limit), 
+                search,
+                sort,
+                order
+            });
+
+            // Transforma los resultados en DTOs
+            const serviceDTOs = rows.map(service => new ServiceDTO(service));
+
+            return jsonResponse.successResponse(res, 200, "Services retrieved successfully", {
+                total: count,
+                perPage: parseInt(limit),
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(count / limit),
+                data: serviceDTOs
+            });
+        } catch (error) {
+            console.error("Error en controlador de paginación:", error);
+            return jsonResponse.errorResponse(res, 500, error.message);
+        }
+    }
+    static async getServicesByTypeAndTechnician(req, res) {
+        try {
+            console.log('Controller: getServicesByTypeAndTechnician called');
+            return await ServiceService.getServicesByTypeAndTechnician(req, res);
+        } catch (error) {
+            console.error('Controller Error:', error);
+            return res.status(500).json({
+                message: error.message
+            });
+        }
+    }
+    static async getServicesByDateRange(req, res) {
+        try {
+            console.log('Controller: getServicesByDateRange called');
+            return await ServiceService.getServicesByDateRangeAndFilters(req, res);
+        } catch (error) {
+            console.error('Controller Error:', error);
+            return res.status(500).json({
+                message: error.message
+            });
+        }
+    }
+    static async getMetrics(req, res) {
+        try {
+            const metrics = await ServiceService.getServiceMetrics(req.query);
+            return jsonResponse.successResponse(
+                res,
+                200,
+                "Métricas de servicios obtenidas exitosamente",
+                metrics
+            );
+        } catch (error) {
+            console.error('Controller Error:', error);
+            return jsonResponse.errorResponse(res, 500, error.message);
         }
     }
 }

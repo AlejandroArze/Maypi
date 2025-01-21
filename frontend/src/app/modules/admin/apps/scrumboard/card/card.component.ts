@@ -1,44 +1,59 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { NgClass, NgIf, DatePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ScrumboardCardDetailsComponent } from 'app/modules/admin/apps/scrumboard/card/details/details.component';
+import { Card, EstadoServicio } from '../scrumboard.models';
+import { AddCardComponent } from '../board/add-card/add-card.component';
+import { ScrumboardService } from '../scrumboard.service';
+import { ScrumboardCardDetailsComponent } from './details/details.component';
 
 @Component({
-    selector       : 'scrumboard-card',
-    templateUrl    : './card.component.html',
-    encapsulation  : ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone     : true,
+    selector: 'scrumboard-card',
+    templateUrl: './card.component.html',
+    styleUrls: ['./card.component.scss'],
+    standalone: true,
+    imports: [
+        NgIf,
+        NgClass,
+        DatePipe,
+        MatIconModule,
+        MatButtonModule
+    ]
 })
-export class ScrumboardCardComponent implements OnInit
-{
-    /**
-     * Constructor
-     */
+export class ScrumboardCardComponent {
+    @Input() card: Card;
+    protected EstadoServicio = EstadoServicio;
+
     constructor(
-        private _activatedRoute: ActivatedRoute,
-        private _matDialog: MatDialog,
-        private _router: Router,
-    )
-    {
-    }
+        private _dialog: MatDialog,
+        private _scrumboardService: ScrumboardService
+    ) {}
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Lifecycle hooks
-    // -----------------------------------------------------------------------------------------------------
+    openCardDetails(): void {
+        const dialogRef = this._dialog.open(ScrumboardCardDetailsComponent, {
+            data: {
+                card: this.card,
+                isNew: false
+            },
+            width: '700px',
+            height: 'auto',
+            maxHeight: '90vh',
+            autoFocus: false,
+            disableClose: false,
+            backdropClass: 'cursor-pointer'
+        });
 
-    /**
-     * On init
-     */
-    ngOnInit(): void
-    {
-        // Launch the modal
-        this._matDialog.open(ScrumboardCardDetailsComponent, {autoFocus: false})
-            .afterClosed()
-            .subscribe(() =>
-            {
-                // Go up twice because card routes are set up like this; "card/CARD_ID"
-                this._router.navigate(['./../..'], {relativeTo: this._activatedRoute});
-            });
+        dialogRef.afterClosed().subscribe(result => {
+            if (result === true) {
+                this._scrumboardService.getCardsByStatus(
+                    this.card.tipo,
+                    this.card.estado,
+                    null,
+                    1,
+                    10
+                ).subscribe();
+            }
+        });
     }
 }
