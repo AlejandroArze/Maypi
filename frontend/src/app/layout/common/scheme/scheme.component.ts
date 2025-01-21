@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FuseConfig, FuseConfigService } from '@fuse/services/config';
 import { Subject, takeUntil } from 'rxjs';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'scheme',
@@ -17,11 +20,16 @@ import { Subject, takeUntil } from 'rxjs';
     ],
     encapsulation: ViewEncapsulation.None,
     standalone: true,
-    imports: [MatIconModule],
+    imports: [
+        MatIconModule,
+        MatButtonModule,
+        MatTooltipModule,
+        NgIf
+    ],
 })
 export class SchemeComponent implements OnInit, OnDestroy {
-    config: FuseConfig;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    scheme: 'dark' | 'light';
 
     /**
      * Constructor
@@ -32,20 +40,19 @@ export class SchemeComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        // Detect the preferred color scheme of the device
-        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        this.applyPreferredScheme(darkModeMediaQuery.matches);
+        // Recuperar el esquema guardado del localStorage
+        const savedScheme = localStorage.getItem('scheme') as 'dark' | 'light';
+        
+        // Si existe un esquema guardado, aplicarlo
+        if (savedScheme) {
+            this._fuseConfigService.config = { scheme: savedScheme };
+        }
 
-        // Listen for changes in the preferred color scheme
-        darkModeMediaQuery.addEventListener('change', (event) => {
-            this.applyPreferredScheme(event.matches);
-        });
-
-        // Subscribe to config changes
+        // Suscribirse a los cambios del esquema
         this._fuseConfigService.config$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((config: FuseConfig) => {
-                this.config = config;
+            .subscribe((config: any) => {
+                this.scheme = config.scheme;
             });
     }
 
@@ -59,19 +66,15 @@ export class SchemeComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Toggle the scheme between 'light' and 'dark'
+     * Cambiar el esquema
      */
     toggleScheme(): void {
-        const newScheme = this.config.scheme === 'dark' ? 'light' : 'dark';
-        this._fuseConfigService.config = { scheme: newScheme };
-    }
-
-    /**
-     * Apply the preferred color scheme
-     * @param isDarkMode Whether the preferred scheme is dark
-     */
-    private applyPreferredScheme(isDarkMode: boolean): void {
-        const newScheme = isDarkMode ? 'dark' : 'light';
+        const newScheme = this.scheme === 'dark' ? 'light' : 'dark';
+        
+        // Guardar en localStorage
+        localStorage.setItem('scheme', newScheme);
+        
+        // Actualizar el esquema
         this._fuseConfigService.config = { scheme: newScheme };
     }
 }
