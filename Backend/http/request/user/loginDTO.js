@@ -6,8 +6,8 @@ const loginSchema = Joi.object({
         .email() // Valida que el campo sea un correo electrónico válido.
         .required() // Indica que el campo 'email' es obligatorio.
         .messages({
-            'string.email': 'Email must be a valid email address', // Mensaje de error personalizado
-            'any.required': 'Email is required' // Mensaje cuando el campo es obligatorio
+            'string.email': 'El correo electrónico debe ser válido',
+            'any.required': 'El correo electrónico es requerido'
         }),
 
     password: Joi.string() // Define que el campo 'password' debe ser una cadena de texto.
@@ -15,7 +15,7 @@ const loginSchema = Joi.object({
         .required() // Indica que el campo 'password' es obligatorio.
         .messages({
             'string.min': 'Password must be at least 6 characters long', // Mensaje de error para contraseñas cortas
-            'any.required': 'Password is required' // Mensaje cuando el campo es obligatorio
+            'any.required': 'La contraseña es requerida' // Mensaje cuando el campo es obligatorio
         })
 });
 

@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     // Campo 'role' que corresponde al rol del usuario (admin, usuario, etc.).
     role: {
-      type: DataTypes.STRING, // El tipo de dato es STRING (texto).
+      type: DataTypes.INTEGER, // El tipo de dato es INTEGER, como especificaste.
       allowNull: false, // No permite valores nulos.
       validate: {
         notEmpty: true, // No permite cadenas vacías.

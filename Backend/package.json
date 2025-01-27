@@ -2,16 +2,15 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "restapi",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.8",
-    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

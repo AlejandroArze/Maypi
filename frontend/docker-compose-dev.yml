@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  node:
+    container_name: plataformasoporte
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    restart: always
+    volumes:
+      - .:/code
+      - /code/node_modules
+    command: npm start
+    networks:
+      - plataformasoporte-network
+
+networks:
+  plataformasoporte-network:
+    driver: bridge

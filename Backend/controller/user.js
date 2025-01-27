@@ -6,7 +6,7 @@ const jsonResponse = require("../http/response/jsonResponse");
 const UserDTO = require("../http/request/user/responseDTO");
 const { updateDTO } = require('../http/request/user/updateDTO');
 const { User } = require('../models'); 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const loginSchema = require("../http/request/user/loginDTO");
 // Importa Joi para validación de datos
 const Joi = require("joi");
@@ -20,36 +20,43 @@ class UserController {
     // Método para iniciar sesión
     static async login(req, res) {
         try {
+            console.log('Iniciando proceso de login con datos:', req.body);
+            
             // Valida el cuerpo de la solicitud   
             await loginSchema.validateAsync(req.body);
+            console.log('Validación del schema exitosa');
 
             const { email, password } = req.body;
 
             // Verifica si el correo electrónico existe en la base de datos
             const user = await User.findOne({ where: { email } });
+            console.log('Usuario encontrado:', user ? 'Sí' : 'No');
 
             if (!user) {
+                console.log('Usuario no encontrado con email:', email);
                 return res.status(404).json({ message: 'El usuario no existe con ese correo electrónico' });
             }
 
             // Verifica la contraseña
+            console.log('Comparando contraseñas...');
             const isPasswordValid = await bcrypt.compare(password, user.password);
+            console.log('Contraseña válida:', isPasswordValid);
 
             if (!isPasswordValid) {
+                console.log('Contraseña incorrecta para usuario:', email);
                 return res.status(401).json({ message: 'La contraseña es incorrecta' });
             }
 
             // Genera el token
             const token = jwt.sign(
                 { id: user.usuarios_id, email: user.email, role: user.role},
-                process.env.JWT_SECRET || 'default_secret', // Clave secreta
-                { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } // Duración del token despues poner 1h
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_EXPIRES_IN }
             );
-            console.log("JWT Token:", token);
-            // Devuelve el usuario y el token 
-            // Devuelve el usuario, el token y un mensaje de éxito
+            console.log('Token generado:', token);
+
             return res.status(200).json({
-                message: 'Inicio de sesión exitoso', // Mensaje adicional
+                message: 'Inicio de sesión exitoso',
                 user: {
                     id: user.usuarios_id,
                     email: user.email,
@@ -59,14 +66,19 @@ class UserController {
             });
 
         } catch (error) {
+            console.error('Error completo durante el login:', error);
             if (error.isJoi) {
+                console.log('Error de validación Joi:', error.details);
                 return res.status(400).json({
                     message: 'Error de validación',
                     details: error.details.map(err => err.message)
                 });
             }
-            console.error('Error durante el inicio de sesión:', error);
-            return res.status(500).json({ message: 'Ocurrió un error inesperado' });
+            console.error('Error durante el inicio de sesión:', error.message);
+            return res.status(500).json({ 
+                message: 'Ocurrió un error inesperado',
+                error: error.message 
+            });
         }
     }
     //Método para iniciar sesion con el token

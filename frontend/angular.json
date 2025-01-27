@@ -32,7 +32,12 @@
                             "crypto-js/hmac-sha256",
                             "crypto-js/enc-base64",
                             "flat",
-                            "quill"
+                            "quill",
+                            "canvg",
+                            "core-js",
+                            "raf",
+                            "rgbcolor",
+                            "jspdf-autotable"
                         ],
                         "assets": [
                             "src/favicon-16x16.png",

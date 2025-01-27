@@ -130,21 +130,69 @@ app.get('/api/bienes', async (req, res) => {
   });
   
 
-// Intenta conectar a la base de datos usando Sequelize ORM
-sequelize.authenticate()
-    .then(() => {
-        console.log('Conexión establecida correctamente con la base de datos.');
-    })
-    .catch((error) => {
-        console.error('No se puede conectar a la base de datos:', error);
+// Función para probar la conexión
+async function testDatabaseConnection() {
+    try {
+        await sequelize.authenticate();
+        console.log('✅ Conexión a la base de datos establecida correctamente.');
+        
+        // Verificar si podemos hacer consultas
+        const result = await sequelize.query('SELECT NOW()');
+        console.log('⏰ Hora del servidor de base de datos:', result[0][0].now);
+        
+        // Verificar tablas existentes
+        const tables = await sequelize.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+        `);
+        console.log('📋 Tablas encontradas:', tables[0].map(t => t.table_name));
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Error al conectar con la base de datos:', error.message);
+        console.error('Detalles del error:', {
+            host: process.env.DATABASE_HOST,
+            port: process.env.DATABASE_PORT,
+            database: process.env.DATABASE_NAME,
+            user: process.env.DATABASE_USERNAME
+        });
+        return false;
+    }
+}
+
+// Iniciar el servidor solo si la conexión es exitosa
+async function startServer() {
+    console.log('🚀 Iniciando servidor...');
+    
+    // Intentar conectar a la base de datos
+    const isConnected = await testDatabaseConnection();
+    
+    if (!isConnected) {
+        console.error('🛑 No se pudo establecer conexión con la base de datos. Deteniendo el servidor.');
+        process.exit(1);
+    }
+
+    // Sincronizar modelos
+    try {
+        await sequelize.sync({ force: false });
+        console.log('📚 Modelos sincronizados correctamente');
+    } catch (error) {
+        console.error('❌ Error al sincronizar modelos:', error);
+        process.exit(1);
+    }
+
+    // Iniciar el servidor
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`🌐 Servidor corriendo en el puerto ${port}`);
     });
+}
 
-// Inicia el servidor en el puerto especificado
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Aplicación está corriendo en el puerto ${port}`);
+// Iniciar el servidor
+startServer().catch(error => {
+    console.error('❌ Error fatal al iniciar el servidor:', error);
+    process.exit(1);
 });
-
-
 
 // Exporta la aplicación para que otros archivos puedan usarla
 module.exports = app;
