@@ -559,18 +559,21 @@ getEquipmentById(equipos_id: number): Observable<{ message: string; data: Invent
      * @returns Observable que emite el nuevo producto creado (`InventoryProduct`)
      */
 
-    createEquipment3(): Observable<InventoryEquipment>
-    {
+    createEquipment46(equipmentData: any = {}): Observable<InventoryEquipment> {
+        // Obtener el usuario del localStorage
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+
         const defaultData = {
-        
+            ...equipmentData,
             "ip": " ",
             "procesador": " ",
             "funcionariousuario": "Nuevo Equipo",
-            "lector": " ",
+            "lector": "false",
             "tarjetavideo": " ",
             "funcionarioasignado": " ",
             "oficina": " ",
-            "fecharegistro": " ",
+            "fecharegistro": formattedDate,
             "codigo": " ",
             "memoria": " ",
             "tarjetamadre": " ",
@@ -582,24 +585,23 @@ getEquipmentById(equipos_id: number): Observable<{ message: string; data: Invent
             "modelo": " ",
             "serie": " ",
             "so": " ",
-            "responsable": 1,
+            "responsable": user?.data?.usuarios_id || 1,
+            "responsabledelregistro": user?.data?.usuarios_id || 1,
             "mac": " "
-    
         };
-        return this.equipments$.pipe(
-            take(1),  // Toma el primer valor emitido por `products$` y completa la suscripción
-            switchMap(equipments => this._httpClient.post<InventoryEquipment>(`${this.baseUrl}/equipment`, defaultData).pipe(
-                map((newEquipment) =>
-                {
-                    // Actualiza `_products` añadiendo el nuevo producto al inicio de la lista existente
-                    this._equipments.next([newEquipment, ...equipments]);
-                   // this._equipments.next([newEquipment, ...equipments]);
-                    console.error('Error al crear el equipo:', newEquipment);
-                    console.error('Error al crear el equipo:',equipments);
-                    // Retorna el nuevo producto
-                    return newEquipment;
-                }),
-            )),
+
+        return this._httpClient.post<{ message: string, data: InventoryEquipment }>(`${this.baseUrl}/equipment`, defaultData).pipe(
+            map(response => {
+                return response.data;
+            }),
+            tap(newEquipment => {
+                const currentEquipments = this._equipments.getValue();
+                this._equipments.next([newEquipment, ...currentEquipments]);
+            }),
+            catchError(error => {
+                console.error('Error al crear el equipo:', error);
+                return throwError(() => new Error('No se pudo crear el equipo debido a un error en el servidor.'));
+            })
         );
     }
     /**
@@ -707,6 +709,10 @@ createEquipment43(equipmentData: any = {}): Observable<InventoryEquipment> {
 
 
 createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
+     // Obtener el usuario del localStorage
+     const userStr = localStorage.getItem('user');
+     const user = userStr ? JSON.parse(userStr) : null;
+     
     const defaultData = {
         ...equipmentData,
         "ip": " ",
@@ -715,7 +721,7 @@ createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
         "lector": "false",
         "tarjetavideo": " ",
         "funcionarioasignado": " ",
-        "oficina": " ",
+        "oficina": " ",       
         "fecharegistro": formattedDate,
         "codigo": " ",
         "memoria": " ",
@@ -728,8 +734,8 @@ createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
         "modelo": " ",
         "serie": " ",
         "so": " ",
-        "responsable": 1,
-        "mac": " "
+        "responsable": user?.data?.usuarios_id || 1,
+        "responsabledelregistro": user?.data?.usuarios_id || 1,
     };
 
     return this._httpClient.post<{ message: string, data: InventoryEquipment }>(`${this.baseUrl}/equipment`, defaultData).pipe(

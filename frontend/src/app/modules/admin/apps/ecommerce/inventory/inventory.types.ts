@@ -81,8 +81,6 @@ export interface InventoryVendor
 
 
 export interface InventoryEquipment {
-    
-
     equipos_id: number; // Equipos_id es la clave primaria
     ip?: string | null; // Dirección IP del equipo
     procesador?: string | null; // Tipo de procesador
@@ -106,7 +104,8 @@ export interface InventoryEquipment {
     responsable?: number | null; // ID del responsable
     mac?: string | null; // Dirección MAC de la tarjeta de red
     responsabledelregistroString?: string | null;// String del responsable
-    tipoDescripcion:string | null;
+    responsabledelregistro: number;   
+    tipoDescripcion?: string;
 }
 
 export interface Empleado {

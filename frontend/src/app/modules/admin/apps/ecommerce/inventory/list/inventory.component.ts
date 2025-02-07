@@ -38,6 +38,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { MatNativeDateModule } from '@angular/material/core'; // Usamos el adaptador nativo de fecha de Angular
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { AuthService } from 'app/core/auth/auth.service';
 
 
 
@@ -72,11 +73,11 @@ export const MY_DATE_FORMATS = {
                 }
 
                 @screen md {
-                    grid-template-columns: 65px 115px auto 112px 72px;
+                    grid-template-columns: 65px 120px auto 112px 72px;
                 }
 
                 @screen lg {
-                    grid-template-columns: 70px 115px auto 100px 96px 96px 190px 72px;
+                    grid-template-columns: 70px 120px auto 100px 96px 96px 190px 72px;
                 }
             }
 
@@ -245,7 +246,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         private http: HttpClient,
         private fb: FormBuilder,
          private empleadoService: InventoryService,
-         private cd: ChangeDetectorRef
+         private cd: ChangeDetectorRef,
+         private _authService: AuthService
     ) {
         this.bienesData$ = this.bienesService.bienes$; 
         // Inicialización del formulario con el control 'empleadoSeleccionado'
@@ -496,6 +498,12 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
             this.closeDetails();
             return;
         }
+
+        if (this.selectedEquipment) {
+            this.closeDetails();
+        }
+
+            
     
         // Verifica que `getEquipmentById` devuelva un Observable
         this._inventoryService.getEquipmentById(equipos_id).subscribe({
@@ -543,7 +551,9 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
             error: (err) => {
                 console.error('Error al obtener el equipo:', err);
             },
-        });
+        
+        });  
+    
     
         
     }
@@ -818,31 +828,53 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
      */
     createEquipment(): void 
     {
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        
+        console.log('Datos del usuario para registro:', user);
+
+        if (!user) {
+            console.error('No se encontró información del usuario');
+            return;
+        }
+
         this._inventoryService.createEquipment().subscribe((newEquipment) => {
-            // Si el equipo nuevo tiene un tipo asignado, obtener su descripción
             if (newEquipment.tipo) {
                 this._inventoryService.getTipoById(newEquipment.tipo).subscribe(
                     (tipoInfo) => {
                         this.selectedEquipment = {
                             ...newEquipment,
-                            tipoDescripcion: tipoInfo.descripcion
+                            tipoDescripcion: tipoInfo.descripcion,
+                            responsabledelregistro: user.data.usuarios_id,
+                            responsabledelregistroString: `${user.data.nombres} ${user.data.apellidos}`
                         };
                         
-                        this.selectedEquipmentForm.patchValue({
-                            ...newEquipment,
-                            tipo: tipoInfo.descripcion,    // Campo visible (descripción)
-                            tiposId: newEquipment.tipo,    // Campo oculto (ID)
+                        this.selectedEquipmentForm = this._formBuilder.group({
+                            ...this.selectedEquipmentForm.controls,
+                            responsabledelregistro: [{value: user.data.usuarios_id, disabled: true}],
+                            responsabledelregistroString: [{value: `${user.data.nombres} ${user.data.apellidos}`, disabled: true}]
                         });
-                        
+
+                        console.log('Equipo actualizado:', this.selectedEquipment);
+                        this.selectedEquipmentForm.patchValue(this.selectedEquipment);
                         this._changeDetectorRef.markForCheck();
-                        console.log("Nuevo equipo creado con tipo:", tipoInfo.descripcion);
                     }
                 );
             } else {
-                this.selectedEquipment = newEquipment;
-                this.selectedEquipmentForm.patchValue(newEquipment);
+                this.selectedEquipment = {
+                    ...newEquipment,
+                    responsabledelregistro: user.data.usuarios_id,
+                    responsabledelregistroString: `${user.data.nombres} ${user.data.apellidos}`
+                };
+                
+                this.selectedEquipmentForm = this._formBuilder.group({
+                    ...this.selectedEquipmentForm.controls,
+                    responsabledelregistro: [{value: user.data.usuarios_id, disabled: true}],
+                    responsabledelregistroString: [{value: `${user.data.nombres} ${user.data.apellidos}`, disabled: true}]
+                });
+
+                this.selectedEquipmentForm.patchValue(this.selectedEquipment);
                 this._changeDetectorRef.markForCheck();
-                console.log("Nuevo equipo creado sin tipo");
             }
         });
     }

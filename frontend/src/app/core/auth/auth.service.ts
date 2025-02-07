@@ -71,12 +71,26 @@ export class AuthService {
                 } else {
                     console.warn('El backend no devolvió un token válido.');
                 }
-    
-                this._authenticated = true;
-                this._userService.user = response.user;
-    
-                return of(response);
-            }),
+
+                // Corregir la URL eliminando la duplicación de api/v1
+                return this._httpClient.get(`${environment.baseUrl}/user/${response.user.id}`).pipe(
+                    switchMap((userData: any) => {
+                        this._authenticated = true;
+                        this._userService.user = userData;
+
+                        // Siempre actualizar el localStorage con los datos más recientes
+                        localStorage.removeItem('user'); // Eliminar datos antiguos
+                        localStorage.setItem('user', JSON.stringify(userData)); // Guardar datos nuevos
+
+                        console.log('Datos de usuario actualizados en localStorage:', userData);
+
+                        return of({
+                            ...response,
+                            user: userData
+                        });
+                    })
+                );
+            })
         );
     }
     

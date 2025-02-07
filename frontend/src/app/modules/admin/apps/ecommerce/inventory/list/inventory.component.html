@@ -192,8 +192,10 @@
                                                 <input
                                                     type="text"
                                                     [placeholder]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' ? 'Nuevo Equipo' : ''"
-                                                    [ngModel]="selectedEquipment?.funcionariousuario !== 'Nuevo Equipo' ? selectedEquipment?.funcionariousuario : ''"
+                                                   
+                                                    [ngModel]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' ? '' : selectedEquipment?.funcionariousuario"
                                                     (ngModelChange)="selectedEquipmentForm.get('funcionariousuario').setValue($event)"
+                                                    [formControl]="selectedEquipmentForm.get('funcionariousuario')"
                                                     aria-label="Funcionario Usuario"
                                                     matInput
                                                     [matAutocomplete]="autoUsuario"
@@ -460,7 +462,13 @@
 
                                         <mat-form-field class="w-full">
                                             <mat-label>Responsable del Registro</mat-label>
-                                            <input matInput [formControlName]="'responsabledelregistroString'" [disabled]="true" readonly>
+                                            <input 
+                                                matInput 
+                                                [formControl]="selectedEquipmentForm.get('responsabledelregistroString')" 
+                                                [value]="selectedEquipment?.responsabledelregistroString"
+                                                [readonly]="true"
+                                                [disabled]="true"
+                                            >
                                         </mat-form-field>
 
 
