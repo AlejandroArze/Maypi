@@ -108,7 +108,7 @@
 
                                     <!-- Name -->
                                     <div class="truncate">
-                                        {{equipment.funcionariousuario}}
+                                        {{equipment.funcionariousuario === ' ' ? 'Nuevo Equipo' : equipment.funcionariousuario}}
                                     </div>
 
                                     <!-- Price .pric-->
@@ -191,9 +191,9 @@
                                                 <mat-label>Funcionario Usuario</mat-label>
                                                 <input
                                                     type="text"
-                                                    [placeholder]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' ? 'Nuevo Equipo' : ''"
+                                                    [placeholder]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' || selectedEquipment?.funcionariousuario === ' ' ? 'Nuevo Equipo' : ''"
                                                    
-                                                    [ngModel]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' ? '' : selectedEquipment?.funcionariousuario"
+                                                    [ngModel]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' || selectedEquipment?.funcionariousuario === ' ' ? '' : selectedEquipment?.funcionariousuario"
                                                     (ngModelChange)="selectedEquipmentForm.get('funcionariousuario').setValue($event)"
                                                     [formControl]="selectedEquipmentForm.get('funcionariousuario')"
                                                     aria-label="Funcionario Usuario"

@@ -501,6 +501,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
 
         if (this.selectedEquipment) {
             this.closeDetails();
+            
         }
 
             
@@ -542,11 +543,20 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                     this.onSearch(response.data.funcionarioasignado);
                     this.onSearchUsuario(response.data.funcionariousuario);
                     this.onSearchTipo('');
+               
                 }
 
                 console.log("tipos ", this.selectedEquipment.tipoDescripcion);
                 this.selectedEquipmentForm.controls['funcionarioasignado'].setValue(response.data.funcionarioasignado);
-                this.selectedEquipmentForm.controls['funcionariousuario'].setValue(response.data.funcionariousuario);
+                this.selectedEquipmentForm.controls['funcionariousuario'].setValue("");
+                const funcionariousuario = response.data.funcionariousuario;
+                const funcionariousuario2 = response.data.funcionariousuario === "Nuevo Equipo" || response.data.funcionariousuario === ' ' ? '' : response.data.funcionariousuario;
+                console.log("funcionariousuario2 ", funcionariousuario2);
+                this.selectedEquipmentForm.controls['funcionariousuario'].setValue(funcionariousuario2);
+                //this.selectedEquipmentForm.controls['funcionariousuario'].setValue(funcionariousuario2);
+                // Formatear funcionariousuario para edición
+                //const funcionariousuario = response.data.funcionariousuario;
+                //response.data.funcionariousuario = (funcionariousuario === 'Nuevo Equipo' || funcionariousuario === ' ') ? '' : funcionariousuario;
             },
             error: (err) => {
                 console.error('Error al obtener el equipo:', err);
@@ -826,8 +836,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
     /**
      * Crear un nuevo producto
      */
-    createEquipment(): void 
-    {
+    createEquipment(): void {
         const userStr = localStorage.getItem('user');
         const user = userStr ? JSON.parse(userStr) : null;
         
@@ -839,6 +848,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         }
 
         this._inventoryService.createEquipment().subscribe((newEquipment) => {
+             // Primero cerramos cualquier detalle abierto
+             this.closeDetails();
             if (newEquipment.tipo) {
                 this._inventoryService.getTipoById(newEquipment.tipo).subscribe(
                     (tipoInfo) => {
@@ -876,7 +887,18 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                 this.selectedEquipmentForm.patchValue(this.selectedEquipment);
                 this._changeDetectorRef.markForCheck();
             }
+
+            // Esperamos otro momento y volvemos a abrir para asegurar que los datos se muestren correctamente
+            setTimeout(() => {
+                this.closeDetails();
+                this.toggleDetails(newEquipment.equipos_id, newEquipment.codigo);
+            }, 200);
+            setTimeout(() => {
+                this.closeDetails();
+                this.toggleDetails(newEquipment.equipos_id, newEquipment.codigo);
+            }, 200);
         });
+        
     }
 
     /**
@@ -914,6 +936,9 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                 equipment.tiposId = this.selectedEquipment.tipo;
             }
 
+            // Formatear funcionariousuario para guardado
+            equipment.funcionariousuario = equipment.funcionariousuario === '' ? ' ' : equipment.funcionariousuario;
+
             console.log('Datos completos a enviar:', {
                 funcionarioasignado: equipment.funcionarioasignado,
                 tipo: equipment.tipo,
@@ -940,11 +965,11 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
      */
     deleteSelectedEquipment(): void {
         const confirmation = this._fuseConfirmationService.open({ // Abrir diálogo de confirmación
-            title  : 'Delete product', // Título del diálogo
-            message: 'Are you sure you want to remove this product? This action cannot be undone!', // Mensaje del diálogo
+            title  : 'Eliminando Equipo', // Título del diálogo
+            message: '¿Estás seguro de que deseas eliminar este producto? ¡Esta acción no se puede deshacer!', // Mensaje del diálogo
             actions: {
                 confirm: {
-                    label: 'Delete', // Etiqueta del botón de confirmación
+                    label: 'Eliminar', // Etiqueta del botón de confirmación
                 },
             },
         });

@@ -712,16 +712,16 @@ createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
      // Obtener el usuario del localStorage
      const userStr = localStorage.getItem('user');
      const user = userStr ? JSON.parse(userStr) : null;
-     
+
     const defaultData = {
         ...equipmentData,
         "ip": " ",
         "procesador": " ",
-        "funcionariousuario": "Nuevo Equipo",
+        "funcionariousuario": " ",
         "lector": "false",
         "tarjetavideo": " ",
         "funcionarioasignado": " ",
-        "oficina": " ",       
+        "oficina": " ",               
         "fecharegistro": formattedDate,
         "codigo": " ",
         "memoria": " ",
@@ -736,6 +736,7 @@ createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
         "so": " ",
         "responsable": user?.data?.usuarios_id || 1,
         "responsabledelregistro": user?.data?.usuarios_id || 1,
+        "mac": " ",
     };
 
     return this._httpClient.post<{ message: string, data: InventoryEquipment }>(`${this.baseUrl}/equipment`, defaultData).pipe(
