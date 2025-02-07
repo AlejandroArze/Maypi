@@ -229,111 +229,45 @@ class ServiceController {
     // Método estático asíncrono para actualizar la información de un servicio
     static async update(req, res) {
         try {
-            // Asegura que los campos numéricos sean tratados correctamente
-            const {
-                nombreResponsableEgreso,
-                cargoSolicitante,
-                informe,
-                cargoResponsableEgreso,
-                oficinaSolicitante,
-                fechaRegistro,
-                equipo,
-                problema,
-                telefonoResponsableEgreso,
-                gestion,
-                telefonoSolicitante,
-                tecnicoAsignado,
-                observaciones,
-                tipoResponsableEgreso,
-                estado,
-                tipoSolicitante,
-                fechaTerminado,
-                oficinaResponsableEgreso,
-                numero,
-                fechaInicio,
-                fechaEgreso,
-                ciSolicitante,
-                nombreSolicitante,
-                tipo,
-                tecnicoRegistro,
-                tecnicoEgreso,
-                ciResponsableEgreso
-            } = req.body;
-            const gestionInt = parseInt(gestion, 10);
-            const tecnicoAsignadoInt = parseInt(tecnicoAsignado, 10);
-            const id = req.params.servicios_id;
+            // Obtener el servicio actual de la base de datos
+            const currentService = await Service.findByPk(req.params.servicios_id);
+            
+            // Función auxiliar para limpiar campos de texto
+            const cleanField = (value, key) => {
+                if (value === null || value === undefined) return value;
+                if (typeof value !== 'string') return value;
+                
+                // Si el campo solo tiene espacios, mantener un espacio
+                if (value.trim() === '') return ' ';
+                
+                // Si no, eliminar espacios al inicio y final
+                return value.trim();
+            };
 
-            console.log("id ", id);
+            // Limpia todos los campos del body
+            const cleanedBody = Object.keys(req.body).reduce((acc, key) => {
+                // Para el campo tipo, usar siempre tiposId
+                if (key === 'tipo') {
+                    acc[key] = req.body.tiposId;
+                } else {
+                    acc[key] = cleanField(req.body[key], key);
+                }
+                return acc;
+            }, {});
 
-            // Convertir NaN o undefined a null para tecnicoAsignado
-            const tecnicoAsignadoValue = isNaN(tecnicoAsignado) || tecnicoAsignado === undefined ? 
-                null : tecnicoAsignado;
+            // Si no hay tiposId, mantener el valor actual
+            if (!cleanedBody.tipo) {
+                cleanedBody.tipo = currentService.tipo;
+            }
 
-            // Actualiza el servicio en la base de datos
-            await serviceService.update({
-                servicios_id: id,
-                nombreResponsableEgreso,
-                cargoSolicitante,
-                informe,
-                cargoResponsableEgreso,
-                oficinaSolicitante,
-                fechaRegistro,
-                equipo,
-                problema,
-                telefonoResponsableEgreso,
-                gestion: gestionInt,
-                telefonoSolicitante,
-                tecnicoAsignado: tecnicoAsignadoValue,
-                observaciones,
-                tipoResponsableEgreso,
-                estado,
-                tipoSolicitante,
-                fechaTerminado,
-                oficinaResponsableEgreso,
-                numero,
-                fechaInicio,
-                fechaEgreso,
-                ciSolicitante,
-                nombreSolicitante,
-                tipo,
-                tecnicoRegistro,
-                tecnicoEgreso,
-                ciResponsableEgreso
-            }, id);
+            console.log('tiposId a guardar:', cleanedBody.tipo);
 
-            // Crea un nuevo DTO con los datos actualizados del servicio
-            const updatedService = new ServiceDTO(
-                id,
-                nombreResponsableEgreso,
-                cargoSolicitante,
-                informe,
-                cargoResponsableEgreso,
-                oficinaSolicitante,
-                fechaRegistro,
-                equipo,
-                problema,
-                telefonoResponsableEgreso,
-                gestionInt,
-                telefonoSolicitante,
-                tecnicoAsignadoValue,
-                observaciones,
-                tipoResponsableEgreso,
-                estado,
-                tipoSolicitante,
-                fechaTerminado,
-                oficinaResponsableEgreso,
-                numero,
-                fechaInicio,
-                fechaEgreso,
-                ciSolicitante,
-                nombreSolicitante,
-                tipo,
-                tecnicoRegistro,
-                tecnicoEgreso,
-                ciResponsableEgreso
+            // Actualiza el servicio con los datos limpios
+            const updatedService = await serviceService.update(
+                req.params.servicios_id,
+                cleanedBody
             );
 
-            // Retorna una respuesta exitosa en formato JSON indicando que el servicio ha sido actualizado
             return jsonResponse.successResponse(
                 res,
                 200,
@@ -341,7 +275,7 @@ class ServiceController {
                 updatedService
             );
         } catch (error) {
-            // Si hay un error de validación de Joi, retorna una respuesta de validación
+            console.error('Error en la actualización:', error);
             return Joi.isError(error) ? jsonResponse.validationResponse(
                 res,
                 409,

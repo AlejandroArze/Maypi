@@ -11,6 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
     selector     : 'auth-sign-in',
@@ -28,8 +29,9 @@ export class AuthSignInComponent implements OnInit
         type   : 'success',
         message: '',
     };
-    signInForm: UntypedFormGroup;
+    signInForm: FormGroup;
     showAlert: boolean = false;
+    isLoading: boolean = false;
 
     /**
      * Constructor
@@ -37,10 +39,15 @@ export class AuthSignInComponent implements OnInit
     constructor(
         private _activatedRoute: ActivatedRoute,
         private _authService: AuthService,
-        private _formBuilder: UntypedFormBuilder,
+        private _formBuilder: FormBuilder,
         private _router: Router,
     )
     {
+        // Crear el formulario sin valores iniciales
+        this.signInForm = this._formBuilder.group({
+            email   : ['', [Validators.required, Validators.email]],
+            password: ['', Validators.required]
+        });
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -52,11 +59,6 @@ export class AuthSignInComponent implements OnInit
      */
     ngOnInit(): void
     {
-        // Create the form hughes.brian@company.com
-        this.signInForm = this._formBuilder.group({
-            email     : ['Alex@cochabamba.bo', [Validators.required, Validators.email]],
-            password  : ['admin', Validators.required],
-        });
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -93,10 +95,11 @@ export class AuthSignInComponent implements OnInit
                     // routing file and we don't have to touch here.
                     localStorage.setItem('token', response.token); 
                     const redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
-
+                    
+                    
                     // Navigate to the redirect url
-                    this._router.navigateByUrl(redirectURL);
-
+                   // this._router.navigateByUrl(redirectURL);
+                    this._router.navigate(['/apps/help-center']);
                 },
                 (response) =>
                 {

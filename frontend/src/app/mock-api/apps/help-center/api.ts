@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import { FuseMockApiService } from '@fuse/lib/mock-api';
-import { faqCategories as faqCategoriesData, faqs as faqsData, guideCategories as guideCategoriesData, guideContent as guideContentData, guides as guidesData } from 'app/mock-api/apps/help-center/data';
+import { faqCategories, faqs, guideCategories, guides } from 'app/mock-api/apps/help-center/data';
 import { cloneDeep } from 'lodash-es';
 
 @Injectable({providedIn: 'root'})
 export class HelpCenterMockApi
 {
-    private _faqCategories: any[] = faqCategoriesData;
-    private _faqs: any[] = faqsData;
-    private _guideCategories: any[] = guideCategoriesData;
-    private _guides: any[] = guidesData;
-    private _guideContent: string = guideContentData;
+    private _faqCategories: any[] = faqCategories;
+    private _faqs: any[] = faqs;
+    private _guideCategories: any[] = guideCategories;
+    private _guides: any[] = guides;
 
     /**
      * Constructor
@@ -40,45 +39,22 @@ export class HelpCenterMockApi
                 // Get the category slug
                 const slug = request.params.get('slug');
 
-                // Prepare the results
-                const results = [];
-
-                // Get FAQs
+                // Clone the faq categories and faqs
+                const categories = cloneDeep(this._faqCategories);
                 const faqs = cloneDeep(this._faqs);
 
-                // Get FAQ Categories
-                const categories = cloneDeep(this._faqCategories);
+                // Prepare the results
+                const results = categories.map(category => ({
+                    ...category,
+                    faqs: faqs.filter(faq => faq.categoryId === category.id)
+                }));
 
-                // If slug is not provided...
-                if ( !slug )
-                {
-                    // Go through each category and set the results
-                    categories.forEach((category) =>
-                    {
-                        results.push(
-                            {
-                                ...category,
-                                faqs: faqs.filter(faq => faq.categoryId === category.id),
-                            },
-                        );
-                    });
-                }
-                // Otherwise...
-                else
-                {
-                    // Find the category by the slug
-                    const category = categories.find(item => item.slug === slug);
-
-                    // Set the results
-                    results.push(
-                        {
-                            ...category,
-                            faqs: faqs.filter(faq => faq.categoryId === category.id),
-                        },
-                    );
+                // If slug is provided, filter results
+                if (slug) {
+                    return [200, results.filter(category => category.slug === slug)];
                 }
 
-                // Return the response
+                // Return all results
                 return [200, results];
             });
 
@@ -91,52 +67,29 @@ export class HelpCenterMockApi
             {
                 // Get the slug & limit
                 const slug = request.params.get('slug');
-                const limit = request.params.get('limit');
+                const limit = parseInt(request.params.get('limit') || '5', 10);
 
-                // Prepare the results
-                const results = [];
-
-                // Get all Guides
+                // Clone the guide categories and guides
+                const categories = cloneDeep(this._guideCategories);
                 const guides = cloneDeep(this._guides);
 
-                // Get Guide categories
-                const categories = cloneDeep(this._guideCategories);
+                // Prepare the results
+                const results = categories.map(category => {
+                    const categoryGuides = guides.filter(guide => guide.categoryId === category.id);
+                    return {
+                        ...category,
+                        guides: slug ? categoryGuides : categoryGuides.slice(0, limit),
+                        totalGuides: categoryGuides.length,
+                        visibleGuides: slug ? categoryGuides.length : limit
+                    };
+                });
 
-                // If slug is not provided...
-                if ( !slug )
-                {
-                    // Parse the limit as an integer
-                    const limitNum = parseInt(limit ?? '5', 10);
-
-                    // Go through each category and set the results
-                    categories.forEach((category) =>
-                    {
-                        results.push(
-                            {
-                                ...category,
-                                visibleGuides: limitNum,
-                                totalGuides  : guides.filter(guide => guide.categoryId === category.id).length,
-                                guides       : guides.filter(guide => guide.categoryId === category.id).slice(0, limitNum),
-                            },
-                        );
-                    });
-                }
-                // Otherwise...
-                else
-                {
-                    // Find the category by the slug
-                    const category = categories.find(item => item.slug === slug);
-
-                    // Set the results
-                    results.push(
-                        {
-                            ...category,
-                            guides: guides.filter(guide => guide.categoryId === category.id),
-                        },
-                    );
+                // If slug is provided, filter results
+                if (slug) {
+                    return [200, results.filter(category => category.slug === slug)];
                 }
 
-                // Return the response
+                // Return all results
                 return [200, results];
             });
 
@@ -151,21 +104,19 @@ export class HelpCenterMockApi
                 const categorySlug = request.params.get('categorySlug');
                 const guideSlug = request.params.get('guideSlug');
 
-                // Get all Guides and Guide Categories
-                const guides = cloneDeep(this._guides);
+                // Clone the guide categories and guides
                 const categories = cloneDeep(this._guideCategories);
+                const guides = cloneDeep(this._guides);
 
-                // Prepare the result
-                const result = {
-                    ...categories.find(category => category.slug === categorySlug),
-                    guides: [guides.find(guide => guide.slug === guideSlug)],
-                };
-
-                // Add the content to the guide
-                result.guides[0]['content'] = this._guideContent;
+                // Find the category and guide
+                const category = categories.find(item => item.slug === categorySlug);
+                const guide = guides.find(item => item.categoryId === category?.id && item.slug === guideSlug);
 
                 // Return the response
-                return [200, result];
+                return [200, {
+                    ...category,
+                    guides: guide ? [guide] : []
+                }];
             });
     }
 }

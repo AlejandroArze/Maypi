@@ -810,23 +810,32 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         });
     }
     updateSelectedEquipment(): void {
-        const equipment = this.selectedEquipmentForm.getRawValue(); // Obtener los valores del formulario
-    
-        // Reemplaza el campo `tipo` con `tiposId` al enviar al servidor
-        if (this.selectedEquipmentForm.controls['tiposId']?.value) {
-            equipment.tipo = this.selectedEquipmentForm.controls['tiposId'].value; // Usa el ID en lugar del texto
+        if (this.selectedEquipmentForm) {
+            const equipment = this.selectedEquipmentForm.getRawValue();
+            
+            // Asegurarse de que el tipo se envíe correctamente
+            if (this.selectedEquipmentForm.get('tiposId')?.value) {
+                equipment.tipo = this.selectedEquipmentForm.get('tiposId').value;
+                equipment.tiposId = this.selectedEquipmentForm.get('tiposId').value;
+            } else if (this.selectedEquipment?.tipo) {
+                // Mantener el valor existente si no se ha cambiado
+                equipment.tipo = this.selectedEquipment.tipo;
+                equipment.tiposId = this.selectedEquipment.tipo;
+            }
+
+            console.log('Datos a enviar:', equipment);
+
+            this._inventoryService.updateEquipment(this.selectedEquipment.equipos_id, equipment)
+                .subscribe({
+                    next: () => {
+                        this.showFlashMessage('success');
+                    },
+                    error: (error) => {
+                        console.error('Error al actualizar:', error);
+                        this.showFlashMessage('error');
+                    }
+                });
         }
-    
-        delete equipment.currentImageIndex; // Eliminar el índice de imagen actual, ya que no es necesario para el servidor
-    
-        console.log('Datos a actualizar:', equipment); // Debug para verificar los datos
-    
-        this._inventoryService.updateEquipment(this.selectedEquipment.equipos_id, equipment).subscribe(() => {
-            this.showFlashMessage('success'); // Mostrar mensaje de éxito
-        }, (error) => {
-            console.error('Error al actualizar el equipo:', error);
-            this.showFlashMessage('error'); // Mostrar mensaje de error
-        });
     }
     
     /**
@@ -1039,12 +1048,19 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         }
             */
         selectTipo(tipo: { descripcion: string; tipos_id: number }): void {
-            // Establece la descripción visible en el formulario
-            this.selectedEquipmentForm.controls['tipo'].setValue(tipo.descripcion);
-        
-            // Guarda el `tipos_id` asociado al tipo seleccionado
-            this.selectedEquipmentForm.controls['tiposId'].setValue(tipo.tipos_id);
-        
+            if (this.selectedEquipmentForm) {
+                // Establecer tanto el valor visible como el ID
+                this.selectedEquipmentForm.patchValue({
+                    tipo: tipo.descripcion,
+                    tiposId: tipo.tipos_id
+                });
+                
+                console.log('Tipo seleccionado:', {
+                    descripcion: tipo.descripcion,
+                    id: tipo.tipos_id,
+                    formValues: this.selectedEquipmentForm.value
+                });
+            }
             this.showDropdown = false;
             this.cd.detectChanges();
         }

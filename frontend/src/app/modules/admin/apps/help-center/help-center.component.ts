@@ -1,4 +1,4 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,11 +14,24 @@ import { Subject, takeUntil } from 'rxjs';
     templateUrl  : './help-center.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [MatFormFieldModule, MatInputModule, MatIconModule, RouterLink, MatExpansionModule, NgFor],
+    imports      : [
+        MatFormFieldModule, 
+        MatInputModule, 
+        MatIconModule, 
+        RouterLink, 
+        MatExpansionModule, 
+        NgFor,
+        NgIf
+    ],
 })
 export class HelpCenterComponent implements OnInit, OnDestroy
 {
-    faqCategory: FaqCategory;
+    faqCategory: FaqCategory = {
+        id: '',
+        slug: '',
+        title: '',
+        faqs: []
+    };
     private _unsubscribeAll: Subject<any> = new Subject();
 
     /**
@@ -37,12 +50,16 @@ export class HelpCenterComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
-        // Get the FAQs
+        // Cargar las FAQs inicialmente
+        this._helpCenterService.getAllFaqs().subscribe();
+
+        // Suscribirse a los cambios
         this._helpCenterService.faqs$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((faqCategories) =>
-            {
-                this.faqCategory = faqCategories[0];
+            .subscribe((faqCategories) => {
+                if (faqCategories && faqCategories.length > 0) {
+                    this.faqCategory = faqCategories[0];
+                }
             });
     }
 

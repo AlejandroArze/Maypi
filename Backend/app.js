@@ -1,5 +1,6 @@
 // Carga las variables de entorno desde el archivo .env (si existe)
 require('dotenv').config();
+const axios = require('axios');
 const { sequelize } = require('./models'); // O el archivo donde configuras la conexión
 const cors = require('cors');
 const express = require('express');

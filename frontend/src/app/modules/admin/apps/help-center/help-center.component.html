@@ -95,13 +95,15 @@
         <div class="mt-24 text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight text-center">Preguntas más frecuentes</div>
         <div class="mt-2 text-xl text-center text-secondary">Aquí están las preguntas más frecuentes que puedes consultar antes de empezar</div>
         <mat-accordion class="max-w-4xl mt-12">
-            <ng-container *ngFor="let faq of faqCategory.faqs; trackBy: trackByFn">
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header [collapsedHeight]="'56px'">
-                        <mat-panel-title>{{faq.question}}</mat-panel-title>
-                    </mat-expansion-panel-header>
-                    {{faq.answer}}
-                </mat-expansion-panel>
+            <ng-container *ngIf="faqCategory?.faqs?.length > 0">
+                <ng-container *ngFor="let faq of faqCategory.faqs; trackBy: trackByFn">
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header [collapsedHeight]="'56px'">
+                            <mat-panel-title>{{faq.question}}</mat-panel-title>
+                        </mat-expansion-panel-header>
+                        {{faq.answer}}
+                    </mat-expansion-panel>
+                </ng-container>
             </ng-container>
         </mat-accordion>
     </div>

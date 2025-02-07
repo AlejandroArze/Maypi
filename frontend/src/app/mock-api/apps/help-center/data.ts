@@ -1,434 +1,438 @@
 /* eslint-disable */
 export const faqCategories = [
+    
     {
-        id   : '28924eab-97cc-465a-ba21-f232bb95843f',
-        slug : 'most-asked',
-        title: 'Most asked',
+        id   : '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        slug : 'problemas-equipos-computo',
+        title: 'Problemas con Equipos de Cómputo',
     },
     {
-        id   : '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        slug : 'general-inquiries',
-        title: 'General inquiries',
+        id   : '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        slug : 'conectividad-redes',
+        title: 'Conectividad y Redes',
     },
     {
-        id   : 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        slug : 'licenses',
-        title: 'Licenses',
+        id   : '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        slug : 'correo-electronico-accesos',
+        title: 'Correo Electrónico y Accesos',
     },
     {
-        id   : '71c34043-d89d-4aca-951d-8606c3943c43',
-        slug : 'payments',
-        title: 'Payments',
+        id   : '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        slug : 'sistemas-aplicaciones-internas',
+        title: 'Sistemas y Aplicaciones Internas',
     },
     {
-        id   : 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        slug : 'support',
-        title: 'Support',
+        id   : '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        slug : 'mantenimiento-seguridad-informatica',
+        title: 'Mantenimiento y Seguridad Informática',
+    },
+    {
+        id   : '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        slug : 'gestion-equipos',
+        title: 'Gestión de Equipos',
     },
 ];
 export const faqs = [
-    // Most asked
+    // Problemas con Equipos de Cómputo
     {
         id        : 'f65d517a-6f69-4c88-81f5-416f47405ce1',
-        categoryId: '28924eab-97cc-465a-ba21-f232bb95843f',
-        question  : 'Is there a 14-days trial?',
-        answer    : 'Magna consectetur culpa duis ad est tempor pariatur velit ullamco aute exercitation magna sunt commodo minim enim aliquip eiusmod ipsum adipisicing magna ipsum reprehenderit lorem magna voluptate magna aliqua culpa.\n\nSit nisi adipisicing pariatur enim enim sunt officia ad labore voluptate magna proident velit excepteur pariatur cillum sit excepteur elit veniam excepteur minim nisi cupidatat proident dolore irure veniam mollit.',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Qué hago si mi computadora no enciende?',
+        answer    : 'Verifica que el cable de alimentación esté bien conectado. Si la computadora sigue sin encender, intenta probar con otro enchufe o fuente de energía. Si el problema persiste, comunícate con el soporte técnico.'
     },
     {
         id        : '0fcece82-1691-4b98-a9b9-b63218f9deef',
-        categoryId: '28924eab-97cc-465a-ba21-f232bb95843f',
-        question  : 'What’s the benefits of the Premium Membership?',
-        answer    : 'Et in lorem qui ipsum deserunt duis exercitation lorem elit qui qui ipsum tempor nulla velit aliquip enim consequat incididunt pariatur duis excepteur elit irure nulla ipsum dolor dolore est.\n\nAute deserunt nostrud id non ipsum do adipisicing laboris in minim officia magna elit minim mollit elit velit veniam lorem pariatur veniam sit excepteur irure commodo excepteur duis quis in.',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Cómo solucionar un sistema operativo lento o que se congela?',
+        answer    : 'Reinicia el equipo y cierra las aplicaciones que no estés utilizando. Asegúrate de que el disco duro no esté lleno y revisa si hay actualizaciones pendientes del sistema. Si el problema continúa, reporta el caso a soporte técnico.'
     },
     {
         id        : '2e6971cd-49d5-49f1-8cbd-fba5c71e6062',
-        categoryId: '28924eab-97cc-465a-ba21-f232bb95843f',
-        question  : 'How much time I will need to learn this app?',
-        answer    : 'Id fugiat et cupidatat magna nulla nulla eu cillum officia nostrud dolore in veniam ullamco nulla ex duis est enim nisi aute ipsum velit et laboris est pariatur est culpa.\n\nCulpa sunt ipsum esse quis excepteur enim culpa est voluptate reprehenderit consequat duis officia irure voluptate veniam dolore fugiat dolor est amet nostrud non velit irure do voluptate id sit.',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Por qué mi impresora no responde o no imprime correctamente?',
+        answer    : 'Verifica que la impresora esté encendida y conectada correctamente. Asegúrate de que el papel y la tinta/tóner sean los adecuados. Si sigue sin funcionar, intenta reinstalar los controladores o contacta a soporte.'
     },
     {
         id        : '974f93b8-336f-4eec-b011-9ddb412ee828',
-        categoryId: '28924eab-97cc-465a-ba21-f232bb95843f',
-        question  : 'Are there any free tutorials available?',
-        answer    : 'Excepteur deserunt tempor do lorem elit id magna pariatur irure ullamco elit dolor consectetur ad officia fugiat incididunt do elit aute esse eu voluptate adipisicing incididunt ea dolor aliqua dolor.\n\nConsequat est quis deserunt voluptate ipsum incididunt laboris occaecat irure laborum voluptate non sit labore voluptate sunt id sint ut laboris aute cupidatat occaecat eiusmod non magna aliquip deserunt nisi.',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Cómo solicitar la instalación de un software autorizado?',
+        answer    : 'Debes enviar una solicitud formal al área de soporte técnico indicando el software requerido y la justificación. Solo se instalarán programas autorizados y compatibles con la infraestructura de la Alcaldía.'
     },
     {
         id        : '5d877fc7-b881-4527-a6aa-d39d642feb23',
-        categoryId: '28924eab-97cc-465a-ba21-f232bb95843f',
-        question  : 'Is there a month-to-month payment option?',
-        answer    : 'Labore mollit in aliqua exercitation aliquip elit nisi nisi voluptate reprehenderit et dolor incididunt cupidatat ullamco nulla consequat voluptate adipisicing dolor qui magna sint aute do excepteur in aliqua consectetur.\n\nElit laborum non duis irure ad ullamco aliqua enim exercitation quis fugiat aute esse esse magna et ad cupidatat voluptate sint nulla nulla lorem et enim deserunt proident deserunt consectetur.',
-    },
-    // General inquiries
-    {
-        id        : '3d1c26c5-1e5e-4eb6-8006-ed6037ed9aca',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'How to download your items',
-        answer    : 'Sunt mollit irure dolor aliquip sit veniam amet ut sunt dolore cillum sint pariatur qui irure proident velit non excepteur quis ut et quis velit aliqua ea sunt cillum sit.\n\nReprehenderit est culpa ut incididunt sit dolore mollit in occaecat velit culpa consequat reprehenderit ex lorem cupidatat proident reprehenderit ad eu sunt sit ut sit culpa ea reprehenderit aliquip est.',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Qué hacer si mi equipo se apaga inesperadamente?',
+        answer    : 'Podría ser un problema de sobrecalentamiento o energía. Verifica si los ventiladores están funcionando y limpia las salidas de aire. Si el problema persiste, informa a soporte para una revisión.'
     },
     {
-        id        : '11bd2b9a-85b4-41c9-832c-bd600dfa3a52',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'View and download invoices',
-        answer    : 'Sint mollit consectetur voluptate fugiat sunt ipsum adipisicing labore exercitation eiusmod enim excepteur enim proident velit sint magna commodo dolor ex ipsum sit nisi deserunt labore eu irure amet ea.\n\nOccaecat ut velit et sint pariatur laboris voluptate duis aliqua aliqua exercitation et duis duis eu laboris excepteur occaecat quis esse enim ex dolore commodo fugiat excepteur adipisicing in fugiat.',
+        id        : 'aa1f0f4d-6c9e-4f54-b391-f37f8d1e4d8a',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Cómo reportar un daño físico en mi equipo?',
+        answer    : 'Debes notificarlo de inmediato al área de soporte con una descripción del daño y, si es posible, fotos del problema. Dependiendo del caso, se determinará si procede una reparación o reposición.'
     },
     {
-        id        : 'f55c023a-785e-4f0f-b5b7-47da75224deb',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'I\'ve forgotten my username or password',
-        answer    : 'In exercitation sunt ad anim commodo sunt do in sunt est officia amet ex ullamco do nisi consectetur lorem proident lorem adipisicing incididunt consequat fugiat voluptate sint est anim officia.\n\nVelit sint aliquip elit culpa amet eu mollit veniam esse deserunt ex occaecat quis lorem minim occaecat culpa esse veniam enim duis excepteur ipsum esse ut ut velit cillum adipisicing.',
+        id        : 'bb2e1f5d-7d0f-5e65-c402-g48g9e2e5e9b',
+        categoryId: '1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6',
+        question  : '¿Cómo solicitar un equipo nuevo o el reemplazo de uno dañado?',
+        answer    : 'La solicitud debe realizarse a través de los canales oficiales de la Alcaldía. Es posible que se requiera la aprobación de un supervisor y la justificación del reemplazo.'
+    },
+    // Conectividad y Redes
+    {
+        id        : 'cc3f2f6d-8e1f-6f76-d513-h59h0f3f6f0c',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Cómo restablecer la conexión a internet en mi oficina?',
+        answer    : 'Revisa si otros dispositivos también tienen problemas. Si solo tu computadora está afectada, reinicia el equipo y verifica la conexión Wi-Fi o por cable. Si el problema continúa, contacta a soporte.'
     },
     {
-        id        : 'c577a67d-357a-4b88-96e8-a0ee1fe9162e',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'Where is my license code?',
-        answer    : 'Ad adipisicing duis consequat magna sunt consequat aliqua eiusmod qui et nostrud voluptate sit enim reprehenderit anim exercitation ipsum ipsum anim ipsum laboris aliqua ex lorem aute officia voluptate culpa.\n\nNostrud anim ex pariatur ipsum et nostrud esse veniam ipsum ipsum irure velit ad quis irure tempor nulla amet aute id esse reprehenderit ea consequat consequat ea minim magna magna.',
+        id        : 'dd4g3g7d-9f2g-7g87-e624-i60i1g4g7g1d',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Qué hacer si no puedo acceder a la red interna de la Alcaldía?',
+        answer    : 'Solicita una ip interna valida, y asegúrate de estar dentro de la red autorizada. Si el acceso sigue fallando, prueba reiniciar tu sesión o verifica que no haya bloqueos de seguridad en tu cuenta.'
     },
     {
-        id        : '1a680c29-7ece-4a80-9709-277ad4da8b4b',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'How to contact an author',
-        answer    : 'Magna laborum et amet magna fugiat officia deserunt in exercitation aliquip nulla magna velit ea labore quis deserunt ipsum occaecat id id consequat non eiusmod mollit est voluptate ea ex.\n\nReprehenderit mollit ut excepteur minim veniam fugiat enim id pariatur amet elit nostrud occaecat pariatur et esse aliquip irure quis officia reprehenderit voluptate voluptate est et voluptate sint esse dolor.',
+        id        : 'ee5h4h8d-0g3h-8h98-f735-j71j2h5h8h2e',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Cómo cambiar mi contraseña de acceso a la red?',
+        answer    : 'Puedes cambiarla desde el portal de acceso interno o solicitando ayuda a soporte técnico. Se recomienda usar una contraseña segura y no compartirla con nadie.'
     },
     {
-        id        : 'c49c2216-8bdb-4df0-be25-d5ea1dbb5688',
-        categoryId: '395b0d41-b9a8-4cd6-8b5c-f07855e82d62',
-        question  : 'How does the affiliate program work?',
-        answer    : 'Adipisicing laboris ipsum fugiat et cupidatat aute esse ad labore et est cillum ipsum sunt duis do veniam minim officia deserunt in eiusmod eu duis dolore excepteur consectetur id elit.\n\nAnim excepteur occaecat laborum sunt in elit quis sit duis adipisicing laboris anim laborum et pariatur elit qui consectetur laborum reprehenderit occaecat nostrud pariatur aliqua elit nisi commodo eu excepteur.',
-    },
-    // Licenses
-    {
-        id        : '3ef176fa-6cba-4536-9f43-540c686a4faa',
-        categoryId: 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        question  : 'How do licenses work for items I bought?',
-        answer    : 'Culpa duis nostrud qui velit sint magna officia fugiat ipsum eiusmod enim laborum pariatur anim culpa elit ipsum lorem pariatur exercitation laborum do labore cillum exercitation nisi reprehenderit exercitation quis.\n\nMollit aute dolor non elit et incididunt eiusmod non in commodo occaecat id in excepteur aliqua ea anim pariatur sint elit voluptate dolor eu non laborum laboris voluptate qui duis.',
+        id        : 'ff6i5i9d-1h4i-9i09-g846-k82k3i6i9i3f',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿A quién contactar si hay problemas con el servidor o VPN?',
+        answer    : 'Los problemas relacionados con servidores y VPN deben ser reportados directamente al área de soporte de TI de la Alcaldía para su análisis y solución.'
     },
     {
-        id        : '7bc6b7b4-7ad8-4cbe-af36-7301642d35fb',
-        categoryId: 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        question  : 'Do licenses have an expiry date?',
-        answer    : 'Ea proident dolor tempor dolore incididunt velit incididunt ullamco quis proident consectetur magna excepteur cillum officia ex do aliqua reprehenderit est esse officia labore dolore aute laboris eu commodo aute.\n\nOfficia quis id ipsum adipisicing ipsum eu exercitation cillum ex elit pariatur adipisicing ullamco ullamco nulla dolore magna aliqua reprehenderit eu laborum voluptate reprehenderit non eiusmod deserunt velit magna do.',
+        id        : 'gg7j6j0d-2i5j-0j10-h957-l93l4j7j0j4g',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Por qué mi conexión a internet es lenta?',
+        answer    : 'Puede deberse a una saturación en la red. Intenta cerrar aplicaciones que consuman ancho de banda y verifica si otros usuarios tienen el mismo problema. Si la lentitud persiste, informa a soporte.'
     },
     {
-        id        : '56c9ed66-a1d2-4803-a160-fba29b826cb4',
-        categoryId: 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        question  : 'I want to make multiple end products with the same item',
-        answer    : 'Elit cillum incididunt enim cupidatat ex elit cillum aute dolor consectetur proident non minim eu est deserunt proident mollit ullamco laborum anim ea labore anim ex enim ullamco consectetur enim.\n\nEx magna consectetur esse enim consequat non aliqua nulla labore mollit sit quis ex fugiat commodo eu cupidatat irure incididunt consequat enim ut deserunt consequat elit consequat sint adipisicing sunt.',
+        id        : 'hh8k7k1d-3j6k-1k21-i068-m04m5k8k1k5h',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Cómo conectar mi equipo a una impresora en red?',
+        answer    : 'Solicita a soporte técnico la configuración de la impresora en tu equipo. Es posible que necesites permisos administrativos para agregar la impresora a la red.'
     },
     {
-        id        : '21c1b662-33c8-44d7-9530-91896afeeac7',
-        categoryId: 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        question  : 'How easy is it to change the license type?',
-        answer    : 'Duis culpa ut veniam voluptate consequat proident magna eiusmod id est magna culpa nulla enim culpa mollit velit lorem mollit ut minim dolore in tempor reprehenderit cillum occaecat proident ea.\n\nVeniam fugiat ea duis qui et eu eiusmod voluptate id cillum eiusmod eu reprehenderit minim reprehenderit nisi cillum nostrud duis eu magna minim sunt voluptate eu pariatur nulla ullamco elit.',
+        id        : 'ii9l8l2d-4k7l-2l32-j179-n15n6l9l2l6i',
+        categoryId: '2a3b4c5d-6e7f-8g9h-0i1j-k2l3m4n5o6p7',
+        question  : '¿Qué hacer si mi conexión Wi-Fi se desconecta constantemente?',
+        answer    : 'Verifica que la señal sea estable y que no haya interferencias. Si el problema persiste, prueba cambiar de punto de acceso o conéctate por cable.'
+    },
+    // Correo Electrónico y Accesos
+    {
+        id        : 'jj0m9m3d-5l8m-3m43-k280-o26o7m0m3m7j',
+        categoryId: '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        question  : '¿Cómo recuperar mi contraseña de correo o sistema interno?',
+        answer    : 'Debes contactar a soporte técnico y proporcionar la información necesaria para la verificación de identidad.'
     },
     {
-        id        : '5fa52c90-82be-41ae-96ec-5fc67cf054a4',
-        categoryId: 'b388a87f-bfbb-44d0-800c-0ddbce2a5d22',
-        question  : 'Do I need a Regular License or an Extended License?',
-        answer    : 'Mollit nostrud ea irure ex ipsum in cupidatat irure sit officia reprehenderit adipisicing et occaecat cupidatat exercitation mollit esse in excepteur qui elit exercitation velit fugiat exercitation est officia excepteur.\n\nQuis esse voluptate laborum non veniam duis est fugiat tempor culpa minim velit minim ut duis qui officia consectetur ex nostrud ut elit elit nulla in consectetur voluptate aliqua aliqua.',
-    },
-    // Payments
-    {
-        id        : '81ac908c-35a2-4705-8d75-539863c35c09',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'Common PayPal, Skrill, and credit card issues',
-        answer    : 'Sit occaecat sint nulla in esse dolor occaecat in ea sit irure magna magna veniam fugiat consequat exercitation ipsum ex officia velit consectetur consequat voluptate lorem eu proident lorem incididunt.\n\nExcepteur exercitation et qui labore nisi eu voluptate ipsum deserunt deserunt eu est minim dolor ad proident nulla reprehenderit culpa minim voluptate dolor nostrud dolor anim labore aliqua officia nostrud.',
+        id        : 'kk1n0n4d-6m9n-4n54-l391-p37p8n1n4n8k',
+        categoryId: '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        question  : '¿Cómo configurar el correo institucional en mi dispositivo móvil?',
+        answer    : 'Puedes hacerlo a través de las configuraciones de correo del dispositivo, utilizando los datos de servidor SMTP y POP/IMAP proporcionados por soporte técnico.'
     },
     {
-        id        : 'b6d8909f-f36d-4885-8848-46b8230d4476',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'How do I find my transaction ID?',
-        answer    : 'Laboris ea nisi commodo nulla cillum consequat consectetur nisi velit adipisicing minim nulla culpa amet quis sit duis id id aliqua aute exercitation non reprehenderit aliquip enim eiusmod eu irure.\n\nNon irure consectetur sunt cillum do adipisicing excepteur labore proident ut officia dolor fugiat velit sint consectetur cillum qui amet enim anim mollit laboris consectetur non do laboris lorem aliqua.',
+        id        : 'll2o1o5d-7n0o-5o65-m402-q48q9o2o5o9l',
+        categoryId: '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        question  : '¿Cómo reportar correos sospechosos o de phishing?',
+        answer    : 'No abras ni descargues archivos de correos sospechosos. Reenvíalos a soporte para su análisis.'
     },
     {
-        id        : '9496235d-4d0c-430b-817e-1cba96404f95',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'PayPal disputes And chargebacks',
-        answer    : 'Ullamco eiusmod do pariatur pariatur consectetur commodo proident ex voluptate ullamco culpa commodo deserunt pariatur incididunt nisi magna dolor est minim eu ex voluptate deserunt labore id magna excepteur et.\n\nReprehenderit dolore pariatur exercitation ad non fugiat quis proident fugiat incididunt ea magna pariatur et exercitation tempor cillum eu consequat adipisicing est laborum sit cillum ea fugiat mollit cupidatat est.',
+        id        : 'mm3p2p6d-8o1p-6p76-n513-r59r0p3p6p0m',
+        categoryId: '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        question  : '¿Puedo acceder a mi correo desde fuera de la Alcaldía?',
+        answer    : 'Sí, si el acceso externo está habilitado. Si tienes problemas, verifica con soporte si necesitas una VPN o configuración especial.'
     },
     {
-        id        : '7fde17e6-4ac1-47dd-a363-2f4f14dcf76a',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'Saving your credit card details',
-        answer    : 'Qui quis nulla excepteur voluptate elit culpa occaecat id ex do adipisicing est mollit id anim nisi irure amet officia ut sint aliquip dolore labore cupidatat magna laborum esse ea.\n\nEnim magna duis sit incididunt amet anim et nostrud laborum eiusmod et ea fugiat aliquip velit sit fugiat consectetur ipsum anim do enim excepteur cupidatat consequat sunt irure tempor ut.',
+        id        : 'nn4q3q7d-9p2q-7q87-o624-s60s1q4q7q1n',
+        categoryId: '3a4b5c6d-7e8f-9g0h-1i2j-k3l4m5n6o7p8',
+        question  : '¿Cómo agregar una firma institucional en el correo?',
+        answer    : 'Puedes configurarla en la sección de firma dentro de la configuración del correo electrónico. Para obtener la firma oficial, consulta con el área de comunicaciones.'
+    },
+    // Sistemas y Aplicaciones Internas
+    
+    {
+        id        : 'oo5r4r8d-0q3r-8r98-p735-t71t2r5r8r2o',
+        categoryId: '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        question  : '¿Cómo realizar respaldos de información importante?',
+        answer    : 'Consulta con soporte sobre las políticas de respaldo. Se recomienda guardar archivos en servidores oficiales o en almacenamiento en la nube autorizado.'
     },
     {
-        id        : '90a3ed58-e13b-40cf-9219-f933bf9c9b8f',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'Why do prepaid credits expire?',
-        answer    : 'Consequat consectetur commodo deserunt sunt aliquip deserunt ex tempor esse nostrud sit dolore anim nostrud nulla dolore veniam minim laboris non dolor veniam lorem veniam deserunt laborum aute amet irure.\n\nEiusmod officia veniam reprehenderit ea aliquip velit anim aute minim aute nisi tempor qui sunt deserunt voluptate velit elit ut adipisicing ipsum et excepteur ipsum eu ullamco nisi esse dolor.',
+        id        : 'pp6s5s9d-1r4s-9s09-q846-u82u3s6s9s3p',
+        categoryId: '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        question  : '¿Cómo recuperar datos eliminados accidentalmente?',
+        answer    : 'Si los datos estaban en la red o en un servidor, es posible restaurarlos. Contacta a soporte técnico lo antes posible.'
     },
     {
-        id        : '153376ed-691f-4dfd-ae99-e204a49edc44',
-        categoryId: '71c34043-d89d-4aca-951d-8606c3943c43',
-        question  : 'Why is there a minimum $20 credit?',
-        answer    : 'Duis sint velit incididunt exercitation eiusmod nisi sunt ex est fugiat ad cupidatat sunt nisi elit do duis amet voluptate ipsum aliquip lorem aliqua sint esse in magna irure officia.\n\nNon eu ex elit ut est voluptate tempor amet ut officia in duis deserunt cillum labore do culpa id dolore magna anim consectetur qui consectetur fugiat labore mollit magna irure.',
-    },
-    // Support
-    {
-        id        : '4e7ce72f-863a-451f-9160-cbd4fbbc4c3d',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'What is item support?',
-        answer    : 'Exercitation sit eiusmod enim officia exercitation eiusmod sunt eiusmod excepteur ad commodo eiusmod qui proident quis aliquip excepteur sit cillum occaecat non dolore sit in labore ut duis esse duis.\n\nConsequat sunt voluptate consectetur dolor laborum enim nostrud deserunt incididunt sint veniam laboris sunt amet velit anim duis aliqua sunt aliqua aute qui nisi mollit qui irure ullamco aliquip laborum.',
+        id        : 'qq7t6t0d-2s5t-0t10-r957-v93v4t7t0t4q',
+        categoryId: '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        question  : '¿A quién reportar fallos en los sistemas internos?',
+        answer    : 'Debes reportarlos al área de TI mediante un ticket o correo electrónico especificando el problema.'
     },
     {
-        id        : '0795a74f-7a84-4edf-8d66-296cdef70003',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'How to contact an author',
-        answer    : 'Minim commodo cillum do id qui irure aliqua laboris excepteur laboris magna enim est lorem consectetur tempor laboris proident proident eu irure dolor eiusmod in officia lorem quis laborum ullamco.\n\nQui excepteur ex sit esse dolore deserunt ullamco occaecat laboris fugiat cupidatat excepteur laboris amet dolore enim velit ipsum velit sint cupidatat consectetur cupidatat deserunt sit eu do ullamco quis.',
+        id        : 'rr8u7u1d-3t6u-1u21-s068-w04w5u8u1u5r',
+        categoryId: '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        question  : '¿Cómo actualizar un sistema interno?',
+        answer    : 'Las actualizaciones son gestionadas por el área de TI. No instales software sin autorización.'
     },
     {
-        id        : '05532574-c102-4228-89a8-55fff32ec6fc',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'Extending and renewing item support',
-        answer    : 'Reprehenderit anim consectetur anim dolor magna consequat excepteur tempor enim duis magna proident ullamco aute voluptate elit laborum mollit labore id ex lorem est mollit do qui ex labore nulla.\n\nUt proident elit proident adipisicing elit fugiat ex ullamco dolore excepteur excepteur labore laborum sunt ipsum proident magna ex voluptate laborum voluptate sint proident eu reprehenderit non excepteur quis eiusmod.',
+        id        : 'ss9v8v2d-4u7v-2v32-t179-x15x6v9v2v6s',
+        categoryId: '4a5b6c7d-8e9f-0g1h-2i3j-k4l5m6n7o8p9',
+        question  : '¿Cómo solicitar capacitación sobre un sistema?',
+        answer    : 'Consulta con el área de soporte o recursos humanos sobre cursos o manuales disponibles.'
     },
     {
-        id        : 'b3917466-aa51-4293-9d5b-120b0ce6635c',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'Rating or review removal policy',
-        answer    : 'Ipsum officia mollit qui laboris sunt amet aliquip cupidatat minim non elit commodo eiusmod labore mollit pariatur aute reprehenderit ullamco occaecat enim pariatur aute amet occaecat incididunt irure ad ut.\n\nIncididunt cupidatat pariatur magna sint sit culpa ad cupidatat cillum exercitation consequat minim pariatur consectetur aliqua non adipisicing magna ad nulla ea do est nostrud eu aute id occaecat ut.',
+        id        : 'tt0w9w3d-5v8w-3w43-u280-y26y7w0w3w7t',
+        categoryId: '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        question  : '¿Qué hacer si sospecho que mi equipo tiene un virus?',
+        answer    : 'Desconéctalo de la red y reporta el problema a soporte.'
     },
     {
-        id        : '2f2fb472-24d4-4a00-aa80-d513fa6c059c',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'Purchasing supported and unsupported items',
-        answer    : 'Dolor cupidatat do qui in tempor dolor magna magna ut dolor est aute veniam consectetur enim sunt sunt duis magna magna aliquip id reprehenderit dolor in veniam ullamco incididunt occaecat.\n\nId duis pariatur anim cillum est sint non veniam voluptate deserunt anim nostrud duis voluptate occaecat elit ut veniam voluptate do qui est ad velit irure sint lorem ullamco aliqua.',
+        id        : 'uu1x0x4d-6w9x-4x54-v391-z37z8x1x4x8u',
+        categoryId: '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        question  : '¿Cómo reportar la pérdida o daño de un equipo?',
+        answer    : 'Debes informar inmediatamente a tu supervisor y al área de soporte técnico.'
     },
     {
-        id        : '2fffd148-7644-466d-8737-7dde88c54154',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'I haven\'t received a response from the author',
-        answer    : 'Velit commodo pariatur ullamco elit sunt dolor quis irure amet tempor laboris labore tempor nisi consectetur ea proident dolore culpa nostrud esse amet commodo do esse laboris laboris in magna.\n\nAute officia labore minim laborum irure cupidatat occaecat laborum ex labore ipsum aliqua cillum do exercitation esse et veniam excepteur mollit incididunt ut qui irure culpa qui deserunt nostrud tempor.',
+        id        : 'vv2y1y5d-7x0y-5y65-w402-a48a9y2y5y9v',
+        categoryId: '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        question  : '¿Es obligatorio usar un antivirus?',
+        answer    : 'Sí, todos los equipos deben tener un antivirus institucional instalado y actualizado.'
     },
     {
-        id        : '24a1034e-b4d6-4a86-a1ea-90516e87e810',
-        categoryId: 'bea49ee0-26da-46ad-97be-116cd7ab416d',
-        question  : 'Responding to requests outside of support',
-        answer    : 'Exercitation eu in officia lorem commodo pariatur pariatur nisi consectetur qui elit in aliquip et ullamco duis nostrud aute laborum laborum est dolor non qui amet deserunt ex et aliquip.\n\nProident consectetur eu amet minim labore anim ad non aute duis eiusmod sit ad elit magna do aliquip aliqua laborum dolor laboris ea irure duis mollit fugiat tempor eu est.',
+        id        : 'ww3z2z6d-8y1z-6z76-x513-b59b0z3z6z0w',
+        categoryId: '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        question  : '¿Qué hacer si mi cuenta de usuario ha sido bloqueada?',
+        answer    : 'Solicita el restablecimiento a soporte, indicando tu nombre y área.'
     },
+    {
+        id        : 'xx4a3a7d-9z2a-7a87-y624-c60c1a4a7a1x',
+        categoryId: '5a6b7c8d-9e0f-1g2h-3i4j-k5l6m7n8o9p0',
+        question  : '¿Puedo instalar software por mi cuenta?',
+        answer    : 'No, toda instalación debe ser autorizada por TI.'
+    },
+    {
+        id        : 'yy5b4b8d-0a3b-8b98-z735-d71d2b5b8b2y',
+        categoryId: '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        question  : '¿Cómo solicitar el reemplazo de un equipo dañado?',
+        answer    : 'Si un equipo presenta fallas irreparables, se debe reportar a soporte técnico con un informe detallado del problema. Si el daño es crítico, se gestionará la reposición conforme a los procedimientos de la Alcaldía.'
+    },
+    {
+        id        : 'zz6c5c9d-1b4c-9c09-a846-e82e3c6c9c3z',
+        categoryId: '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        question  : '¿Qué hacer si un equipo asignado se pierde o es robado?',
+        answer    : 'Debes informar de inmediato a tu supervisor y al área de TI. Dependiendo del caso, también puede ser necesario presentar un informe ante las autoridades correspondientes.'
+    },
+    {
+        id        : 'aa7d6d0d-2c5d-0d10-b957-f93f4d7d0d4a',
+        categoryId: '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        question  : '¿Quién es responsable del mantenimiento de los equipos asignados?',
+        answer    : 'El usuario asignado es responsable del uso adecuado del equipo, pero el mantenimiento preventivo y correctivo es gestionado por el área de TI.'
+    },
+    {
+        id        : 'bb8e7e1d-3d6e-1e21-c068-g04g5e8e1e5b',
+        categoryId: '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        question  : '¿Qué hacer si necesito trasladar un equipo a otra oficina o dependencia?',
+        answer    : 'El traslado de equipos debe ser autorizado por el área de TI. Se debe solicitar formalmente y coordinar con soporte técnico para garantizar la correcta instalación en la nueva ubicación.'
+    },
+    {
+        id        : 'cc9f8f2d-4e7f-2f32-d179-h15h6f9f2f6c',
+        categoryId: '6a7b8c9d-0e1f-2g3h-4i5j-k6l7m8n9o0p1',
+        question  : '¿Cómo se reasignan los equipos cuando un funcionario cambia de área o deja la Alcaldía?',
+        answer    : 'Cuando un funcionario cambia de puesto o deja la institución, el equipo debe ser devuelto al área de TI para su evaluación y posible reasignación. Es responsabilidad del usuario y su supervisor garantizar esta entrega.'
+    }
 ];
 export const guideCategories = [
     {
         id   : '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
-        slug : 'getting-started',
-        title: 'Getting Started',
+        slug : 'introduccion',
+        title: 'Introducción al Soporte Técnico',
     },
     {
         id   : '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug : 'projects',
-        title: 'Projects',
+        slug : 'servicios',
+        title: 'Servicios de TI',
     },
     {
         id   : 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug : 'settings',
-        title: 'Settings',
+        slug : 'politicas',
+        title: 'Políticas y Procedimientos',
     },
     {
         id   : '7b25b38c-1ab3-4474-8569-65b3ea232add',
-        slug : 'payments',
-        title: 'Payments',
+        slug : 'solicitudes',
+        title: 'Solicitudes de Servicio',
     },
     {
         id   : '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug : 'your-account',
-        title: 'Your Account',
+        slug : 'contacto',
+        title: 'Contacto y Horarios',
     },
 ];
 export const guides = [
-    // Getting started
+    // Introducción
     {
         id        : 'a008ffa3-7b3f-43be-8a8f-dbf5272ed2dd',
         categoryId: '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
-        slug      : 'what-is-this-app',
-        title     : 'What is this app?',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'bienvenida-soporte',
+        title     : 'Bienvenido al Soporte Técnico',
+        subtitle  : 'Conoce nuestro equipo y los servicios que ofrecemos para mantener tu trabajo sin interrupciones',
+        content   : 'El departamento de soporte técnico está aquí para ayudarte con todas tus necesidades tecnológicas, brindando un apoyo integral que abarca desde la resolución de problemas hasta la optimización del rendimiento de tus dispositivos. Nuestro equipo está compuesto por profesionales altamente capacitados y con amplia experiencia en el campo, quienes se dedican a resolver cualquier inconveniente que puedas tener con tu equipo o software, sin importar su complejidad. Nos esforzamos por ofrecer un servicio rápido y eficiente, asegurando que tu experiencia laboral sea lo más fluida posible y que puedas concentrarte en tus tareas sin interrupciones. Además, estamos comprometidos con la formación continua, participando en cursos y capacitaciones para mantenernos al día con las últimas tecnologías y tendencias del sector. Esto nos permite no solo resolver problemas, sino también anticiparnos a ellos, ofreciendo soluciones proactivas que mejoren tu productividad y la de tu equipo. Nuestro objetivo es convertirnos en un aliado estratégico en tu día a día, garantizando que cada interacción con nuestro servicio sea satisfactoria y que siempre encuentres en nosotros el apoyo que necesitas para superar cualquier desafío tecnológico que se presente.',
     },
     {
         id        : '7643d388-12ab-4025-a2f1-5045ac7b1c4c',
         categoryId: '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
-        slug      : 'start-using-the-app',
-        title     : 'Start using the app',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'como-solicitar-ayuda',
+        title     : 'Cómo solicitar ayuda técnica',
+        subtitle  : 'Guía paso a paso para reportar problemas y solicitar asistencia técnica',
+        content   : 'Para solicitar ayuda, puedes contactarnos a través de los siguientes canales: correo electrónico, teléfono o nuestro sistema de tickets en línea. Es importante que proporciones la mayor cantidad de información posible sobre el problema que estás experimentando, incluyendo capturas de pantalla si es necesario. Esto nos permitirá diagnosticar y resolver tu problema de manera más eficiente. Recuerda que estamos aquí para ayudarte y que tu satisfacción es nuestra prioridad.',
     },
+
+    // Servicios
     {
-        id        : '1fecee67-c4b4-413a-b0f2-949dcab73249',
+        id        : '3c876ea6-7e7c-4a3e-a6e8-7ec06a8b2b68',
+        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
+        slug      : 'servicios-disponibles',
+        title     : 'Servicios Disponibles',
+        subtitle  : 'Conoce todos los servicios que ofrece el departamento de TI',
+        content   : 'Nuestros servicios abarcan una amplia gama de soluciones, incluyendo soporte técnico especializado, mantenimiento preventivo y correctivo de equipos, gestión integral de redes y robustas medidas de seguridad informática. Nos comprometemos a mantener todos los equipos en condiciones óptimas, asegurando que estén actualizados con las últimas versiones de software y parches de seguridad. Además, ofrecemos programas de capacitación a los usuarios, diseñados para maximizar el uso de las herramientas tecnológicas disponibles y fomentar un ambiente de trabajo productivo. Nuestro objetivo es garantizar que todos los empleados tengan acceso a un entorno de trabajo eficiente, seguro y adaptado a sus necesidades, permitiéndoles concentrarse en sus tareas sin interrupciones ni preocupaciones tecnológicas.',
+    },
+    // Políticas
+    {
+        id        : '5c876ea6-7e7c-4a3e-a6e8-7ec06a8b2b68',
+        categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
+        slug      : 'politicas-uso',
+        title     : 'Políticas de Uso de Equipos',
+        subtitle  : 'Lineamientos y normas para el uso correcto de los equipos institucionales',
+        content   : 'Es fundamental seguir las siguientes políticas para el uso adecuado de los equipos: todos los usuarios deben asegurarse de utilizar los equipos de manera responsable y en conformidad con las normativas establecidas por la institución. Esto incluye, pero no se limita a, no instalar software no autorizado, así como mantener la seguridad de la información en todo momento. Además, se espera que los usuarios informen de inmediato cualquier problema o mal funcionamiento que experimenten, con el fin de evitar daños mayores o interrupciones en el servicio. El incumplimiento de estas políticas puede resultar en sanciones que van desde advertencias formales hasta la revocación del acceso a los equipos, lo cual podría afectar la capacidad de los usuarios para realizar sus tareas diarias de manera eficiente. Por lo tanto, es crucial que todos los empleados comprendan y respeten estas directrices para garantizar un entorno de trabajo seguro y productivo.',
+    },
+    // Solicitudes
+    {
+        id        : '7c876ea6-7e7c-4a3e-a6e8-7ec06a8b2b68',
+        categoryId: '7b25b38c-1ab3-4474-8569-65b3ea232add',
+        slug      : 'proceso-solicitudes',
+        title     : 'Proceso de Solicitudes',
+        subtitle  : 'Aprende cómo realizar solicitudes de equipos y servicios',
+        content   : 'Para realizar una solicitud, sigue estos pasos detallados: primero, completa el formulario de solicitud que encontrarás disponible en nuestro portal. Es crucial que incluyas todos los detalles necesarios, como el tipo de equipo o servicio que requieres, así como una justificación clara y concisa de la solicitud. Una vez que hayas enviado tu solicitud, esta será revisada minuciosamente por el equipo de TI, quienes se pondrán en contacto contigo para confirmar la recepción de la misma y proporcionarte un plazo estimado para la atención. Es importante recordar que realizar las solicitudes con anticipación es fundamental para garantizar que podamos atender tus necesidades de manera oportuna y eficiente, evitando así cualquier inconveniente que pueda surgir por falta de tiempo.',
+    },
+
+    // Contacto
+    {
+        id        : '9c876ea6-7e7c-4a3e-a6e8-7ec06a8b2b68',
+        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
+        slug      : 'informacion-contacto',
+        title     : 'Información de Contacto',
+        subtitle  : 'Horarios de atención y medios de contacto',
+        content   : 'Estamos disponibles en los siguientes horarios: de lunes a viernes de 8:00 a 12:00 y 14:30 a 18:30 horas. Puedes contactarnos a través de nuestro correo electrónico, número de teléfono o visitando nuestras oficinas. Además, contamos con un sistema de tickets en línea que te permite realizar consultas y seguimiento a tus solicitudes de manera eficiente. Nuestro equipo está siempre dispuesto a ayudarte y resolver cualquier duda que puedas tener, así que no dudes en ponerte en contacto con nosotros.',
+    },
+
+    // Más temas para Introducción
+    {
+        id        : 'i8901234-56ab-cdef-7890-123456abcdef',
         categoryId: '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
-        slug      : 'signing-in-to-the-dashboard',
-        title     : 'Signing in to the dashboard',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'estructura-departamento',
+        title     : 'Estructura del Departamento TI',
+        subtitle  : 'Conoce cómo está organizado nuestro equipo',
+        content   : 'El departamento de TI está estructurado en diferentes áreas especializadas: soporte técnico, redes, seguridad y desarrollo. Cada una de estas áreas juega un papel crucial en el funcionamiento general de la infraestructura tecnológica de la organización. El equipo de soporte técnico se encarga de resolver problemas cotidianos que los usuarios puedan enfrentar, asegurando que todos los sistemas funcionen sin inconvenientes. Por otro lado, el área de redes se ocupa de la conectividad y el mantenimiento de la infraestructura de red, garantizando que todos los dispositivos estén interconectados de manera eficiente y segura. La seguridad es otra área fundamental, ya que se encarga de proteger la información y los sistemas de la organización contra amenazas externas e internas, implementando políticas y herramientas de seguridad robustas. Finalmente, el equipo de desarrollo se dedica a crear y mantener aplicaciones y sistemas que faciliten el trabajo diario de los empleados, adaptándose a las necesidades cambiantes de la organización y mejorando continuamente la eficiencia operativa.',
     },
     {
-        id        : 'd2e2ea8f-5298-4ba2-898b-afc60c064bba',
+        id        : 'j9012345-67ab-cdef-8901-234567abcdef',
         categoryId: '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
-        slug      : 'navigating-within-the-app',
-        title     : 'Navigating within the app',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'prioridades-atencion',
+        title     : 'Prioridades de Atención',
+        subtitle  : 'Entiende cómo se priorizan las solicitudes',
+        content   : 'Las solicitudes se clasifican según su impacto y urgencia en cuatro categorías principales: críticas, altas, medias y bajas. Las solicitudes críticas son aquellas que requieren atención inmediata, ya que su resolución es esencial para el funcionamiento continuo de los servicios. Por otro lado, las solicitudes altas son importantes, pero pueden esperar un poco más sin causar un impacto significativo en las operaciones. Las solicitudes medias son aquellas que, aunque son relevantes, no afectan de manera inmediata el rendimiento del trabajo diario y pueden ser atendidas en un plazo razonable. Finalmente, las solicitudes bajas son las que tienen el menor impacto y pueden ser programadas para su atención en un futuro cercano, permitiendo así una gestión eficiente de los recursos y el tiempo del equipo de soporte.',
     },
-    // Projects
     {
-        id        : 'f2592886-11b8-4b56-baab-96802c2ed93e',
+        id        : 'k0123456-78ab-cdef-9012-345678abcdef',
+        categoryId: '0ee72de7-49c0-4880-9e89-b72a4edd6a81',
+        slug      : 'herramientas-disponibles',
+        title     : 'Herramientas de Soporte',
+        subtitle  : 'Conoce las herramientas que utilizamos',
+        content   : 'Contamos con diversas herramientas especializadas que han sido diseñadas para brindarte el mejor soporte posible en todas tus necesidades tecnológicas. Estas herramientas incluyen software de gestión de incidencias, plataformas de comunicación en tiempo real, y sistemas de monitoreo que nos permiten identificar y resolver problemas de manera proactiva. Además, nuestro equipo de soporte está capacitado para utilizar estas herramientas de manera eficiente, asegurando que cada solicitud sea atendida con la mayor rapidez y eficacia. Nuestro objetivo es garantizar que tengas acceso a los recursos necesarios para realizar tu trabajo sin contratiempos, y estamos comprometidos a mejorar continuamente nuestras capacidades para ofrecerte un servicio excepcional.',
+    },
+
+    // Más temas para Servicios
+    {
+        id        : 'l1234567-89ab-cdef-0123-456789abcdef',
         categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'creating-a-project',
-        title     : 'Creating a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'gestion-licencias',
+        title     : 'Gestión de Licencias',
+        subtitle  : 'Administración de software y licencias',
+        content   : 'Gestionamos todas las licencias de software utilizadas en la institución...',
+        
     },
     {
-        id        : '9ec3f4b9-a355-4f57-9e93-efa8611cc1c9',
+        id        : 'm2345678-90ab-cdef-1234-567890abcdef',
         categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'renaming-a-project',
-        title     : 'Renaming a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'capacitacion-usuarios',
+        title     : 'Capacitación de Usuarios',
+        subtitle  : 'Programas de formación disponibles',
+        content   : 'Gestionamos todas las licencias de software utilizadas en la institución, asegurando que cada aplicación y herramienta cumpla con las normativas legales y de uso. Nuestro equipo se encarga de realizar un seguimiento constante de las licencias, renovándolas cuando es necesario y evaluando el uso de cada software para optimizar los recursos. Además, proporcionamos informes periódicos sobre el estado de las licencias, lo que permite a la administración tomar decisiones informadas sobre futuras adquisiciones y actualizaciones. También ofrecemos asesoramiento a los usuarios sobre el uso adecuado de las herramientas, garantizando que todos estén al tanto de las políticas de uso y las mejores prácticas para maximizar la eficiencia y la seguridad en el entorno de trabajo.',
     },
     {
-        id        : '1bc6e7f9-b046-4f4f-9b18-741c9d5429f6',
+        id        : 'n3456789-01ab-cdef-2345-678901abcdef',
         categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'displaying-a-project',
-        title     : 'Displaying a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'servicios-especiales',
+        title     : 'Servicios Especiales',
+        subtitle  : 'Servicios adicionales bajo demanda',
+        content   : 'Además de nuestros servicios regulares, ofrecemos una amplia gama de servicios especializados que están diseñados para satisfacer las necesidades específicas de nuestros usuarios. Estos servicios incluyen asesoramiento personalizado, soporte técnico avanzado, y soluciones a medida que se adaptan a los requerimientos particulares de cada cliente. Nuestro objetivo es garantizar que cada usuario reciba la atención y el soporte que necesita, permitiéndole así maximizar el uso de nuestras herramientas y recursos. Nos comprometemos a trabajar de la mano con nuestros usuarios para entender sus desafíos y ofrecerles las mejores soluciones posibles, asegurando una experiencia óptima y satisfactoria en el uso de nuestros servicios.',
+       
     },
+
+    // Más temas para Políticas
     {
-        id        : 'a005d5f1-938d-45c5-8ed4-d0cf8d02e533',
-        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'deleting-a-project',
-        title     : 'Deleting a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '43837279-dce2-4dc0-beac-30b5ba829f14',
-        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'changing-the-visibility-of-a-project',
-        title     : 'Changing the visibility of a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '4cf5a435-eaa0-463c-8d2b-efde193c7fb3',
-        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'adding-media-to-a-project',
-        title     : 'Adding media to a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : 'cd3fb87e-e138-4721-9e29-a5c751bfd949',
-        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'removing-a-media-from-a-project',
-        title     : 'Removing a media from a project',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : 'f26205c6-882e-4713-b067-c73758b45551',
-        categoryId: '07b8421f-20bf-45b6-90ee-169ebe3a5bcc',
-        slug      : 'cropping-a-media',
-        title     : 'Cropping a media',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    // Settings
-    {
-        id        : '1cbdeaeb-bbf1-4d04-b43d-f37b55e6a229',
+        id        : 'o4567890-12ab-cdef-3456-789012abcdef',
         categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug      : 'general-settings',
-        title     : 'General settings',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'seguridad-informacion',
+        title     : 'Seguridad de la Información',
+        subtitle  : 'Políticas de protección de datos',
+        content   : 'Nuestras políticas de seguridad están diseñadas para proteger la información sensible de nuestros usuarios y garantizar la confidencialidad, integridad y disponibilidad de los datos. Estas políticas establecen directrices claras sobre el manejo de la información, el acceso a los sistemas y la respuesta ante incidentes de seguridad. Además, se implementan medidas de seguridad física y lógica para prevenir accesos no autorizados y asegurar que la información se almacene y transmita de manera segura. Es fundamental que todos los empleados y colaboradores estén informados y capacitados sobre estas políticas, ya que su cumplimiento es esencial para mantener la confianza de nuestros usuarios y la reputación de nuestra institución. La seguridad de la información es una responsabilidad compartida, y todos debemos contribuir a crear un entorno seguro y protegido.',
     },
     {
-        id        : '98de7d4a-2ca2-4d47-bbe6-083ed26467db',
+        id        : 'p5678901-23ab-cdef-4567-890123abcdef',
         categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug      : 'project-settings',
-        title     : 'Project settings',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'uso-internet',
+        title     : 'Políticas de Uso de Internet',
+        subtitle  : 'Normas para el uso de internet institucional',
+        content   : 'El uso de internet está regulado para garantizar la seguridad y productividad de todos los usuarios dentro de la institución. Se espera que cada empleado y colaborador utilice la red de manera responsable, evitando actividades que puedan comprometer la integridad de los sistemas o la confidencialidad de la información. Además, se prohíbe el acceso a sitios web que no estén relacionados con las actividades laborales, así como la descarga de contenido no autorizado. El incumplimiento de estas normas puede resultar en sanciones disciplinarias, por lo que es fundamental que todos estén al tanto de las políticas establecidas y actúen en consecuencia para mantener un entorno de trabajo seguro y eficiente.',
     },
     {
-        id        : '145f497c-1fdb-47b5-a6c1-31f856403571',
+        id        : 'q6789012-34ab-cdef-5678-901234abcdef',
         categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug      : 'media-settings',
-        title     : 'Media settings',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'byod',
+        title     : 'Política BYOD',
+        subtitle  : 'Uso de dispositivos personales',
+        content   : 'Las normas para el uso de dispositivos personales en la red institucional son fundamentales para garantizar la seguridad y el correcto funcionamiento de la infraestructura tecnológica. Se espera que todos los empleados y colaboradores que deseen utilizar sus dispositivos personales, como teléfonos móviles, tabletas o computadoras portátiles, se adhieran a las políticas establecidas. Estas políticas incluyen la obligación de instalar software de seguridad, como antivirus y firewalls, y de mantener el sistema operativo y las aplicaciones actualizadas. Además, se prohíbe el acceso a información sensible o confidencial desde dispositivos no autorizados. Es esencial que los usuarios comprendan que el uso de dispositivos personales en la red institucional debe realizarse de manera responsable y ética, evitando cualquier actividad que pueda comprometer la seguridad de la información o la integridad de los sistemas. La violación de estas normas puede resultar en sanciones disciplinarias, por lo que es crucial que todos estén informados y cumplan con las directrices establecidas.',
     },
+
+    // Más temas para Solicitudes
     {
-        id        : '0a007f59-a5ea-4875-991d-f22d6fd69898',
-        categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug      : 'domain-settings',
-        title     : 'Domain settings',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '4707c8eb-31f9-415c-bd07-86f226c75feb',
-        categoryId: 'c88a1f54-360a-4b9b-a54b-2f92b7a1f63b',
-        slug      : 'privacy-settings',
-        title     : 'Privacy settings',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    // Payments
-    {
-        id        : 'c771bf0a-1e0c-4b6d-af7e-189e10cc6fb8',
+        id        : 'r7890123-45ab-cdef-6789-012345abcdef',
         categoryId: '7b25b38c-1ab3-4474-8569-65b3ea232add',
-        slug      : 'subscriptions',
-        title     : 'Subscriptions',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'solicitud-equipos',
+        title     : 'Solicitud de Equipos Nuevos',
+        subtitle  : 'Proceso para solicitar nuevos equipos',
+        content   : 'El proceso para solicitar nuevos equipos incluye varios pasos importantes que deben seguirse cuidadosamente para asegurar que la solicitud sea procesada de manera eficiente. Primero, es necesario completar un formulario de solicitud que incluya detalles específicos sobre el equipo requerido, como el tipo, la cantidad y el propósito de uso. Una vez que el formulario esté completo, debe ser enviado al departamento correspondiente para su revisión. Después de la revisión inicial, el departamento evaluará la necesidad del equipo solicitado y verificará si hay presupuesto disponible para la adquisición. Si la solicitud es aprobada, se procederá a realizar la compra del equipo y se notificará al solicitante sobre el estado de su solicitud. Es importante tener en cuenta que este proceso puede tardar varios días, por lo que se recomienda planificar con anticipación y presentar la solicitud lo antes posible.',
+        
     },
     {
-        id        : '3d7150d2-feb3-4f20-bd3f-8e525cef77a4',
+        id        : 's8901234-56ab-cdef-7890-123456abcdef',
         categoryId: '7b25b38c-1ab3-4474-8569-65b3ea232add',
-        slug      : 'discounts',
-        title     : 'Discounts',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+        slug      : 'solicitud-software',
+        title     : 'Solicitud de Software',
+        subtitle  : 'Cómo solicitar nuevo software',
+        content   : 'Para solicitar la instalación de nuevo software, debes seguir estos pasos: primero, asegúrate de tener la autorización necesaria de tu supervisor o del departamento correspondiente. Luego, completa el formulario de solicitud de software, proporcionando detalles como el nombre del software, la versión requerida y el propósito de su uso. Una vez que hayas enviado el formulario, el departamento de TI revisará tu solicitud y verificará si el software es compatible con los sistemas existentes. Si se aprueba, se programará la instalación en un plazo razonable. Recuerda que es importante justificar la necesidad del software y estar preparado para cualquier consulta adicional que el equipo de TI pueda tener.',
     },
     {
-        id        : '79239bc4-4fb5-428b-b30d-62c5289b061d',
+        id        : 't9012345-67ab-cdef-8901-234567abcdef',
         categoryId: '7b25b38c-1ab3-4474-8569-65b3ea232add',
-        slug      : 'payment-methods',
-        title     : 'Payment methods',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '8d68c5e6-5404-450c-9d5f-d9800c164041',
-        categoryId: '7b25b38c-1ab3-4474-8569-65b3ea232add',
-        slug      : 'overdue-payments',
-        title     : 'Overdue payments',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    // Your account
-    {
-        id        : '60df0d4c-dda1-439c-bd44-179c57a7597d',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'changing-your-username',
-        title     : 'Changing your username',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '0a9c3321-1db3-42bc-92b6-7e257368123e',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'changing-your-email',
-        title     : 'Changing your email',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '80ba5106-5f9c-4ed7-b8f3-8544035e3095',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'changing-your-password',
-        title     : 'Changing your password',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : 'db2e97a6-d657-4e9d-9b6c-5f213ea3301c',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'closing-your-account',
-        title     : 'Closing your account',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : '3374c887-2fb7-4223-9f40-7f2cbbf76795',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'account-limits',
-        title     : 'Account limits',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
-    {
-        id        : 'cc65f92a-7d46-4557-b15b-6f8f59a60576',
-        categoryId: '41fdf071-aec4-49de-9dd4-b4f746596928',
-        slug      : 'two-factor-authentication',
-        title     : 'Two factor authentication',
-        subtitle  : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
-    },
+        slug      : 'solicitud-accesos',
+        title     : 'Solicitud de Accesos',
+        subtitle  : 'Gestión de permisos y accesos',
+        content   : 'Los accesos a sistemas y recursos se solicitan mediante el siguiente proceso: primero, el solicitante debe completar un formulario de solicitud que incluya información detallada sobre el acceso requerido, como el tipo de sistema o recurso, la justificación del acceso y la duración necesaria. Una vez que el formulario esté completo, debe ser enviado al supervisor correspondiente para su revisión. El supervisor evaluará la solicitud y, si es aprobada, la enviará al departamento de TI para su procesamiento. El departamento de TI revisará la solicitud y verificará si el solicitante tiene los permisos necesarios para acceder a los sistemas o recursos solicitados. Si todo está en orden, se procederá a otorgar el acceso y se notificará al solicitante sobre el estado de su solicitud. Es importante tener en cuenta que el incumplimiento de las políticas de acceso puede resultar en la revocación de los permisos y posibles sanciones disciplinarias.',
+    }
 ];
 
 // Since we only have one content for the demo, we will
@@ -505,3 +509,4 @@ export const guideContent = `
         sit amet congue felis dignissim at.
     </dd>
 </dl>`;
+

@@ -8,15 +8,6 @@
 
             <!-- Title -->
             <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Inicio de Sesión Soporte Técnico</div>
-            <div class="flex items-baseline mt-0.5 font-medium">
-                <div>¿No tiene una cuenta?</div>
-                <a
-                    class="ml-1 text-primary-500 hover:underline"
-                    [routerLink]="['/sign-up']">Registrese
-                </a>
-            </div>
-
-            
 
             <!-- Alert -->
             <fuse-alert
@@ -41,7 +32,8 @@
                     <input
                         id="email"
                         matInput
-                        [formControlName]="'email'">
+                        [formControlName]="'email'"
+                        [autocomplete]="'email'">
                     <mat-error *ngIf="signInForm.get('email').hasError('required')">
                         Email es Requerido
                     </mat-error>
@@ -58,6 +50,7 @@
                         matInput
                         type="password"
                         [formControlName]="'password'"
+                        [autocomplete]="'current-password'"
                         #passwordField>
                     <button
                         mat-icon-button

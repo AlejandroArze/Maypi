@@ -275,16 +275,13 @@
                                                     [matAutocomplete]="autoTipo"
                                                     (input)="onSearchTipo($event.target.value)"
                                                 />
-                                                <mat-autocomplete #autoTipo="matAutocomplete" autoActiveFirstOption>
+                                                <mat-autocomplete #autoTipo="matAutocomplete">
                                                     <mat-option
                                                         *ngFor="let tipo of filteredTipos"
                                                         [value]="tipo.descripcion"
-                                                        (mousedown)="selectTipo(tipo)"
+                                                        (click)="selectTipo(tipo)"
                                                     >
                                                         {{ tipo.descripcion }}
-                                                    </mat-option>
-                                                    <mat-option *ngIf="filteredEmpleadosUsuarios.length === 0">
-                                                        No hay resultados
                                                     </mat-option>
                                                 </mat-autocomplete>
                                             </mat-form-field>
