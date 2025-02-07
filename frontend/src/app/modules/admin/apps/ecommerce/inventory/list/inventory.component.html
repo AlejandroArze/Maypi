@@ -191,10 +191,11 @@
                                                 <mat-label>Funcionario Usuario</mat-label>
                                                 <input
                                                     type="text"
-                                                    placeholder="Escribe un nombre"
+                                                    [placeholder]="selectedEquipment?.funcionariousuario === 'Nuevo Equipo' ? 'Nuevo Equipo' : ''"
+                                                    [ngModel]="selectedEquipment?.funcionariousuario !== 'Nuevo Equipo' ? selectedEquipment?.funcionariousuario : ''"
+                                                    (ngModelChange)="selectedEquipmentForm.get('funcionariousuario').setValue($event)"
                                                     aria-label="Funcionario Usuario"
                                                     matInput
-                                                    formControlName="funcionariousuario"
                                                     [matAutocomplete]="autoUsuario"
                                                     (input)="onSearchUsuario($event.target.value)"
                                                 />
@@ -264,7 +265,7 @@
                                             <form class="example-form2" [formGroup]="selectedEquipmentForm" >
                                             <!-- Campo Funcionario Usuario -->
                                             
-                                            <mat-form-field class="w-1/3 pr-2"class="example-full-width2" style="flex: 1; margin-right: 10px;"  >
+                                            <mat-form-field class="w-1/3 pr-2" class="example-full-width2" style="flex: 1; margin-right: 10px;">
                                                 <mat-label>Tipo de Hardware</mat-label>
                                                 <input
                                                     type="text"
@@ -274,6 +275,7 @@
                                                     formControlName="tipo"
                                                     [matAutocomplete]="autoTipo"
                                                     (input)="onSearchTipo($event.target.value)"
+                                                    #tipoInput
                                                 />
                                                 <mat-autocomplete #autoTipo="matAutocomplete">
                                                     <mat-option
@@ -284,6 +286,9 @@
                                                         {{ tipo.descripcion }}
                                                     </mat-option>
                                                 </mat-autocomplete>
+                                                <mat-error *ngIf="showTipoError">
+                                                    Debe seleccionar un tipo de hardware de la lista
+                                                </mat-error>
                                             </mat-form-field>
                                         
                                             

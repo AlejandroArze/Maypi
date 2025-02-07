@@ -231,6 +231,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
     vendors: InventoryVendor[]; // Arreglo de vendedores
     private _unsubscribeAll: Subject<any> = new Subject<any>(); // Observable para manejar la destrucción de suscripciones
 
+    showTipoError: boolean = false;
+
     /**
      * Constructor del componente
      */
@@ -488,7 +490,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         
 
     }
-    toggleDetails(equipos_id: number,codigo: string): void {
+    toggleDetails(equipos_id: number, codigo: string): void {
         // Si el producto ya está seleccionado, cerrar los detalles
         if (this.selectedEquipment && this.selectedEquipment.equipos_id === equipos_id) {
             this.closeDetails();
@@ -499,18 +501,44 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         this._inventoryService.getEquipmentById(equipos_id).subscribe({
             next: (response) => {
                 console.log('Equipo recibido: toggleDetails', response);
-                this.selectedEquipment = response.data;
-                this.selectedEquipmentForm.patchValue(response.data);
-                this._changeDetectorRef.markForCheck(); // Forzar la detección de cambios
-                // Verifica que `getBienes` también devuelva un Observable
-                this.getBienes(response.data.codigo);
-                this.onSearch(response.data.funcionarioasignado);
-                this.onSearchUsuario(response.data.funcionariousuario);
-                this.onSearchTipo(response.data.tipoDescripcion);
-                console.log("tipos ",response.data.tipoDescripcion );
-                this.selectedEquipmentForm.controls['funcionarioasignado'].setValue(response.data.funcionarioasignado); // Copia el valor al input
-                this.selectedEquipmentForm.controls['funcionariousuario'].setValue(response.data.funcionariousuario); // Copia el valor al input
-                this.selectedEquipmentForm.controls['tipo'].setValue(response.data.tipoDescripcion); // Copia el valor al input
+                
+                // Obtener la descripción del tipo si existe
+                if (response.data.tipo) {
+                    this._inventoryService.getTipoById(response.data.tipo).subscribe(
+                        (tipoInfo) => {
+                            this.selectedEquipment = {
+                                ...response.data,
+                                tipoDescripcion: tipoInfo.descripcion
+                            };
+                            
+                            // Actualizar el formulario con la descripción del tipo y mantener el ID
+                            this.selectedEquipmentForm.patchValue({
+                                ...response.data,
+                                tipo: tipoInfo.descripcion,    // Campo visible (descripción)
+                                tiposId: response.data.tipo,   // Campo oculto (ID)
+                                tipoDescripcion: tipoInfo.descripcion
+                            });
+
+                            this._changeDetectorRef.markForCheck();
+                            this.getBienes(response.data.codigo);
+                            this.onSearch(response.data.funcionarioasignado);
+                            this.onSearchUsuario(response.data.funcionariousuario);
+                            this.onSearchTipo(tipoInfo.descripcion);
+                        }
+                    );
+                } else {
+                    this.selectedEquipment = response.data;
+                    this.selectedEquipmentForm.patchValue(response.data);
+                    this._changeDetectorRef.markForCheck();
+                    this.getBienes(response.data.codigo);
+                    this.onSearch(response.data.funcionarioasignado);
+                    this.onSearchUsuario(response.data.funcionariousuario);
+                    this.onSearchTipo('');
+                }
+
+                console.log("tipos ", this.selectedEquipment.tipoDescripcion);
+                this.selectedEquipmentForm.controls['funcionarioasignado'].setValue(response.data.funcionarioasignado);
+                this.selectedEquipmentForm.controls['funcionariousuario'].setValue(response.data.funcionariousuario);
             },
             error: (err) => {
                 console.error('Error al obtener el equipo:', err);
@@ -791,10 +819,31 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
     createEquipment(): void 
     {
         this._inventoryService.createEquipment().subscribe((newEquipment) => {
-            this.selectedEquipment = newEquipment; // Establecer el producto como seleccionado
-            this.selectedEquipmentForm.patchValue(newEquipment); // Rellenar el formulario con los datos del nuevo producto
-            this._changeDetectorRef.markForCheck(); // Marcar para detección de cambios
-            console.log("Nuevo equipo creado y formulario abierto.");
+            // Si el equipo nuevo tiene un tipo asignado, obtener su descripción
+            if (newEquipment.tipo) {
+                this._inventoryService.getTipoById(newEquipment.tipo).subscribe(
+                    (tipoInfo) => {
+                        this.selectedEquipment = {
+                            ...newEquipment,
+                            tipoDescripcion: tipoInfo.descripcion
+                        };
+                        
+                        this.selectedEquipmentForm.patchValue({
+                            ...newEquipment,
+                            tipo: tipoInfo.descripcion,    // Campo visible (descripción)
+                            tiposId: newEquipment.tipo,    // Campo oculto (ID)
+                        });
+                        
+                        this._changeDetectorRef.markForCheck();
+                        console.log("Nuevo equipo creado con tipo:", tipoInfo.descripcion);
+                    }
+                );
+            } else {
+                this.selectedEquipment = newEquipment;
+                this.selectedEquipmentForm.patchValue(newEquipment);
+                this._changeDetectorRef.markForCheck();
+                console.log("Nuevo equipo creado sin tipo");
+            }
         });
     }
 
@@ -813,22 +862,38 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         if (this.selectedEquipmentForm) {
             const equipment = this.selectedEquipmentForm.getRawValue();
             
+            // Logs para depuración
+            console.log('Valor original funcionarioasignado:', equipment.funcionarioasignado);
+            
+            // Manejar el campo funcionarioasignado
+            if (equipment.funcionarioasignado === null || 
+                equipment.funcionarioasignado === undefined || 
+                equipment.funcionarioasignado === '') {
+                equipment.funcionarioasignado = ' ';
+                console.log('funcionarioasignado era null/undefined/vacío, nuevo valor:', equipment.funcionarioasignado);
+            }
+
             // Asegurarse de que el tipo se envíe correctamente
             if (this.selectedEquipmentForm.get('tiposId')?.value) {
                 equipment.tipo = this.selectedEquipmentForm.get('tiposId').value;
                 equipment.tiposId = this.selectedEquipmentForm.get('tiposId').value;
             } else if (this.selectedEquipment?.tipo) {
-                // Mantener el valor existente si no se ha cambiado
                 equipment.tipo = this.selectedEquipment.tipo;
                 equipment.tiposId = this.selectedEquipment.tipo;
             }
 
-            console.log('Datos a enviar:', equipment);
+            console.log('Datos completos a enviar:', {
+                funcionarioasignado: equipment.funcionarioasignado,
+                tipo: equipment.tipo,
+                tiposId: equipment.tiposId,
+                todosLosDatos: equipment
+            });
 
             this._inventoryService.updateEquipment(this.selectedEquipment.equipos_id, equipment)
                 .subscribe({
                     next: () => {
                         this.showFlashMessage('success');
+                        this.selectedEquipment.tipoDescripcion = equipment.tipo;
                     },
                     error: (error) => {
                         console.error('Error al actualizar:', error);
@@ -1049,10 +1114,11 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
             */
         selectTipo(tipo: { descripcion: string; tipos_id: number }): void {
             if (this.selectedEquipmentForm) {
-                // Establecer tanto el valor visible como el ID
+                // Actualizar los campos del formulario
                 this.selectedEquipmentForm.patchValue({
-                    tipo: tipo.descripcion,
-                    tiposId: tipo.tipos_id
+                    tipo: tipo.descripcion, // Campo visible
+                    tiposId: tipo.tipos_id, // ID que se enviará
+                    tipoDescripcion: tipo.descripcion // Descripción para mostrar
                 });
                 
                 console.log('Tipo seleccionado:', {
@@ -1060,6 +1126,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                     id: tipo.tipos_id,
                     formValues: this.selectedEquipmentForm.value
                 });
+                this.showTipoError = false; // Ocultar error cuando se selecciona un tipo
             }
             this.showDropdown = false;
             this.cd.detectChanges();
@@ -1067,11 +1134,18 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         
         onSearchTipo(query: string): void {
             if (query.length >= 0) {
-                this._inventoryService.buscarTipos(1, 100, query) // Llama al servicio `getTipos`
+                // Mostrar error solo si hay texto y no se ha seleccionado un nuevo valor
+                const currentTipoId = this.selectedEquipmentForm.get('tiposId').value;
+                const currentTipoText = this.selectedEquipmentForm.get('tipo').value;
+                
+                // Mostrar error si el texto ha cambiado pero no se ha seleccionado un nuevo ID
+                this.showTipoError = currentTipoText !== currentTipoId && !!currentTipoText;
+                this.cd.detectChanges();
+
+                this._inventoryService.buscarTipos(1, 100, query)
                     .pipe(
-                        debounceTime(100), // Añade un retraso de 300ms para evitar múltiples llamadas innecesarias
+                        debounceTime(100),
                         map((response) => {
-                            // Mapea la respuesta para obtener una lista con `descripcion` y `tipos_id`
                             return response.map((tipo: any) => ({
                                 descripcion: tipo.descripcion.trim(),
                                 tipos_id: tipo.tipos_id,
@@ -1081,7 +1155,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                     .subscribe({
                         next: (tipos: { descripcion: string; tipos_id: number }[]) => {
                             this.filteredTipos = tipos;
-                            console.log('Tipos encontrados:', this.filteredTipos); // Debug para ver los resultados
+                            console.log('Tipos encontrados:', this.filteredTipos);
                         },
                         error: (err) => {
                             console.error('Error al buscar tipos:', err);
@@ -1089,7 +1163,9 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                         },
                     });
             } else {
-                this.filteredTipos = []; // Restablecer la lista si la consulta tiene menos de 1 carácter
+                this.filteredTipos = [];
+                this.showTipoError = false;
+                this.cd.detectChanges();
             }
         }
         displayTipo(tipo: any): string {

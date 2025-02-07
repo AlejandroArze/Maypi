@@ -565,7 +565,7 @@ getEquipmentById(equipos_id: number): Observable<{ message: string; data: Invent
         
             "ip": " ",
             "procesador": " ",
-            "funcionariousuario": "Nuevo Equipo ",
+            "funcionariousuario": "Nuevo Equipo",
             "lector": " ",
             "tarjetavideo": " ",
             "funcionarioasignado": " ",
@@ -613,7 +613,7 @@ createEquipment8(): Observable<InventoryEquipment> {
         
         "ip": " ",
         "procesador": " ",
-        "funcionariousuario": "Nuevo Equipo ",
+        "funcionariousuario": "Nuevo Equipo",
         "lector": " ",
         "tarjetavideo": " ",
         "funcionarioasignado": " ",
@@ -663,7 +663,7 @@ createEquipment43(equipmentData: any = {}): Observable<InventoryEquipment> {
         
         "ip": " ",
         "procesador": " ",
-        "funcionariousuario": "Nuevo Equipo ",
+        "funcionariousuario": "Nuevo Equipo",
         "lector": " ",
         "tarjetavideo": " ",
         "funcionarioasignado": " ",
@@ -711,7 +711,7 @@ createEquipment(equipmentData: any = {}): Observable<InventoryEquipment> {
         ...equipmentData,
         "ip": " ",
         "procesador": " ",
-        "funcionariousuario": "Nuevo Equipo ",
+        "funcionariousuario": "Nuevo Equipo",
         "lector": "false",
         "tarjetavideo": " ",
         "funcionarioasignado": " ",
