@@ -244,13 +244,47 @@ class ServiceController {
                 return value.trim();
             };
 
-            // Limpia todos los campos del body
+            // Lista de campos permitidos
+            const allowedFields = [
+                'nombreResponsableEgreso',
+                'cargoSolicitante',
+                'informe',
+                'cargoResponsableEgreso',
+                'oficinaSolicitante',
+                'fechaRegistro',
+                'equipo',
+                'problema',
+                'telefonoResponsableEgreso',
+                'gestion',
+                'telefonoSolicitante',
+                'tecnicoAsignado',
+                'observaciones',
+                'tipoResponsableEgreso',
+                'estado',
+                'tipoSolicitante',
+                'fechaTerminado',
+                'oficinaResponsableEgreso',
+                'numero',
+                'fechaInicio',
+                'fechaEgreso',
+                'ciSolicitante',
+                'nombreSolicitante',
+                'tipo',
+                'tecnicoRegistro',
+                'tecnicoEgreso',
+                'ciResponsableEgreso',
+                'servicios_id'
+            ];
+
+            // Limpia todos los campos del body y solo incluye los campos permitidos
             const cleanedBody = Object.keys(req.body).reduce((acc, key) => {
-                // Para el campo tipo, usar siempre tiposId
-                if (key === 'tipo') {
-                    acc[key] = req.body.tiposId;
-                } else {
-                    acc[key] = cleanField(req.body[key], key);
+                if (allowedFields.includes(key)) {
+                    // Para el campo tipo, usar siempre tiposId
+                    if (key === 'tipo') {
+                        acc[key] = req.body.tiposId;
+                    } else {
+                        acc[key] = cleanField(req.body[key], key);
+                    }
                 }
                 return acc;
             }, {});
@@ -262,10 +296,10 @@ class ServiceController {
 
             console.log('tiposId a guardar:', cleanedBody.tipo);
 
-            // Actualiza el servicio con los datos limpios
+            // Actualiza el servicio con los datos limpios - CAMBIAR ORDEN DE PARÁMETROS
             const updatedService = await serviceService.update(
-                req.params.servicios_id,
-                cleanedBody
+                cleanedBody,  // Primero los datos
+                req.params.servicios_id  // Luego el ID
             );
 
             return jsonResponse.successResponse(
@@ -276,16 +310,18 @@ class ServiceController {
             );
         } catch (error) {
             console.error('Error en la actualización:', error);
-            return Joi.isError(error) ? jsonResponse.validationResponse(
-                res,
-                409,
-                "Validation error",
-                error.details.map(err => err.message)
-            ) : jsonResponse.errorResponse(
-                res,
-                500,
-                error.message
-            );
+            return Joi.isError(error) ? 
+                jsonResponse.validationResponse(
+                    res,
+                    409,
+                    "Validation error",
+                    error.details.map(err => err.message)
+                ) : 
+                jsonResponse.errorResponse(
+                    res,
+                    500,
+                    error.message
+                );
         }
     }
     // Método estático asíncrono para eliminar un equipo

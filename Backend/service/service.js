@@ -92,35 +92,12 @@ class ServiceService {
             const equipoValue = data.equipo === "" ? null : data.equipo;
 
             // Actualiza los campos del servicio con los datos proporcionados
-            const updatedService = await Service.update({
-                nombreResponsableEgreso: data.nombreResponsableEgreso,
-                cargoSolicitante: data.cargoSolicitante,
-                informe: data.informe,
-                cargoResponsableEgreso: data.cargoResponsableEgreso,
-                oficinaSolicitante: data.oficinaSolicitante,
-                fechaRegistro: data.fechaRegistro,
-                equipo: data.equipo,
-                problema: data.problema,
-                telefonoResponsableEgreso: data.telefonoResponsableEgreso,
-                gestion: data.gestion,
-                telefonoSolicitante: data.telefonoSolicitante,
-                tecnicoAsignado: data.tecnicoAsignado,
-                observaciones: data.observaciones,
-                tipoResponsableEgreso: data.tipoResponsableEgreso,
-                estado: data.estado,
-                tipoSolicitante: data.tipoSolicitante,
-                fechaTerminado: data.fechaTerminado,
-                oficinaResponsableEgreso: data.oficinaResponsableEgreso,
-                numero: data.numero,
-                fechaInicio: data.fechaInicio,
-                fechaEgreso: data.fechaEgreso,
-                ciSolicitante: data.ciSolicitante,
-                nombreSolicitante: data.nombreSolicitante,
-                tipo: data.tipo,
-                tecnicoRegistro: data.tecnicoRegistro,
-                tecnicoEgreso: data.tecnicoEgreso,
-                ciResponsableEgreso: data.ciResponsableEgreso
-            }, { where: { servicios_id: id } }); // Condición para actualizar el registro por ID
+            await Service.update(data, { 
+                where: { servicios_id: id } 
+            });
+
+            // Obtener el registro actualizado
+            const updatedService = await Service.findByPk(id);
 
             await DB.commit(); // Confirma la transacción
 

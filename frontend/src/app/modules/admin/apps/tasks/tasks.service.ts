@@ -426,6 +426,9 @@ export class TasksService
      * @returns Observable que emite el nuevo servicio creado (`Servicio`)
      */
     createTask(serviceData: any = {}): Observable<Servicio> {
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+
         const defaultData2: Servicio = {
             nombreResponsableEgreso: " ",
             cargoSolicitante: " ",
@@ -451,10 +454,13 @@ export class TasksService
             ciSolicitante: " ",
             nombreSolicitante: " ",
             tipo: " ",
-            tecnicoRegistro: 3,
+            tecnicoRegistro:  user?.data?.usuarios_id || 1,// Obtener el usuario del localStorage
             tecnicoEgreso: " ",
             ciResponsableEgreso: " ",
             ...serviceData
+
+
+            
         };
 
         // Asegurarse de que tecnicoAsignado sea null si no es un número válido
