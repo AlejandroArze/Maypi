@@ -66,6 +66,8 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     hiddenLists: string[] = [];
     selectedTecnicoId: string = 'TODOS';
+    selectedTipoServicio: string = 'asistencia';
+    private checkTitleInterval: any;
 
     private readonly HIDDEN_LISTS_KEY = 'scrumboard_hidden_lists';
 
@@ -126,7 +128,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                 icon: '',
                 lists: this.lists
             };
-
+            
+            // Actualizar el tipo de servicio seleccionado según el título
+            this.selectedTipoServicio = this.getTipoServicioFromTitle(this.board.title);
+            
             // Inicializar las listas con arrays vacíos
             this.lists.forEach(list => {
                 list.cards = [];
@@ -201,11 +206,23 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                     }
                 });
         }
+
+        // Iniciar verificación periódica
+        this.checkTitleInterval = setInterval(() => {
+            const currentType = this.getTipoServicioFromTitle(this.board?.title);
+            if (this.selectedTipoServicio !== currentType) {
+                this.selectedTipoServicio = currentType;
+                this._changeDetectorRef.markForCheck();
+            }
+        }, 1000); // Verificar cada segundo
     }
 
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+        if (this.checkTitleInterval) {
+            clearInterval(this.checkTitleInterval);
+        }
     }
 
     /**
@@ -784,5 +801,142 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     getSelectedTecnicoDisplay(): string {
         return this.selectedTecnicoId === 'TODOS' ? 'TODOS' : 
             (this.tecnicos.find(t => t.id === this.selectedTecnicoId)?.nombre || 'TODOS');
+    }
+
+    /**
+     * Limpia todos los filtros
+     */
+    clearFilters(): void {
+        // Mostrar todas las listas
+        this.hiddenLists = [];
+        
+        // Resetear el filtro de técnico
+        this.selectedTecnicoId = 'TODOS';
+        
+        // Recargar todas las listas
+        Object.keys(this.listStates).forEach(listId => {
+            this.goToPage(listId, 1); // Volver a la primera página
+        });
+        
+        // Actualizar la vista
+        this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Filtra por estado
+     */
+    filterByStatus(status: 'pendiente' | 'completado'): void {
+        // Ocultar todas las listas primero
+        const allListIds = Object.keys(this.listStates);
+        this.hiddenLists = [...allListIds];
+        
+        // Mostrar solo las listas correspondientes al estado
+        switch(status) {
+            case 'pendiente':
+                // Mostrar listas de "Por hacer" y "En progreso"
+                this.hiddenLists = this.hiddenLists.filter(id => 
+                    !['por-hacer', 'en-progreso'].includes(id)
+                );
+                break;
+                
+            case 'completado':
+                // Mostrar lista de "Completado"
+                this.hiddenLists = this.hiddenLists.filter(id => 
+                    id !== 'completado'
+                );
+                break;
+        }
+        
+        // Recargar las listas visibles
+        allListIds.forEach(listId => {
+            if (!this.hiddenLists.includes(listId)) {
+                this.goToPage(listId, 1); // Volver a la primera página
+            }
+        });
+        
+        // Actualizar la vista
+        this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Filtra por tipo de servicio
+     */
+    filterByType(type: 'asistencia' | 'laboratorio' | 'remota'): void {
+        this.selectedTipoServicio = type; // Actualizar el valor seleccionado
+        switch(type) {
+            case 'asistencia':
+                this.board.title = TipoServicio.ASISTENCIA_SITIO;
+                this.board.id = 'asistencia-sitio';
+                break;
+            case 'laboratorio':
+                this.board.title = TipoServicio.SERVICIO_LABORATORIO;
+                this.board.id = 'servicio-laboratorio';
+                break;
+            case 'remota':
+                this.board.title = TipoServicio.ASISTENCIA_REMOTA;
+                this.board.id = 'asistencia-remota';
+                break;
+        }
+        // Mostrar todas las listas
+        this.hiddenLists = [];
+        
+        // Resetear estados de las listas
+        Object.keys(this.listStates).forEach(listId => {
+            this.listStates[listId].page = 1;
+            this.listStates[listId].total = 0;
+        });
+
+        // Limpiar las listas actuales
+        this.lists.forEach(list => {
+            list.cards = [];
+        });
+
+        // Recargar los datos con el nuevo tipo de servicio
+        this.reloadAllLists();
+        
+        // Resetear el filtro de técnico
+        this.selectedTecnicoId = 'TODOS';
+        
+        // Actualizar la vista
+        this._changeDetectorRef.markForCheck();
+    }
+
+    getSelectedServiceIcon(): string {
+        switch(this.board?.id) {
+            case 'asistencia-sitio':
+                return 'heroicons_outline:computer-desktop';
+            case 'servicio-laboratorio':
+                return 'heroicons_outline:beaker';
+            case 'asistencia-remota':
+                return 'heroicons_outline:globe-alt';
+            default:
+                return 'heroicons_outline:computer-desktop';
+        }
+    }
+
+    getSelectedServiceDescription(): string {
+        switch(this.board?.id) {
+            case 'asistencia-sitio':
+                return 'Servicios de asistencia técnica en sitio';
+            case 'servicio-laboratorio':
+                return 'Servicios de mantenimiento en laboratorio';
+            case 'asistencia-remota':
+                return 'Servicios de asistencia técnica remota';
+            default:
+                return '';
+        }
+    }
+
+    getTipoServicioFromTitle(title: string): string {
+        switch(title) {
+            case TipoServicio.ASISTENCIA_SITIO:
+                return 'asistencia';
+            case TipoServicio.SERVICIO_LABORATORIO:
+                return 'laboratorio';
+            case TipoServicio.ASISTENCIA_REMOTA:
+                return 'remota';
+            default:
+                return 'asistencia';
+        }
     }
 }

@@ -69,7 +69,7 @@ export const defaultNavigation2: FuseNavigationItem[] = [
                 title: 'Mis Asignaciones',
                 type : 'basic',
                 icon : 'heroicons_outline:view-columns',
-                link : '/apps/scrumboard',
+                link : '/apps/scrumboard/asistencia-sitio',
                 roles     : [1, 2],
             },
             {
@@ -167,7 +167,7 @@ export const compactNavigation2: FuseNavigationItem[] = [
                 title: 'Mis Asignaciones',
                 type : 'basic',
                 icon : 'heroicons_outline:view-columns',
-                link : '/apps/scrumboard',
+                link : '/apps/scrumboard/asistencia-sitio',
                 roles     : [1,2],
             },
             
@@ -264,7 +264,7 @@ export const futuristicNavigation2: FuseNavigationItem[] = [
                 title: 'Mis Asignaciones',
                 type : 'basic',
                 icon : 'heroicons_outline:view-columns',
-                link : '/apps/scrumboard',
+                link : '/apps/scrumboard/asistencia-sitio',
                 roles     : [1,2],
             },
             {
@@ -362,7 +362,7 @@ export const horizontalNavigation2: FuseNavigationItem[] = [
                 title: 'Mis Asignaciones',
                 type : 'basic',
                 icon : 'heroicons_outline:view-columns',
-                link : '/apps/scrumboard',
+                link : '/apps/scrumboard/asistencia-sitio',
                 roles     : [1,2],
             },
             {
