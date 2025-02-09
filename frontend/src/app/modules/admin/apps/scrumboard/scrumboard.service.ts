@@ -157,21 +157,35 @@ export class ScrumboardService {
     /**
      * Obtener técnicos
      */
-    getTecnicos(search = ''): Observable<any[]> {
-        const params = new HttpParams()
-            .set('page', '1')
-            .set('limit', '1000')
-            .set('search', search);
-
-        return this._httpClient.get<UserResponse>(`${this.apiUrl}/user`, { params }).pipe(
-            map(response => 
-                response.data.data
-                    .filter(item => item.usuarios_id.role === 'TECNICO')
-                    .map(item => ({
-                        id: item.usuarios_id.usuarios_id,
-                        nombre: `${item.usuarios_id.nombres} ${item.usuarios_id.apellidos}`
-                    }))
-            )
+    getTecnicos(search: string = ''): Observable<any[]> {
+        return this._httpClient.get<any>(`${this.apiUrl}/user`, {
+            params: {
+                page: '1',
+                limit: '1000',
+                search: search
+            }
+        }).pipe(
+            map(response => {
+                console.log('Respuesta completa de la API getTecnicos:', response);
+                console.log('Parámetros de búsqueda:', { search });
+                
+                if (response?.data?.data) {
+                    const tecnicos = response.data.data
+                        .filter(user => user.role === 'TECNICO' && user.estado === 1)
+                        .map(tecnico => ({
+                            id: tecnico.usuarios_id,
+                            nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim()
+                        }));
+                    
+                    console.log('Técnicos filtrados:', tecnicos);
+                    return tecnicos;
+                }
+                return [];
+            }),
+            catchError(error => {
+                console.error('Error en getTecnicos:', error);
+                return of([]);
+            })
         );
     }
 

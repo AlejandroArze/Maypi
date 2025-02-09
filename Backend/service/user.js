@@ -1,3 +1,4 @@
+const { Model, Op } = require('sequelize'); // Agregamos Op a los imports
 const bcrypt = require("bcryptjs") // Requiere bcryptjs para encriptar contraseñas
 const jwt = require("jsonwebtoken"); // Para generar un token JWT
 const Joi = require('joi');
@@ -212,6 +213,59 @@ class UserService {
         } catch (error) {
             await DB.rollback() // Deshace los cambios si hay un error
             throw error // Lanza el error para manejarlo
+        }
+    }
+
+    /**
+     * Método para paginar y buscar usuarios
+     */
+    static async paginate(page = 1, limit = 10, search = '') {
+        try {
+            const offset = (page - 1) * limit;
+            
+            let whereClause = {};
+            if (search) {
+                whereClause = {
+                    [Op.or]: [
+                        { nombres: { [Op.iLike]: `%${search}%` } },
+                        { apellidos: { [Op.iLike]: `%${search}%` } },
+                        { email: { [Op.iLike]: `%${search}%` } },
+                        { usuario: { [Op.iLike]: `%${search}%` } }
+                    ]
+                };
+            }
+
+            const { count, rows } = await User.findAndCountAll({
+                where: whereClause,
+                limit: parseInt(limit),
+                offset: offset,
+                order: [['usuarios_id', 'DESC']]
+            });
+
+            const totalPages = Math.ceil(count / limit);
+
+            // Estructura con exactamente 2 niveles de data
+            return {
+                message: "Users retrieved successfully",
+                data: {
+                    total: count,
+                    perPage: limit,
+                    currentPage: page,
+                    totalPages: totalPages,
+                    data: rows.map(user => ({
+                        usuarios_id: user.usuarios_id,
+                        email: user.email,
+                        usuario: user.usuario,
+                        nombres: user.nombres,
+                        apellidos: user.apellidos,
+                        role: user.role,
+                        estado: user.estado,
+                        image: user.image
+                    }))
+                }
+            };
+        } catch (error) {
+            throw error;
         }
     }
 }
