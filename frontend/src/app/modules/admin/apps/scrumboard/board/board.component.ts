@@ -67,7 +67,6 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     hiddenLists: string[] = [];
     selectedTecnicoId: string = 'TODOS';
     selectedTipoServicio: string = 'asistencia';
-    private checkTitleInterval: any;
 
     private readonly HIDDEN_LISTS_KEY = 'scrumboard_hidden_lists';
 
@@ -129,7 +128,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                 lists: this.lists
             };
             
-            // Actualizar el tipo de servicio seleccionado según el título
+            // Sincronizar el tipo de servicio seleccionado una sola vez al inicio
             this.selectedTipoServicio = this.getTipoServicioFromTitle(this.board.title);
             
             // Inicializar las listas con arrays vacíos
@@ -206,23 +205,11 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                     }
                 });
         }
-
-        // Iniciar verificación periódica
-        this.checkTitleInterval = setInterval(() => {
-            const currentType = this.getTipoServicioFromTitle(this.board?.title);
-            if (this.selectedTipoServicio !== currentType) {
-                this.selectedTipoServicio = currentType;
-                this._changeDetectorRef.markForCheck();
-            }
-        }, 1000); // Verificar cada segundo
     }
 
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-        if (this.checkTitleInterval) {
-            clearInterval(this.checkTitleInterval);
-        }
     }
 
     /**
@@ -862,7 +849,15 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
      * Filtra por tipo de servicio
      */
     filterByType(type: 'asistencia' | 'laboratorio' | 'remota'): void {
-        this.selectedTipoServicio = type; // Actualizar el valor seleccionado
+        // Guardar las listas actuales antes de la actualización
+        const previousLists = this.lists.map(list => ({
+            ...list,
+            cards: [...list.cards]
+        }));
+
+        // Actualizar el tipo seleccionado y el board
+        this.selectedTipoServicio = type;
+        
         switch(type) {
             case 'asistencia':
                 this.board.title = TipoServicio.ASISTENCIA_SITIO;
@@ -877,28 +872,31 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                 this.board.id = 'asistencia-remota';
                 break;
         }
+
         // Mostrar todas las listas
         this.hiddenLists = [];
         
-        // Resetear estados de las listas
+        // Resetear estados de las listas pero mantener las tarjetas existentes
         Object.keys(this.listStates).forEach(listId => {
             this.listStates[listId].page = 1;
             this.listStates[listId].total = 0;
         });
 
-        // Limpiar las listas actuales
-        this.lists.forEach(list => {
-            list.cards = [];
+        // Mantener las tarjetas anteriores mientras se cargan las nuevas
+        this.lists.forEach((list, index) => {
+            list.cards = previousLists[index].cards;
         });
 
-        // Recargar los datos con el nuevo tipo de servicio
-        this.reloadAllLists();
-        
         // Resetear el filtro de técnico
         this.selectedTecnicoId = 'TODOS';
         
-        // Actualizar la vista
-        this._changeDetectorRef.markForCheck();
+        // Actualizar la vista una vez
+        this._changeDetectorRef.detectChanges();
+
+        // Cargar los nuevos datos
+        requestAnimationFrame(() => {
+            this.reloadAllLists();
+        });
     }
 
     getSelectedServiceIcon(): string {
