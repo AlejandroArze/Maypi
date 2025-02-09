@@ -1210,33 +1210,43 @@ updateEquipment(equipos_id: number, equipment: InventoryEquipment): Observable<I
         lector: typeof equipment.lector === 'boolean' ? (equipment.lector ? 'true' : 'false') : equipment.lector
     };
 
-    return this._httpClient.put<{ message: string, data: InventoryEquipment }>(`${this.baseUrl}/equipment/${equipos_id}`, equipmentWithTextLector)
-        .pipe(
-            map(response => {
-                const updatedEquipment = {
-                    ...response.data,
-                    equipos_id: Number(response.data.equipos_id)  // Normalizando equipos_id a número
-                };
-                
-                const currentEquipments = this._equipments.getValue();
-                const index = currentEquipments.findIndex(item => item.equipos_id === equipos_id);
-                if (index !== -1) {
-                    // Actualiza de manera inmutable la lista de equipos
-                    const updatedEquipments = [
-                        ...currentEquipments.slice(0, index),
-                        {...currentEquipments[index], ...updatedEquipment},
-                        ...currentEquipments.slice(index + 1)
-                    ];
-                    console.log('Equipos actualizados:', updatedEquipments);
-                    this._equipments.next(updatedEquipments);
-                }
-                return updatedEquipment;
-            }),
-            catchError(error => {
-                console.error('Error al actualizar el equipo:', error);
-                return throwError(() => new Error('Error al actualizar el equipo.'));
-            })
-        );
+    // Convertir campos vacíos a espacio
+    Object.keys(equipmentWithTextLector).forEach(key => {
+        if (equipmentWithTextLector[key] === '') {
+            equipmentWithTextLector[key] = ' ';
+        }
+    });
+
+    return this._httpClient.put<{ message: string, data: InventoryEquipment }>(
+        `${this.baseUrl}/equipment/${equipos_id}`, 
+        equipmentWithTextLector
+    ).pipe(
+        map(response => {
+            const updatedEquipment = {
+                ...response.data,
+                equipos_id: Number(response.data.equipos_id)  // Normalizando equipos_id a número
+            };
+            
+            const currentEquipments = this._equipments.getValue();
+            const index = currentEquipments.findIndex(item => item.equipos_id === equipos_id);
+            
+            if (index !== -1) {
+                // Actualiza de manera inmutable la lista de equipos
+                const updatedEquipments = [
+                    ...currentEquipments.slice(0, index),
+                    {...currentEquipments[index], ...updatedEquipment},
+                    ...currentEquipments.slice(index + 1)
+                ];
+                console.log('Equipos actualizados:', updatedEquipments);
+                this._equipments.next(updatedEquipments);
+            }
+            return updatedEquipment;
+        }),
+        catchError(error => {
+            console.error('Error al actualizar el equipo:', error);
+            return throwError(() => new Error('Error al actualizar el equipo.'));
+        })
+    );
 }
 
 

@@ -162,16 +162,38 @@ export const MY_DATE_FORMATS = {
                 @media (prefers-color-scheme: dark) {
                 color: #bbb; /* Texto más claro en modo oscuro */
                 }
-            }
-            }
-
-
+                }
+            }          
 
             
 
-            
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgb(236, 253, 245);
+            color: rgb(6, 95, 70);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-        `,
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }`
     ],
     encapsulation  : ViewEncapsulation.None, // Define la encapsulación CSS
     changeDetection: ChangeDetectionStrategy.OnPush, // Define la estrategia de detección de cambios
@@ -233,6 +255,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
     private _unsubscribeAll: Subject<any> = new Subject<any>(); // Observable para manejar la destrucción de suscripciones
 
     showTipoError: boolean = false;
+
+    private _updateSubject: Subject<void> = new Subject<void>();
 
     /**
      * Constructor del componente
@@ -391,6 +415,21 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
             this.form = new FormGroup({
                 funcionarioasignado: new FormControl(''), // Agrega 'funcionarioasignado' aquí
               });
+
+        // Configurar el auto-guardado
+        this._updateSubject.pipe(
+            debounceTime(1000), // Esperar 1 segundo después de la última escritura
+            takeUntil(this._unsubscribeAll)
+        ).subscribe(() => {
+            this.updateSelectedEquipment();
+        });
+
+        // Suscribirse a cambios en el formulario
+        this.selectedEquipmentForm.valueChanges.pipe(
+            takeUntil(this._unsubscribeAll)
+        ).subscribe(() => {
+            this._updateSubject.next();
+        });
     }
 
     /**
@@ -951,6 +990,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
                     next: () => {
                         this.showFlashMessage('success');
                         this.selectedEquipment.tipoDescripcion = equipment.tipo;
+                        this.showToast('Equipo Actualizado');
                     },
                     error: (error) => {
                         console.error('Error al actualizar:', error);
@@ -1231,4 +1271,19 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy 
         
     
     
+    private showToast(message: string): void {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <span class="material-icons text-green-500 mr-2">check_circle</span>
+                <span>Equipo Actualizado</span>
+            </div>
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
 }
