@@ -53,8 +53,9 @@
                 </mat-form-field>
 
                 <mat-form-field class="w-full">
-                    <mat-label>Técnico Asignado</mat-label>
-                    <input matInput formControlName="tecnicoAsignado">
+                    <mat-label>Técnico Registro</mat-label>
+                    <input matInput [value]="tecnicoRegistroNombre" readonly>
+                    <input type="hidden" [formControl]="cardForm.get('tecnicoRegistro')">
                 </mat-form-field>
             </div>
 

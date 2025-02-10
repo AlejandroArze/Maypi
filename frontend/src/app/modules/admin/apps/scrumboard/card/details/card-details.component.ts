@@ -12,6 +12,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Card, EstadoServicio } from '../../scrumboard.models';
 import { ScrumboardService } from '../../scrumboard.service';
+import { HttpClient } from '@angular/common/http';
+
 
 @Component({
     selector: 'scrumboard-card-details',
@@ -35,12 +37,14 @@ export class CardDetailsComponent implements OnInit, OnDestroy {
     cardForm: FormGroup;
     estados = Object.values(EstadoServicio);
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    tecnicoRegistroNombre: string = '';
 
     constructor(
         private _formBuilder: FormBuilder,
         private _route: ActivatedRoute,
         private _router: Router,
-        private _scrumboardService: ScrumboardService
+        private _scrumboardService: ScrumboardService,
+        private _httpClient: HttpClient
     ) {}
 
     ngOnInit(): void {
@@ -66,6 +70,18 @@ export class CardDetailsComponent implements OnInit, OnDestroy {
                 .subscribe(card => {
                     this.card = card;
                     this.cardForm.patchValue(card);
+                    
+                    // Cargar el nombre del técnico registro
+                    if (card.tecnicoRegistro) {
+                        this._scrumboardService.getTecnicoById(card.tecnicoRegistro)
+                            .pipe(takeUntil(this._unsubscribeAll))
+                            .subscribe((response: any) => {
+                                if (response?.data) {
+                                    this.tecnicoRegistroNombre = 
+                                        `${response.data.nombres} ${response.data.apellidos}`.trim();
+                                }
+                            });
+                    }
                 });
         }
     }

@@ -45,9 +45,10 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 })
 export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
     cardForm: FormGroup;
+    private _unsubscribeAll: Subject<any> = new Subject<any>();
+    tecnicoRegistroNombre: string = '';
     tiposServicio = Object.values(TipoServicio);
     actualizando = false;
-    private _unsubscribeAll: Subject<void> = new Subject<void>();
     searchEquipoCtrl = new FormControl('');
     filteredEquipos: Equipo[] = [];
     bienes: any = null;
@@ -65,7 +66,8 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
         private _snackBar: MatSnackBar,
         private _dialog: MatDialog,
         private _changeDetectorRef: ChangeDetectorRef
-    ) {}
+    ) {
+    }
 
     ngOnInit(): void {
         // Inicializar el formulario sin validadores inicialmente
@@ -239,10 +241,26 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                     this.onSubmit();
                 }
             });
+
+        if (this.data.card) {
+            this.cardForm.patchValue(this.data.card);
+            
+            // Cargar el nombre del técnico registro
+            if (this.data.card.tecnicoRegistro) {
+                this._scrumboardService.getTecnicoById(this.data.card.tecnicoRegistro)
+                    .pipe(takeUntil(this._unsubscribeAll))
+                    .subscribe((response: any) => {
+                        if (response?.data) {
+                            this.tecnicoRegistroNombre = 
+                                `${response.data.nombres} ${response.data.apellidos}`.trim();
+                        }
+                    });
+            }
+        }
     }
 
     ngOnDestroy(): void {
-        this._unsubscribeAll.next();
+        this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
 

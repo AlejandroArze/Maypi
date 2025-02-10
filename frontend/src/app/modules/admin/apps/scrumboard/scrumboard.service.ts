@@ -135,7 +135,8 @@ export class ScrumboardService {
                         oficinaSolicitante: item.oficinaSolicitante || '',
                         telefonoSolicitante: item.telefonoSolicitante || '',
                         listId: '',
-                        position: 0
+                        position: 0,
+                        tecnicoRegistro: item.tecnicoRegistro || 3
                 } as Card));
 
                 // Mantener las tarjetas existentes de otros estados
@@ -374,7 +375,8 @@ export class ScrumboardService {
                     oficinaSolicitante: item.oficinaSolicitante || '',
                     telefonoSolicitante: item.telefonoSolicitante || '',
                     listId: '',
-                    position: 0
+                    position: 0,
+                    tecnicoRegistro: item.tecnicoRegistro || 3
                 } as Card;
             }).filter(card => card !== null)),
             tap(cards => {
@@ -414,7 +416,8 @@ export class ScrumboardService {
                     oficinaSolicitante: item.oficinaSolicitante || '',
                     telefonoSolicitante: item.telefonoSolicitante || '',
                     listId: '',
-                    position: 0
+                    position: 0,
+                    tecnicoRegistro: item.tecnicoRegistro || 3
                 } as Card;
             })
         );
@@ -599,7 +602,8 @@ export class ScrumboardService {
                             oficinaSolicitante: response.data.oficinaSolicitante,
                             telefonoSolicitante: response.data.telefonoSolicitante,
                             listId: '',
-                            position: 0
+                            position: 0,
+                            tecnicoRegistro: response.data.tecnicoRegistro || userId
                         } as Card;
                         this.cards$.next([...currentCards, newCard]);
                     }
@@ -684,6 +688,13 @@ export class ScrumboardService {
                 }
             })
         );
+    }
+
+    /**
+     * Obtener técnico por ID
+     */
+    getTecnicoById(tecnicoId: number): Observable<any> {
+        return this._httpClient.get<any>(`${this.apiUrl}/user/${tecnicoId}`);
     }
 }
 

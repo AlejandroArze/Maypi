@@ -36,6 +36,7 @@ export interface Card {
     position: number;
     tipoHardware?: string;
     descripcion?: string;
+    tecnicoRegistro: number;
 }
 
 export enum EstadoServicio {

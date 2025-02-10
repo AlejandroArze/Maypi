@@ -807,7 +807,8 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                             tipoHardware: '',
                             descripcion: '',
                             listId: 'sin-asignar',
-                            position: 0
+                            position: 0,
+                            tecnicoRegistro: response.data.tecnicoRegistro  // Agregar esta línea
                         };
 
                         // Agregar la nueva tarjeta al principio de la lista
