@@ -544,6 +544,24 @@
                                         (click)="updateSelectedEquipment()">
                                         Actualizar
                                     </button>
+                                    <!-- Nuevo botón para PDF -->
+                                    <button
+                                        mat-flat-button
+                                        [color]="'accent'"
+                                        class="ml-2"
+                                        (click)="generarPDF()">
+                                        <mat-icon>picture_as_pdf</mat-icon>
+                                        <span class="ml-2">PDF</span>
+                                    </button>
+                                    <!-- Nuevo botón para Imprimir -->
+                                    <button
+                                        mat-flat-button
+                                        [color]="'accent'"
+                                        class="ml-2"
+                                        (click)="imprimirPDF()">
+                                        <mat-icon>print</mat-icon>
+                                        <span class="ml-2">Imprimir</span>
+                                    </button>
                                 </div>
                             </div>
 
