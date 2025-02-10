@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Tag, Task, Servicio, InventoryPagination, InventoryEquipment } from 'app/modules/admin/apps/tasks/tasks.types';
 import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap, throwError,catchError } from 'rxjs';
@@ -238,50 +238,47 @@ export class TasksService
             size: number = 100,
             sort: string = 'name',
             order: 'asc' | 'desc' | '' = 'desc',
-            search: string = 'SIN ASIGNAR',
-            count2: number = 0,
+            estado: string = 'SIN ASIGNAR'
         ): Observable<{ pagination: InventoryPagination; services: Servicio[] }> {
-            return this._httpClient.get<any>(`${this.baseUrl}/service?page=${page}&limit=${size}&search=${search}`).pipe(
-                map((response) => {
-                    console.log('API Response:', response);
-                    console.log('API search:', search);
-        
-                    // Crear objeto de paginación
-                    const pagination: InventoryPagination = {
-                        length: response.data.total,
-                        size: response.data.perPage,
-                        page: response.data.currentPage,
-                        lastPage: response.data.totalPages,
-                        startIndex: ((response.data.currentPage) * response.data.perPage),
-                        endIndex: response.data.currentPage * response.data.perPage,
-                    };
-        
-                    // Desanidar los datos y convertir 'lector' a booleano
-                    const services = response.data.data.map((item: any) => {
-                        // Asegurarse de que 'lector' sea un valor booleano
-                        if (typeof item.lector === 'string') {
-                            if (item.lector === 'true') {
-                                item.lector = true;  // Convertir 'true' a booleano true
-                            } else {
-                                item.lector = false; // Convertir todo lo demás a booleano false
-                            }
-                        }
-                        console.log("lector: get equipmet ",item.servicios_id);
-                       
-    
+            let params = new HttpParams()
+                .set('page', page.toString())
+                .set('limit', size.toString())
+                .set('estado', estado);
+
+            return this._httpClient.get<any>(`${this.baseUrl}/service`, { params })
+                .pipe(
+                    map(response => {
+                        console.log('API Response:', response);
                         
-                        console.log("lector: get equipmet ",item.servicios_id);
-                        console.log("tipo: get equipmet ",item.servicios_id.tipoDescripcion);
-                        return item.servicios_id;
-                    });
-        
-                    // Emitir los datos de paginación y equipos
-                    this._pagination.next(pagination);
-                    this._services.next(services);
-        
-                    return { pagination, services };
-                })
-            );
+                        // Crear objeto de paginación
+                        const pagination: InventoryPagination = {
+                            length: response.data.total,
+                            size: response.data.perPage,
+                            page: response.data.currentPage,
+                            lastPage: response.data.totalPages,
+                            startIndex: ((response.data.currentPage) * response.data.perPage),
+                            endIndex: response.data.currentPage * response.data.perPage,
+                        };
+
+                        // Filtrar los servicios por estado y mapear correctamente la estructura
+                        const services = response.data.data
+                            .map((item: any) => ({
+                                ...item.servicios_id,  // Expandir los datos del servicio
+                                servicios_id: item.servicios_id.servicios_id,
+                                nombreSolicitante: item.servicios_id.nombreSolicitante || '',
+                                problema: item.servicios_id.problema || '',
+                                estado: item.servicios_id.estado,
+                                tecnicoAsignado: item.servicios_id.tecnicoAsignado || null
+                            }))
+                            .filter((service: any) => service.estado === estado);
+
+                        // Emitir los datos
+                        this._pagination.next(pagination);
+                        this._services.next(services);
+
+                        return { pagination, services };
+                    })
+                );
         }
         
     
