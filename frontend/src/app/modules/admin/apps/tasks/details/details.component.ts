@@ -2,7 +2,7 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay'; // Importa módulos 
 import { TemplatePortal } from '@angular/cdk/portal'; // Importa portal para proyectar contenido en superposiciones
 import { TextFieldModule } from '@angular/cdk/text-field'; // Importa módulo para campos de texto
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common'; // Importa directivas comunes de Angular
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Renderer2, TemplateRef, ViewChild, ViewContainerRef, ViewEncapsulation } from '@angular/core'; // Importa elementos core de Angular
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, TemplateRef, ViewChild, ViewContainerRef, ViewEncapsulation } from '@angular/core'; // Importa elementos core de Angular
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, FormControl, FormGroupDirective, NgForm } from '@angular/forms'; // Importa módulos para manejo de formularios
 import { MatButtonModule } from '@angular/material/button'; // Importa módulo de botones de Material
 import { MatCheckboxModule } from '@angular/material/checkbox'; // Importa módulo de checkbox de Material
@@ -1329,5 +1329,17 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
     getSelectedTecnicoDisplay(): string {
         const selectedTecnico = this.tecnicos.find(t => t.id === this.servicioForm.get('tecnicoAsignado').value);
         return selectedTecnico ? selectedTecnico.nombre : 'Sin asignar';
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement;
+        const isInputClick = target.closest('input') !== null;
+        const isTecnicosDropdown = target.closest('.tecnicos-dropdown') !== null;
+        
+        if (!isInputClick && !isTecnicosDropdown) {
+            this.showTecnicosDropdown = false;
+            this._changeDetectorRef.detectChanges();
+        }
     }
 }
