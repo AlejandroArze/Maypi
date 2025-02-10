@@ -252,7 +252,8 @@ export class ScrumboardService {
         console.log(`Iniciando actualización de estado para servicio ${serviceId} a ${newStatus}`);
         const nullToSpace = (value: any, field?: string) => {
             if (value === null || value === undefined || value === '' || value === 'null') {
-                return field === 'equipo' ? null : " ";
+                // Retornar null para equipo y tecnicoAsignado, espacio para otros campos
+                return (field === 'equipo' || field === 'tecnicoAsignado') ? null : " ";
             }
             return value;
         };
@@ -466,7 +467,7 @@ export class ScrumboardService {
                 informe: nullToSpace(updateData.informe || " "),
                 estado: nullToSpace(updateData.estado || "SIN ASIGNAR"),
               
-                tecnicoAsignado: updateData.tecnicoAsignado ,
+                tecnicoAsignado: nullToSpace(updateData.tecnicoAsignado, 'tecnicoAsignado'),
                 fechaRegistro: nullToSpace(updateData.fechaRegistro || new Date().toISOString()),
                 fechaInicio: nullToSpace(updateData.fechaInicio || " "),
                 fechaTerminado: nullToSpace(updateData.fechaTerminado || " "),

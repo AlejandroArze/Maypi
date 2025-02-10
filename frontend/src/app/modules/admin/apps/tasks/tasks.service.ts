@@ -453,7 +453,7 @@ export class TasksService
             fechaEgreso: " ",
             ciSolicitante: " ",
             nombreSolicitante: " ",
-            tipo: " ",
+            tipo: "EN LABORATORIO",
             tecnicoRegistro:  user?.data?.usuarios_id || 1,// Obtener el usuario del localStorage
             tecnicoEgreso: " ",
             ciResponsableEgreso: " ",
@@ -548,9 +548,11 @@ export class TasksService
         const taskToUpdate = {
             ...task,
             equipo: task.equipo === '' ? null : task.equipo,
-            equipos_id: task.equipo === '' ? null : task.equipo
+            equipos_id: task.equipo === '' ? null : task.equipo,
+            tipo: task.tipo === '' ? " " : task.tipo
         };
         
+
         console.log('Actualizando servicio:', {
             url: `${this.baseUrl}/service/${servicioId}`,
             data: taskToUpdate,
@@ -812,6 +814,95 @@ export class TasksService
             }),
             catchError(error => {
                 console.error('Error en buscarEmpleadosPorCI:', error);
+                return of([]);
+            })
+        );
+    }
+
+    /**
+     * Obtener técnicos
+     */
+    getTecnicos(search: string = ''): Observable<any[]> {
+        // Obtener datos del usuario del localStorage
+        const userString = localStorage.getItem('user');
+        let userData;
+        try {
+            userData = JSON.parse(userString);
+            console.log('Datos del usuario en getTecnicos:', userData);
+        } catch (e) {
+            console.error('Error al parsear datos del usuario:', e);
+            userData = null;
+        }
+
+        // Obtener el rol del usuario de la misma estructura que viene del localStorage
+        const userRole = userData?.data?.role;
+        const userId = userData?.data?.usuarios_id;
+        
+        console.log('Role del usuario en getTecnicos:', userRole);
+
+        return this._httpClient.get<any>(`${this.baseUrl}/user`, {
+            params: {
+                page: '1',
+                limit: '1000',
+                search: search
+            }
+        }).pipe(
+            map(response => {
+                console.log('Respuesta completa de la API getTecnicos:', response);
+                
+                if (response?.data?.data) {
+                    let tecnicos = [];
+
+                    // Role 1 (Admin): Ver todos los técnicos sin importar estado
+                    if (userRole === '1') {
+                        tecnicos = response.data.data
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                        
+                        // Agregar opción "TODOS" para admin
+                        tecnicos.unshift({
+                            id: 'TODOS',
+                            nombre: 'TODOS'
+                        });
+                    }
+                    // Role 2: Ver solo técnicos activos
+                    else if (userRole === '2') {
+                        tecnicos = response.data.data
+                            .filter(user => user.estado === 1)
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                        
+                        // Agregar opción "TODOS" para supervisor
+                        tecnicos.unshift({
+                            id: 'TODOS',
+                            nombre: 'TODOS',
+                            estado: 1
+                        });
+                    }
+                    // Role 3: Ver solo su propio usuario
+                    else if (userRole === '3') {
+                        tecnicos = response.data.data
+                            .filter(user => user.usuarios_id === userId)
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                    }
+
+                    console.log('Técnicos filtrados según rol:', tecnicos);
+                    return tecnicos;
+                }
+                return [];
+            }),
+            catchError(error => {
+                console.error('Error en getTecnicos:', error);
                 return of([]);
             })
         );

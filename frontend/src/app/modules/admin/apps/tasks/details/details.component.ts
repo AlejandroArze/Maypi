@@ -139,6 +139,13 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
     // Agregar una bandera para controlar si se seleccionó de la lista
     private selectedFromList: boolean = false;
 
+    // Nuevas propiedades para el técnico asignado
+    tecnicos: any[] = [];
+    filteredTecnicos: any[] = [];
+    showTecnicosDropdown = false;
+    canSelectTecnico: boolean = true;
+    searchTerm: string = '';
+
     /**
      * Constructor del componente TasksDetailsComponent
      * 
@@ -168,6 +175,42 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
         private _snackBar: MatSnackBar
     )
     {
+        // Cargar técnicos al inicializar
+        this._tasksService.getTecnicos()
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: (response) => {
+                    // Filtrar la opción "TODOS" del array de técnicos
+                    this.tecnicos = response.filter(t => t.id !== 'TODOS');
+                    this.filteredTecnicos = this.tecnicos;
+                    
+                    // Obtener datos del usuario del localStorage
+                    const token = localStorage.getItem('accessToken');
+                    if (token) {
+                        const tokenParts = token.split('.');
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        
+                        // Establecer permisos según el rol
+                        if (payload.role === '3') {
+                            this.canSelectTecnico = false;
+                        } else if (payload.role === '2') {
+                            this.canSelectTecnico = true;
+                            // Filtrar técnicos activos solo para rol 2
+                            this.tecnicos = this.tecnicos.filter(t => t.estado === 1);
+                            this.filteredTecnicos = this.tecnicos;
+                        } else if (payload.role === '1') {
+                            this.canSelectTecnico = true;
+                        }
+                    }
+                    
+                    this._changeDetectorRef.detectChanges();
+                },
+                error: (error) => {
+                    console.error('Error al cargar técnicos:', error);
+                    this.tecnicos = [];
+                    this._changeDetectorRef.detectChanges();
+                }
+            });
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -290,7 +333,7 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
             problema: [''],
             telefonoResponsableEgreso: [''],
             gestion: [0],
-            tecnicoAsignado: [0],
+            tecnicoAsignado: [''],
             observaciones: [''],
             tipoResponsableEgreso: [''],
             estado: [''],
@@ -1229,5 +1272,62 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
                 }
             });
         }
+    }
+
+    // Métodos para manejar el técnico asignado
+    onSearchChange(term: string): void {
+        this.searchTerm = term;
+        this.showTecnicosDropdown = true;
+        
+        if (!term) {
+            this.filteredTecnicos = this.tecnicos;
+            return;
+        }
+
+        this.filteredTecnicos = this.tecnicos.filter(tecnico => 
+            tecnico.nombre.toLowerCase().includes(term.toLowerCase())
+        );
+        
+        this._changeDetectorRef.detectChanges();
+    }
+
+    onTecnicoFilterChange(tecnicoId: string): void {
+        // Actualizar el valor en el formulario
+        this.servicioForm.patchValue({
+            tecnicoAsignado: tecnicoId
+        });
+
+        const updateData = {
+            ...this.servicioForm.getRawValue(),
+            tecnicoAsignado: tecnicoId
+        };
+
+        if (this.servicio?.servicios_id) {
+            this._tasksService.updateTask(this.servicio.servicios_id, updateData)
+                .subscribe({
+                    next: () => {
+                        this._snackBar.open('Técnico asignado correctamente', 'Cerrar', {
+                            duration: 3000,
+                            horizontalPosition: 'end',
+                            verticalPosition: 'top',
+                            panelClass: ['success-snackbar']
+                        });
+                    },
+                    error: (error) => {
+                        console.error('Error al asignar técnico:', error);
+                        this._snackBar.open('Error al asignar técnico', 'Cerrar', {
+                            duration: 3000,
+                            horizontalPosition: 'end',
+                            verticalPosition: 'top',
+                            panelClass: ['error-snackbar']
+                        });
+                    }
+                });
+        }
+    }
+
+    getSelectedTecnicoDisplay(): string {
+        const selectedTecnico = this.tecnicos.find(t => t.id === this.servicioForm.get('tecnicoAsignado').value);
+        return selectedTecnico ? selectedTecnico.nombre : 'Sin asignar';
     }
 }
