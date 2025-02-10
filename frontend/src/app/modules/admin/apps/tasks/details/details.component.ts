@@ -29,6 +29,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 export class CustomErrorStateMatcher implements ErrorStateMatcher {
     isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
@@ -67,6 +69,12 @@ interface EmpleadoOption {
     unidad: string;
     telefono?: string;
     telefono_coorp?: string;
+}
+
+// Agregar la interfaz para jsPDF con autoTable
+interface jsPDFWithPlugin extends jsPDF {
+    autoTable: (options: any) => jsPDF;
+    internal: any;
 }
 
 @Component({
@@ -1340,6 +1348,189 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
         if (!isInputClick && !isTecnicosDropdown) {
             this.showTecnicosDropdown = false;
             this._changeDetectorRef.detectChanges();
+        }
+    }
+
+    private loadImage(url: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+    private async generarPDFCompleto(): Promise<jsPDFWithPlugin> {
+        if (!this.servicio) {
+            throw new Error('No hay servicio seleccionado');
+        }
+
+        const doc = new jsPDF() as jsPDFWithPlugin;
+        const pageWidth = doc.internal.pageSize.width;
+        const today = new Date();
+
+        try {
+            // Cargar logo
+            const logoImg = await this.loadImage('/assets/images/logo/logo.svg');
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
+            const logoBase64 = canvas.toDataURL('image/png');
+
+            // Agregar logo
+            doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+
+            // Título
+            doc.setFontSize(16);
+            doc.text('Detalle de Servicio Técnico', pageWidth/2, 25, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, pageWidth/2, 35, { align: 'center' });
+
+            // Información del servicio
+            const data = [
+               
+                ['Tipo de Servicio', this.servicio.tipo || 'N/A'],
+                ['Estado', this.servicio.estado || 'N/A'],
+                ['Gestión', this.servicio.gestion?.toString() || 'N/A'],
+                ['Fecha de Registro', new Date(this.servicio.fechaRegistro).toLocaleDateString() || 'N/A'],
+                ['Fecha de Inicio', this.servicio.fechaInicio || 'N/A'],
+                ['Fecha de Terminado', this.servicio.fechaTerminado || 'N/A'],                
+                ['Nombre Solicitante', this.servicio.nombreSolicitante || 'N/A'],
+                ['CI Solicitante', this.servicio.ciSolicitante || 'N/A'],
+                ['Cargo Solicitante', this.servicio.cargoSolicitante || 'N/A'],
+                ['Tipo Solicitante', this.servicio.tipoSolicitante || 'N/A'],
+                ['Oficina Solicitante', this.servicio.oficinaSolicitante || 'N/A'],
+                ['Teléfono Solicitante', this.servicio.telefonoSolicitante || 'N/A'],
+                ['Problema', this.servicio.problema || 'N/A'],
+                ['Observaciones', this.servicio.observaciones || 'N/A'],
+                ['Informe', this.servicio.informe || 'N/A'],
+                ['Técnico Asignado', this.servicio.tecnicoAsignadoString || 'N/A'],
+                ['Técnico Registro', this.servicio.tecnicoRegistroString || 'N/A'],
+                
+                
+            ];
+
+            doc.autoTable({
+                startY: 45,
+                head: [['Campo', 'Valor']],
+                body: data,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [63, 81, 181],
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold',
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3,
+                },
+            });
+
+            // Si hay información de bienes, agregar en una nueva página
+            if (this.bienes?.data) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.text('Información de Bienes', pageWidth/2, 20, { align: 'center' });
+
+                const bienesData = [
+                    ['Tipo Hardware', this.bienes.data.tipo || 'N/A'],
+                    ['Descripción', this.bienes.data.observacion || 'N/A'],
+                    ['Unidad', this.bienes.data.unidad || 'N/A'],
+                    ['Marca (Bienes)', this.bienes.data.caracteristicas?.MARCA || 'N/A'],
+                    ['Modelo (Bienes)', this.bienes.data.caracteristicas?.MODELO || 'N/A'],
+                    ['Serie (Bienes)', this.bienes.data.caracteristicas?.SERIE || 'N/A']
+                ];
+
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Característica', 'Valor']],
+                    body: bienesData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [63, 81, 181],
+                        textColor: 255,
+                        fontSize: 10,
+                        fontStyle: 'bold',
+                    },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3,
+                    },
+                });
+            }
+
+            // Agregar numeración de páginas
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Página ${i} de ${pageCount}`, pageWidth - 20, doc.internal.pageSize.height - 10);
+            }
+
+        } catch (error) {
+            console.error('Error al generar el PDF:', error);
+            throw error;
+        }
+
+        return doc;
+    }
+
+    async generarPDF(): Promise<void> {
+        try {
+            const doc = await this.generarPDFCompleto();
+            const pdfBuffer = doc.output('arraybuffer');
+            const blob = new Blob([pdfBuffer], { type: 'application/pdf' });
+            
+            // Crear URL para el blob
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Abrir en nueva pestaña
+            window.open(blobUrl, '_blank');
+            
+            // Crear el link de descarga
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `servicio_${this.servicio.servicios_id}_${new Date().toISOString().split('T')[0]}.pdf`;
+            
+            // Simular click para mostrar el diálogo nativo de descarga
+            link.click();
+            
+            // Limpiar
+            setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+            }, 2000);
+        } catch (error) {
+            console.error('Error al generar el PDF:', error);
+        }
+    }
+
+    async imprimirPDF(): Promise<void> {
+        try {
+            const doc = await this.generarPDFCompleto();
+            const printFrame = document.createElement('iframe');
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = 'none';
+            document.body.appendChild(printFrame);
+
+            const blob = doc.output('blob');
+            const blobUrl = URL.createObjectURL(blob);
+
+            printFrame.onload = () => {
+                printFrame.contentWindow?.focus();
+                printFrame.contentWindow?.print();
+            };
+
+            printFrame.src = blobUrl;
+        } catch (error) {
+            console.error('Error al imprimir el PDF:', error);
         }
     }
 }

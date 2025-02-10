@@ -8,14 +8,34 @@
             <div class="text-2xl font-semibold">Detalles</div>
             <div class="flex items-center justify-end">
                 <!-- Botón actualizar -->
-                <button
-                    mat-flat-button
-                    color="primary"
-                    class="mr-2"
-                    (click)="saveServicio()"
-                    [matTooltip]="'Actualizar servicio'">
-                    Actualizar
-                </button>
+                <div class="flex items-center">
+                    <button
+                        mat-flat-button
+                        [color]="'primary'"
+                        (click)="saveServicio()">
+                        Actualizar
+                    </button>
+
+                    <!-- Botón PDF -->
+                    <button
+                        mat-mini-fab
+                        [color]="'accent'"
+                        class="ml-2"
+                        matTooltip="Generar PDF"
+                        (click)="generarPDF()">
+                        <mat-icon class="icon-size-5">picture_as_pdf</mat-icon>
+                    </button>
+
+                    <!-- Botón Imprimir -->
+                    <button
+                        mat-mini-fab
+                        [color]="'accent'"
+                        class="ml-2"
+                        matTooltip="Imprimir"
+                        (click)="imprimirPDF()">
+                        <mat-icon class="icon-size-5">print</mat-icon>
+                    </button>
+                </div>
                 <!-- Botón eliminar -->
                 <button
                     mat-icon-button
