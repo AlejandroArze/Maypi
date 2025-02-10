@@ -19,6 +19,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
 
 interface ListState {
     page: number;
@@ -49,7 +50,8 @@ interface ListState {
         BoardFiltersComponent,
         ScrumboardCardComponent,
         MatTooltipModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatInputModule
     ]
 })
 export class ScrumboardBoardComponent implements OnInit, OnDestroy {
@@ -65,8 +67,11 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     tecnicos: any[] = [];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     hiddenLists: string[] = [];
-    selectedTecnicoId: string = 'TODOS';
+    selectedTecnicoId: string ='';
     selectedTipoServicio: string = 'asistencia';
+    canSelectTecnico: boolean = true;
+    searchTerm: string = '';
+    filteredTecnicos: any[] = [];
 
     private readonly HIDDEN_LISTS_KEY = 'scrumboard_hidden_lists';
 
@@ -111,7 +116,6 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         private _scrumboardService: ScrumboardService,
         private _snackBar: MatSnackBar
     ) {
-        this.selectedTecnicoId = 'TODOS';
         this.loadHiddenListsFromStorage();
     }
 
@@ -140,27 +144,75 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             this._changeDetectorRef.detectChanges();
 
             // Cargar datos
-            this.reloadAllLists();
+            //this.reloadAllLists();
 
-            // Cargar técnicos
+            // Obtener datos del usuario del localStorage
+            const userString = localStorage.getItem('user');
+            console.log('Usuario en localStorage:', userString);
+            
+            let userData;
+            try {
+                // Obtener el token del localStorage
+                const token = localStorage.getItem('accessToken');
+                if (token) {
+                    // Decodificar el token (la parte payload)
+                    const tokenParts = token.split('.');
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    console.log('Token decodificado:', payload);
+                    
+                    userData = {
+                        role: payload.role,
+                        id: payload.id
+                    };
+                } else {
+                    userData = null;
+                }
+                console.log('Datos del usuario:', userData);
+            } catch (e) {
+                console.error('Error al obtener datos del usuario:', e);
+                userData = null;
+            }
+
+            // Verificar la estructura específica de los datos del usuario
+            const userRole = userData?.role || 'user';
+            const userId = userData?.id;
+            
+            console.log('Role del usuario:', userRole);
+            console.log('ID del usuario:', userId);
+            
+            this.selectedTecnicoId = userId;
+
+            // Cargar técnicos después de establecer el ID inicial
             this._scrumboardService.getTecnicos()
                 .pipe(takeUntil(this._unsubscribeAll))
                 .subscribe({
                     next: (response) => {
-                        // Asegurarnos de que los técnicos tengan el formato correcto
-                        this.tecnicos = response.map(tecnico => ({
-                            id: tecnico.id,
-                            nombre: tecnico.nombre || 'Sin nombre'
-                        }));
+                        this.tecnicos = response;
+                        this.filteredTecnicos = response;
                         
-                        // Mantener 'TODOS' como valor seleccionado
-                        this.selectedTecnicoId = 'TODOS';
+                        // Siempre inicializar con el ID del usuario actual
+                        this.selectedTecnicoId = userId;
+                        
+                        // Establecer permisos según el rol
+                        if (userRole === '3') {
+                            // Role TECNICO: No puede cambiar la selección
+                            this.canSelectTecnico = false;
+                        } else if (userRole === '2') {
+                            // Role Supervisor: Puede ver todos los activos
+                            this.canSelectTecnico = true;
+                            this.tecnicos = this.tecnicos.filter(t => t.estado === 1);
+                        } else if (userRole === '1') {
+                            // Role Admin: Puede ver todos
+                            this.canSelectTecnico = true;
+                        }
+                        
+                        // Recargar las listas con el técnico seleccionado
+                        this.reloadAllLists();
                         this._changeDetectorRef.detectChanges();
                     },
                     error: (error) => {
                         console.error('Error al cargar técnicos:', error);
                         this.tecnicos = [];
-                        this.selectedTecnicoId = 'TODOS';
                         this._changeDetectorRef.detectChanges();
                     }
                 });
@@ -785,6 +837,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             });
     }
 
+    // Método que devuelve el nombre del técnico seleccionado para mostrar en la interfaz.
+    // Si el técnico seleccionado es 'TODOS', se devuelve la cadena 'TODOS'.
+    // De lo contrario, se busca el técnico en la lista de técnicos y se devuelve su nombre.
+    // Si no se encuentra el técnico, también se devuelve 'TODOS'.
     getSelectedTecnicoDisplay(): string {
         return this.selectedTecnicoId === 'TODOS' ? 'TODOS' : 
             (this.tecnicos.find(t => t.id === this.selectedTecnicoId)?.nombre || 'TODOS');
@@ -798,7 +854,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         this.hiddenLists = [];
         
         // Resetear el filtro de técnico
-        this.selectedTecnicoId = 'TODOS';
+       // this.selectedTecnicoId = 'TODOS';
         
         // Recargar todas las listas
         Object.keys(this.listStates).forEach(listId => {
@@ -888,7 +944,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         });
 
         // Resetear el filtro de técnico
-        this.selectedTecnicoId = 'TODOS';
+        //this.selectedTecnicoId = 'TODOS';
         
         // Actualizar la vista una vez
         this._changeDetectorRef.detectChanges();
@@ -936,5 +992,21 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             default:
                 return 'asistencia';
         }
+    }
+
+    onSearchChange(term: string): void {
+        this.searchTerm = term;
+        if (!term) {
+            this.filteredTecnicos = this.tecnicos;
+            return;
+        }
+
+        // Filtrar técnicos basado en el término de búsqueda
+        this.filteredTecnicos = this.tecnicos.filter(tecnico => 
+            //tecnico.id === 'TODOS' || // Mantener siempre la opción "TODOS"
+            tecnico.nombre.toLowerCase().includes(term.toLowerCase())
+        );
+        
+        this._changeDetectorRef.detectChanges();
     }
 }

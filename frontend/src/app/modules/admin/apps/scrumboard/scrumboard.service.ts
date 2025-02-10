@@ -158,6 +158,23 @@ export class ScrumboardService {
      * Obtener técnicos
      */
     getTecnicos(search: string = ''): Observable<any[]> {
+        // Obtener datos del usuario del localStorage
+        const userString = localStorage.getItem('user');
+        let userData;
+        try {
+            userData = JSON.parse(userString);
+            console.log('Datos del usuario en getTecnicos:', userData);
+        } catch (e) {
+            console.error('Error al parsear datos del usuario:', e);
+            userData = null;
+        }
+
+        // Obtener el rol del usuario de la misma estructura que viene del localStorage
+        const userRole = userData?.data?.role;
+        const userId = userData?.data?.usuarios_id;
+        
+        console.log('Role del usuario en getTecnicos:', userRole);
+
         return this._httpClient.get<any>(`${this.apiUrl}/user`, {
             params: {
                 page: '1',
@@ -167,17 +184,55 @@ export class ScrumboardService {
         }).pipe(
             map(response => {
                 console.log('Respuesta completa de la API getTecnicos:', response);
-                console.log('Parámetros de búsqueda:', { search });
                 
                 if (response?.data?.data) {
-                    const tecnicos = response.data.data
-                        .filter(user => user.role === 'TECNICO' && user.estado === 1)
-                        .map(tecnico => ({
-                            id: tecnico.usuarios_id,
-                            nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim()
-                        }));
-                    
-                    console.log('Técnicos filtrados:', tecnicos);
+                    let tecnicos = [];
+
+                    // Role 1 (Admin): Ver todos los técnicos sin importar estado
+                    if (userRole === '1') {
+                        tecnicos = response.data.data
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                        
+                        // Agregar opción "TODOS" para admin
+                        tecnicos.unshift({
+                            id: 'TODOS',
+                            nombre: 'TODOS',
+                           
+                        });
+                    }
+                    // Role 2: Ver solo técnicos activos
+                    else if (userRole === '2') {
+                        tecnicos = response.data.data
+                            .filter(user => user.estado === 1)
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                        
+                        // Agregar opción "TODOS" para supervisor
+                        tecnicos.unshift({
+                            id: 'TODOS',
+                            nombre: 'TODOS',
+                            estado: 1
+                        });
+                    }
+                    // Role 3: Ver solo su propio usuario
+                    else if (userRole === '3') {
+                        tecnicos = response.data.data
+                            .filter(user => user.usuarios_id === userId)
+                            .map(tecnico => ({
+                                id: tecnico.usuarios_id,
+                                nombre: `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim(),
+                                estado: tecnico.estado
+                            }));
+                    }
+
+                    console.log('Técnicos filtrados según rol:', tecnicos);
                     return tecnicos;
                 }
                 return [];
@@ -194,6 +249,12 @@ export class ScrumboardService {
      */
     updateServiceStatus(serviceId: string, newStatus: EstadoServicio): Observable<Card> {
         console.log(`Iniciando actualización de estado para servicio ${serviceId} a ${newStatus}`);
+        const nullToSpace = (value: any) => {
+            if (value === null || value === undefined || value === '' || value === 'null') {
+                return " ";
+            }
+            return value;
+        };
         
         return this._httpClient.get<any>(`${this.apiUrl}/service/${serviceId}`)
             .pipe(
@@ -233,13 +294,17 @@ export class ScrumboardService {
                             break;
                     }
 
-                    const updateData = {
-                        ...currentService,
-                        estado: newStatus,
-                        fechaInicio: fechaInicio,
-                        fechaTerminado: fechaTerminado
-                    };
                     
+                    // Procesar todos los campos para evitar nulls
+                const updateData = {
+                    ...Object.keys(currentService).reduce((acc, key) => {
+                        acc[key] = nullToSpace(currentService[key]);
+                        return acc;
+                    }, {}),
+                    estado: newStatus,
+                    fechaInicio: fechaInicio,
+                    fechaTerminado: fechaTerminado
+                };
                     console.log('URL de actualización:', `${this.apiUrl}/service/${serviceId}`);
                     console.log('Datos a actualizar:', updateData);
                     
@@ -360,35 +425,44 @@ export class ScrumboardService {
      */
     updateService(serviceId: string | Card, updateData?: any): Observable<any> {
         if (typeof serviceId === 'string') {
-            // Mapear los campos del formulario a los nombres correctos de la API
+            // Función auxiliar para convertir null a espacio en blanco
+           
+            const nullToSpace = (value: any) => {
+                if (value === null || value === undefined || value === '') {
+                    return " ";
+                }
+                return value;
+            }
+
+            // Mapear los campos del formulario y convertir nulls a espacios
             const mappedUpdateData = {
                 ...updateData,
-                ciSolicitante: updateData.carnet || updateData.ciSolicitante || " ",
-                cargoSolicitante: updateData.cargo || updateData.cargoSolicitante || " ",
-                equipo: updateData.equipo || updateData.codigoBienes || null,
-                nombreSolicitante: updateData.solicitante || updateData.nombreSolicitante || " ",
-                oficinaSolicitante: updateData.oficina || updateData.oficinaSolicitante || " ",
-                telefonoSolicitante: updateData.telefono || updateData.telefonoSolicitante || " ",
-                tipo: updateData.tipoServicio || updateData.tipo || "ASISTENCIA",
-                problema: updateData.problema || " ",
-                observaciones: updateData.observaciones || " ",
-                informe: updateData.informe || " ",
-                estado: updateData.estado || "SIN ASIGNAR",
+                ciSolicitante: nullToSpace(updateData.carnet || updateData.ciSolicitante || " "),
+                cargoSolicitante: nullToSpace(updateData.cargo || updateData.cargoSolicitante || " "),
+                equipo: nullToSpace(updateData.equipo || updateData.codigoBienes || " "),
+                nombreSolicitante: nullToSpace(updateData.solicitante || updateData.nombreSolicitante || " "),
+                oficinaSolicitante: nullToSpace(updateData.oficina || updateData.oficinaSolicitante || " "),
+                telefonoSolicitante: nullToSpace(updateData.telefono || updateData.telefonoSolicitante || " "),
+                tipo: nullToSpace(updateData.tipoServicio || updateData.tipo || "ASISTENCIA"),
+                problema: nullToSpace(updateData.problema || " "),
+                observaciones: nullToSpace(updateData.observaciones || " "),
+                informe: nullToSpace(updateData.informe || " "),
+                estado: nullToSpace(updateData.estado || "SIN ASIGNAR"),
                 tecnicoAsignado: updateData.tecnicoAsignado || 3,
-                fechaRegistro: updateData.fechaRegistro || new Date().toISOString(),
-                fechaInicio: updateData.fechaInicio || null,
-                fechaTerminado: updateData.fechaTerminado || null,
-                nombreResponsableEgreso: updateData.nombreResponsableEgreso || " ",
-                cargoResponsableEgreso: updateData.cargoResponsableEgreso || " ",
-                telefonoResponsableEgreso: updateData.telefonoResponsableEgreso || " ",
-                tipoResponsableEgreso: updateData.tipoResponsableEgreso || " ",
-                oficinaResponsableEgreso: updateData.oficinaResponsableEgreso || " ",
+                fechaRegistro: nullToSpace(updateData.fechaRegistro || new Date().toISOString()),
+                fechaInicio: nullToSpace(updateData.fechaInicio || " "),
+                fechaTerminado: nullToSpace(updateData.fechaTerminado || " "),
+                fechaEgreso: nullToSpace(updateData.fechaEgreso || " "),
+                nombreResponsableEgreso: nullToSpace(updateData.nombreResponsableEgreso || " "),
+                cargoResponsableEgreso: nullToSpace(updateData.cargoResponsableEgreso || " "),
+                telefonoResponsableEgreso: nullToSpace(updateData.telefonoResponsableEgreso || " "),
+                tipoResponsableEgreso: nullToSpace(updateData.tipoResponsableEgreso || " "),
+                oficinaResponsableEgreso: nullToSpace(updateData.oficinaResponsableEgreso || " "),
+                tecnicoEgreso: nullToSpace(updateData.tecnicoEgreso || " "),
+                ciResponsableEgreso: nullToSpace(updateData.ciResponsableEgreso || " "),
                 gestion: updateData.gestion || 3,
                 numero: updateData.numero || 464,
-                fechaEgreso: updateData.fechaEgreso || " ",
-                tecnicoRegistro: updateData.tecnicoRegistro || 3,
-                tecnicoEgreso: updateData.tecnicoEgreso || " ",
-                ciResponsableEgreso: updateData.ciResponsableEgreso || " "
+                tecnicoRegistro: updateData.tecnicoRegistro || 3
             };
 
             console.log('Datos mapeados para actualización:', mappedUpdateData);

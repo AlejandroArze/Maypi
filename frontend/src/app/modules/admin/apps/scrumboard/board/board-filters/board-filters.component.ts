@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -88,6 +88,7 @@ interface Tecnico {
     `]
 })
 export class BoardFiltersComponent implements OnInit, OnDestroy {
+    @Input() initialValue: any;
     @Output() filterChange = new EventEmitter<number>();
     
     searchControl = new FormControl('');
@@ -110,15 +111,24 @@ export class BoardFiltersComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         // Seleccionar "Todos" por defecto
-        this._scrumboardService.getTecnicos('')
-            .pipe(take(1))
-            .subscribe(tecnicos => {
-                if (tecnicos.length > 0) {
-                    const todos = tecnicos[0];
-                    this.searchControl.setValue(todos);
-                    this.filterChange.emit(todos.id);
-                }
-            });
+        // NO hacer esto, ya que el valor inicial viene del componente principal
+    /* this._scrumboardService.getTecnicos('')
+        .pipe(take(1))
+        .subscribe(tecnicos => {
+            if (tecnicos.length > 0) {
+                const todos = tecnicos[0];
+                this.searchControl.setValue(todos);
+                this.filterChange.emit(todos.id);
+            }
+        }); */
+
+    // En su lugar, esperar a que el componente padre establezca el valor inicial
+    if (this.initialValue) {
+        requestAnimationFrame(() => {
+            this.searchControl.setValue(this.initialValue, { emitEvent: false });
+        });
+    
+    }
     }
 
     displayFn(tecnico: Tecnico): string {

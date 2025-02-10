@@ -252,3 +252,37 @@
     font-weight: 500;
     color: inherit !important;
 }
+
+.tecnico-select-wide {
+    width: 300px; // Doble del ancho original
+
+    ::ng-deep .mat-mdc-select-panel {
+        max-height: 400px !important;
+    }
+
+    .search-box {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: white;
+        padding: 8px;
+        margin-bottom: 8px;
+        
+        .mat-form-field {
+            width: 100%;
+            margin: 0;
+        }
+    }
+}
+
+::ng-deep .mat-mdc-select-panel {
+    .search-box {
+        background-color: white;
+        padding: 8px;
+        
+        .mat-form-field {
+            width: 100%;
+            margin: 0;
+        }
+    }
+}

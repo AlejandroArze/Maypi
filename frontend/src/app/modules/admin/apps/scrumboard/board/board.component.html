@@ -124,13 +124,31 @@
                             <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                             <span class="ml-2 hidden sm:inline">Nuevo Servicio</span>
                         </button>
-                        <mat-form-field class="tecnico-select">
+                        <mat-form-field class="tecnico-select-wide">
                             <mat-label>Técnico asignado</mat-label>
                             <mat-select 
                                 [(ngModel)]="selectedTecnicoId"
-                                (selectionChange)="onTecnicoFilterChange($event.value)">
-                                <mat-option [value]="'TODOS'">TODOS</mat-option>
-                                <mat-option *ngFor="let tecnico of tecnicos" [value]="tecnico.id">
+                                (selectionChange)="onTecnicoFilterChange($event.value)"
+                                [disabled]="!canSelectTecnico">
+                                
+                                <!-- Campo de búsqueda -->
+                                <mat-select-trigger>
+                                    {{ getSelectedTecnicoDisplay() }}
+                                </mat-select-trigger>
+
+                                <div *ngIf="canSelectTecnico" class="search-box">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-icon matPrefix class="mr-2">search</mat-icon>
+                                        <input 
+                                            matInput
+                                            [ngModel]="searchTerm"
+                                            (ngModelChange)="onSearchChange($event)"
+                                            placeholder="Buscar técnico...">
+                                    </mat-form-field>
+                                </div>
+
+                                
+                                <mat-option *ngFor="let tecnico of filteredTecnicos" [value]="tecnico.id">
                                     {{ tecnico.nombre }}
                                 </mat-option>
                             </mat-select>
@@ -140,7 +158,7 @@
             </div>
         </div>
 
-        <!-- Board -->
+        <!-- Board  <mat-option *ngIf="canSelectTecnico" [value]="'TODOS'">TODOS</mat-option>-->
         <div class="board-container">
             <div class="lists-container">
                 <!-- Lists -->
