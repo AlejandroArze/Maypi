@@ -54,11 +54,12 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
     bienes: any = null;
     isOptionSelected = false;
     filtredEquipos: { equipos_id: number; codigo: string }[] = [];
-    showDropdown = false;
+    showTecnicosDropdown = false;
     filteredTecnicos: any[] = [];
     tecnicos: any[] = [];
     searchTerm: string = '';
     canSelectTecnico: boolean = true;
+    showEquiposDropdown = false;
 
     @ViewChild('searchInput') searchInput: ElementRef;
 
@@ -436,14 +437,18 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
     @HostListener('document:click', ['$event'])
     onDocumentClick(event: MouseEvent): void {
-        // Verificar si el clic fue dentro del dropdown de técnicos
         const target = event.target as HTMLElement;
         const isInputClick = target.closest('input') !== null;
-        const isDropdownClick = target.closest('.dropdown-container') !== null;
+        const isTecnicosDropdown = target.closest('.tecnicos-dropdown') !== null;
+        const isEquiposDropdown = target.closest('.equipos-dropdown') !== null;
         
-        // Cerrar el dropdown si el clic fue fuera
-        if (!isInputClick && !isDropdownClick) {
-            this.showDropdown = false;
+        if (!isInputClick) {
+            if (!isTecnicosDropdown) {
+                this.showTecnicosDropdown = false;
+            }
+            if (!isEquiposDropdown) {
+                this.showEquiposDropdown = false;
+            }
             this._changeDetectorRef.detectChanges();
         }
     }
@@ -460,7 +465,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
         // Solo mostrar el dropdown y buscar si hay un query
         if (query.trim() !== '') {
-            this.showDropdown = true;
+            this.showEquiposDropdown = true;
             
             this._scrumboardService.buscarEquipos(1, 100, query)
                 .subscribe({
@@ -481,20 +486,19 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                                 return acc;
                             }, []);
 
-                        this.showDropdown = this.filtredEquipos.length > 0;
+                        this.showEquiposDropdown = this.filtredEquipos.length > 0;
                         this._changeDetectorRef.detectChanges();
                     },
                     error: (err) => {
                         console.error('Error al buscar equipos:', err);
                         this.filtredEquipos = [];
-                        this.showDropdown = false;
+                        this.showEquiposDropdown = false;
                         this._changeDetectorRef.detectChanges();
                     },
                 });
         } else {
-            // Si no hay query, limpiar resultados
             this.filtredEquipos = [];
-            this.showDropdown = false;
+            this.showEquiposDropdown = false;
             this._changeDetectorRef.detectChanges();
         }
     }
@@ -508,7 +512,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
     selectEquipo(equipo: { equipos_id: number; codigo: string }): void {
         this.cardForm.controls['equipo'].setValue(equipo.equipos_id); // Guarda el ID del equipo
         this.searchEquipoCtrl.setValue(equipo.codigo, { emitEvent: false }); // Evitar que se dispare la búsqueda
-        this.showDropdown = false;
+        this.showEquiposDropdown = false;
         
         // Obtener información del bien después de seleccionar
         if (equipo.codigo) {
@@ -559,13 +563,13 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                     this.filtredEquipos = equipos.filter(equipo => 
                         equipo.codigo && equipo.codigo.trim() !== ''
                     );
-                    this.showDropdown = this.filtredEquipos.length > 0;
+                    this.showEquiposDropdown = this.filtredEquipos.length > 0;
                     this._changeDetectorRef.detectChanges();
                 },
                 error: (err) => {
                     console.error('Error al buscar equipos:', err);
                     this.filtredEquipos = [];
-                    this.showDropdown = false;
+                    this.showEquiposDropdown = false;
                     this._changeDetectorRef.detectChanges();
                 }
             });
@@ -607,7 +611,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
     onSearchChange(term: string): void {
         this.searchTerm = term;
-        this.showDropdown = true;
+        this.showTecnicosDropdown = true;
         
         if (!term) {
             this.filteredTecnicos = this.tecnicos;
