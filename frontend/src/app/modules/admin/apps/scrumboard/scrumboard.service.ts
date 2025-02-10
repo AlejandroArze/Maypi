@@ -524,7 +524,21 @@ export class ScrumboardService {
      * Crear servicio
      */
     createService(formData: any, tipoServicio: string): Observable<any> {
-        const currentDate = new Date().toISOString(); // Usar la fecha actual
+        // Obtener el ID del usuario del localStorage
+        const token = localStorage.getItem('accessToken');
+        let userId = 3; // valor por defecto
+
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+                userId = payload.id;
+            } catch (e) {
+                console.error('Error al obtener ID del usuario:', e);
+            }
+        }
+
+        const currentDate = new Date().toISOString();
         const serviceData = {
             nombreResponsableEgreso: " ",
             cargoSolicitante: " ",
@@ -537,7 +551,7 @@ export class ScrumboardService {
             telefonoResponsableEgreso: " ",
             gestion: 3,
             telefonoSolicitante: " ",
-            tecnicoAsignado: 3,
+            tecnicoAsignado: userId, // Usar ID del usuario actual
             observaciones: " ",
             tipoResponsableEgreso: " ",
             estado: "SIN ASIGNAR",
@@ -550,7 +564,7 @@ export class ScrumboardService {
             ciSolicitante: " ",
             nombreSolicitante: " ",
             tipo: tipoServicio,
-            tecnicoRegistro: 3,
+            tecnicoRegistro: userId, // Usar ID del usuario actual
             tecnicoEgreso: " ",
             ciResponsableEgreso: " ",
             cargo: " "
