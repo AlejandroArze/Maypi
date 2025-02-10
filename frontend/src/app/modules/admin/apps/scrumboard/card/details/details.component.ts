@@ -55,6 +55,10 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
     isOptionSelected = false;
     filtredEquipos: { equipos_id: number; codigo: string }[] = [];
     showDropdown = false;
+    filteredTecnicos: any[] = [];
+    tecnicos: any[] = [];
+    searchTerm: string = '';
+    canSelectTecnico: boolean = true;
 
     @ViewChild('searchInput') searchInput: ElementRef;
 
@@ -67,6 +71,50 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
         private _dialog: MatDialog,
         private _changeDetectorRef: ChangeDetectorRef
     ) {
+        // Cargar técnicos al inicializar
+        this._scrumboardService.getTecnicos()
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe({
+                next: (response) => {
+                    // Filtrar la opción "TODOS" del array de técnicos
+                    this.tecnicos = response.filter(t => t.id !== 'TODOS');
+                    this.filteredTecnicos = this.tecnicos;
+                    
+                    // Obtener datos del usuario del localStorage
+                    const token = localStorage.getItem('accessToken');
+                    if (token) {
+                        const tokenParts = token.split('.');
+                        const payload = JSON.parse(atob(tokenParts[1]));
+                        
+                        // Establecer permisos según el rol
+                        if (payload.role === '3') {
+                            this.canSelectTecnico = false;
+                        } else if (payload.role === '2') {
+                            this.canSelectTecnico = true;
+                            this.tecnicos = this.tecnicos.filter(t => t.estado === 1);
+                        } else if (payload.role === '1') {
+                            this.canSelectTecnico = true;
+                        }
+
+                        // Si hay un técnico asignado, mostrar su nombre
+                        if (this.data.card?.tecnicoAsignado) {
+                            const tecnicoAsignado = this.tecnicos.find(t => t.id === this.data.card.tecnicoAsignado);
+                            if (tecnicoAsignado) {
+                                this.cardForm.patchValue({
+                                    tecnicoAsignado: tecnicoAsignado.id
+                                });
+                            }
+                        }
+                    }
+                    
+                    this._changeDetectorRef.detectChanges();
+                },
+                error: (error) => {
+                    console.error('Error al cargar técnicos:', error);
+                    this.tecnicos = [];
+                    this._changeDetectorRef.detectChanges();
+                }
+            });
     }
 
     ngOnInit(): void {
@@ -116,14 +164,15 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                 telefono: this.data.card.telefonoSolicitante || '',
                 tipoServicio: this.data.card.tipo || '',
                 estado: this.data.card.estado || 'SIN ASIGNAR',
-                tecnicoRegistro: this.data.card.tecnicoAsignado || 3,
+                tecnicoRegistro: this.data.card.tecnicoRegistro ,
                 fechaRegistro: this.data.card.fechaRegistro || new Date().toISOString(),
                 fechaInicio: this.data.card.fechaInicio || null,
                 fechaTerminado: this.data.card.fechaTerminado || null,
                 problema: this.data.card.problema || '',
                 observaciones: this.data.card.observacionesProblema || '',
                 informe: this.data.card.informe || '',
-                equipo: this.data.card.codigoBienes || ''
+                equipo: this.data.card.codigoBienes || '',
+                tecnicoAsignado: this.data.card.tecnicoAsignado
             });
 
             // Si hay un equipo_id, buscar su código
@@ -285,7 +334,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             telefonoResponsableEgreso: " ",
             gestion: 3,
             telefonoSolicitante: formData.telefono || "4460697",
-            tecnicoAsignado: 3,
+            tecnicoAsignado: formData.tecnicoAsignado ,
             observaciones: formData.observaciones || " ",
             tipoResponsableEgreso: " ",
             estado: formData.estado || "TERMINADO",
@@ -298,7 +347,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
             ciSolicitante: formData.carnet || "5676174",
             nombreSolicitante: formData.solicitante || "JASSEL GABRIELA ENCINAS NAVIA",
             tipo: formData.tipoServicio || "ASISTENCIA",
-            tecnicoRegistro: 3,
+            tecnicoRegistro: formData.tecnicoRegistro ,
             tecnicoEgreso: " ",
             ciResponsableEgreso: " "
         };
@@ -385,13 +434,12 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
 
     @HostListener('document:click', ['$event'])
     onDocumentClick(event: MouseEvent): void {
+        // Verificar si el clic fue dentro del dropdown de técnicos
         const target = event.target as HTMLElement;
-        
-        // Verificar si el clic fue en el input o en el dropdown
         const isInputClick = target.closest('input') !== null;
         const isDropdownClick = target.closest('.dropdown-container') !== null;
         
-        // Solo cerrar si el clic fue fuera de ambos
+        // Cerrar el dropdown si el clic fue fuera
         if (!isInputClick && !isDropdownClick) {
             this.showDropdown = false;
             this._changeDetectorRef.detectChanges();
@@ -519,6 +567,61 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                     this._changeDetectorRef.detectChanges();
                 }
             });
+    }
+
+    onTecnicoFilterChange(tecnicoId: string): void {
+        // Actualizar el valor en el formulario
+        this.cardForm.patchValue({
+            tecnicoAsignado: tecnicoId
+        });
+
+        const updateData = {
+            ...this.cardForm.getRawValue(),
+            tecnicoAsignado: tecnicoId
+        };
+
+        this._scrumboardService.updateService(this.data.card.id, updateData)
+            .subscribe({
+                next: () => {
+                    this._snackBar.open('Técnico asignado correctamente', 'Cerrar', {
+                        duration: 3000,
+                        horizontalPosition: 'end',
+                        verticalPosition: 'top',
+                        panelClass: ['success-snackbar']
+                    });
+                    this._scrumboardService.notifyCardUpdate('update', Number(this.data.card.id), this.data.card.listId);
+                },
+                error: (error) => {
+                    console.error('Error al asignar técnico:', error);
+                    this._snackBar.open('Error al asignar técnico', 'Cerrar', {
+                        duration: 3000,
+                        horizontalPosition: 'end',
+                        verticalPosition: 'top',
+                        panelClass: ['error-snackbar']
+                    });
+                }
+            });
+    }
+
+    onSearchChange(term: string): void {
+        this.searchTerm = term;
+        this.showDropdown = true;
+        
+        if (!term) {
+            this.filteredTecnicos = this.tecnicos;
+            return;
+        }
+
+        this.filteredTecnicos = this.tecnicos.filter(tecnico => 
+            tecnico.nombre.toLowerCase().includes(term.toLowerCase())
+        );
+        
+        this._changeDetectorRef.detectChanges();
+    }
+
+    getSelectedTecnicoDisplay(): string {
+        const selectedTecnico = this.tecnicos.find(t => t.id === this.cardForm.get('tecnicoAsignado').value);
+        return selectedTecnico ? selectedTecnico.nombre : 'Sin asignar';
     }
 }
 

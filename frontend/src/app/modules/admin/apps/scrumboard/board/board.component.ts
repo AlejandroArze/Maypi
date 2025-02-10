@@ -749,6 +749,19 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             return;
         }
 
+        // Obtener el ID del usuario del token
+        const token = localStorage.getItem('accessToken');
+        let userId = 3;
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+                userId = payload.id;
+            } catch (e) {
+                console.error('Error al obtener ID del usuario:', e);
+            }
+        }
+
         // Crear el servicio solo con los datos mínimos necesarios
         const serviceData = {
             tipo: tipoServicio,
@@ -765,9 +778,9 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
             fechaEgreso: ' ',
             observaciones: ' ',
             gestion: 3,
-            tecnicoRegistro: 3,
-            tecnicoAsignado: 3,
-            numero: 0, // Se asignará automáticamente en el backend
+            tecnicoRegistro: userId,
+            tecnicoAsignado: this.selectedTecnicoId === 'TODOS' ? userId : Number(this.selectedTecnicoId) || userId,
+            numero: 0,
             equipo: null
         };
 

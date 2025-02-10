@@ -250,9 +250,9 @@ export class ScrumboardService {
      */
     updateServiceStatus(serviceId: string, newStatus: EstadoServicio): Observable<Card> {
         console.log(`Iniciando actualización de estado para servicio ${serviceId} a ${newStatus}`);
-        const nullToSpace = (value: any) => {
+        const nullToSpace = (value: any, field?: string) => {
             if (value === null || value === undefined || value === '' || value === 'null') {
-                return " ";
+                return field === 'equipo' ? null : " ";
             }
             return value;
         };
@@ -297,15 +297,15 @@ export class ScrumboardService {
 
                     
                     // Procesar todos los campos para evitar nulls
-                const updateData = {
-                    ...Object.keys(currentService).reduce((acc, key) => {
-                        acc[key] = nullToSpace(currentService[key]);
-                        return acc;
-                    }, {}),
-                    estado: newStatus,
-                    fechaInicio: fechaInicio,
-                    fechaTerminado: fechaTerminado
-                };
+                    const updateData = {
+                        ...Object.keys(currentService).reduce((acc, key) => {
+                            acc[key] = nullToSpace(currentService[key], key);
+                            return acc;
+                        }, {}),
+                        estado: newStatus,
+                        fechaInicio: fechaInicio,
+                        fechaTerminado: fechaTerminado
+                    };
                     console.log('URL de actualización:', `${this.apiUrl}/service/${serviceId}`);
                     console.log('Datos a actualizar:', updateData);
                     
@@ -429,12 +429,26 @@ export class ScrumboardService {
     updateService(serviceId: string | Card, updateData?: any): Observable<any> {
         if (typeof serviceId === 'string') {
             // Función auxiliar para convertir null a espacio en blanco
-           
-            const nullToSpace = (value: any) => {
+            const nullToSpace = (value: any, field?: string) => {
                 if (value === null || value === undefined || value === '') {
-                    return " ";
+                    return field === 'equipo' ? null : " ";
                 }
                 return value;
+            }
+
+            // Obtener el ID del usuario del localStorage
+            const token = localStorage.getItem('accessToken');
+            let userId =  3 
+
+            
+            if (token) {
+                try {
+                    const tokenParts = token.split('.');
+                    const payload = JSON.parse(atob(tokenParts[1]));
+                    userId = payload.id;
+                } catch (e) {
+                    console.error('Error al obtener ID del usuario:', e);
+                }
             }
 
             // Mapear los campos del formulario y convertir nulls a espacios
@@ -442,7 +456,7 @@ export class ScrumboardService {
                 ...updateData,
                 ciSolicitante: nullToSpace(updateData.carnet || updateData.ciSolicitante || " "),
                 cargoSolicitante: nullToSpace(updateData.cargo || updateData.cargoSolicitante || " "),
-                equipo: nullToSpace(updateData.equipo || updateData.codigoBienes || " "),
+                equipo: nullToSpace(updateData.equipo || updateData.codigoBienes, 'equipo'),
                 nombreSolicitante: nullToSpace(updateData.solicitante || updateData.nombreSolicitante || " "),
                 oficinaSolicitante: nullToSpace(updateData.oficina || updateData.oficinaSolicitante || " "),
                 telefonoSolicitante: nullToSpace(updateData.telefono || updateData.telefonoSolicitante || " "),
@@ -451,7 +465,8 @@ export class ScrumboardService {
                 observaciones: nullToSpace(updateData.observaciones || " "),
                 informe: nullToSpace(updateData.informe || " "),
                 estado: nullToSpace(updateData.estado || "SIN ASIGNAR"),
-                tecnicoAsignado: updateData.tecnicoAsignado || 3,
+              
+                tecnicoAsignado: updateData.tecnicoAsignado ,
                 fechaRegistro: nullToSpace(updateData.fechaRegistro || new Date().toISOString()),
                 fechaInicio: nullToSpace(updateData.fechaInicio || " "),
                 fechaTerminado: nullToSpace(updateData.fechaTerminado || " "),
@@ -465,7 +480,7 @@ export class ScrumboardService {
                 ciResponsableEgreso: nullToSpace(updateData.ciResponsableEgreso || " "),
                 gestion: updateData.gestion || 3,
                 numero: updateData.numero || 464,
-                tecnicoRegistro: updateData.tecnicoRegistro || 3
+                tecnicoRegistro: updateData.tecnicoRegistro 
             };
 
             console.log('Datos mapeados para actualización:', mappedUpdateData);
@@ -541,6 +556,8 @@ export class ScrumboardService {
             }
         }
 
+        console.log('FormData recibido:', formData); // Agregar log para debug
+
         const currentDate = new Date().toISOString();
         const serviceData = {
             nombreResponsableEgreso: " ",
@@ -554,7 +571,9 @@ export class ScrumboardService {
             telefonoResponsableEgreso: " ",
             gestion: 3,
             telefonoSolicitante: " ",
-            tecnicoAsignado: userId, // Usar ID del usuario actual
+            tecnicoAsignado: formData?.tecnicoAsignado ? 
+                (formData.tecnicoAsignado === 'TODOS' ? userId : Number(formData.tecnicoAsignado)) 
+                : userId,
             observaciones: " ",
             tipoResponsableEgreso: " ",
             estado: "SIN ASIGNAR",
@@ -572,6 +591,8 @@ export class ScrumboardService {
             ciResponsableEgreso: " ",
             cargo: " "
         };
+
+        console.log('Service Data a enviar:', serviceData); // Agregar log para debug
 
         console.log('Enviando datos para crear servicio:', serviceData);
 
