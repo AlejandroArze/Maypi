@@ -264,6 +264,7 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
         this._unsubscribeAll.complete();
     }
 
+
     onSubmit(): void {
         if (this.actualizando) {
             return;
