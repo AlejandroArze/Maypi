@@ -58,12 +58,16 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         if (userString) {
             try {
                 const userData = JSON.parse(userString);
+                console.log('userData completo:', userData); // Para ver toda la estructura
+                console.log('userData.data:', userData?.data); // Para ver específicamente data
+                
                 if (userData?.data) {
                     this.user = {
                         name: `${userData.data.nombres || ''} ${userData.data.apellidos || ''}`.trim(),
                         email: userData.data.email || '',
-                        image: null
+                        image: userData.data.imagen || userData.data.image || null // Intentamos ambos nombres posibles
                     };
+                    console.log('Usuario cargado:', this.user); // Para ver qué datos se están asignando
                 }
             } catch (error) {
                 console.error('Error al parsear datos del usuario:', error);
@@ -133,7 +137,13 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     }
 
     getImageUrl(imagePath: string): string {
-        return imagePath ? `${environment.baseUrl}${imagePath}` : '';
+        console.log('Path de imagen recibido:', imagePath); // Para ver qué path llega
+        if (!imagePath) {
+            return 'assets/images/avatars/default-avatar.jpg';
+        }
+        const fullUrl = `${environment.baseUrl}${imagePath}`;
+        console.log('URL completa de imagen:', fullUrl); // Para ver la URL completa
+        return fullUrl;
     }
 
     // -----------------------------------------------------------------------------------------------------
