@@ -91,7 +91,9 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
                             this.canSelectTecnico = false;
                         } else if (payload.role === '2') {
                             this.canSelectTecnico = true;
+                            // Filtrar técnicos activos solo para rol 2
                             this.tecnicos = this.tecnicos.filter(t => t.estado === 1);
+                            this.filteredTecnicos = this.tecnicos;
                         } else if (payload.role === '1') {
                             this.canSelectTecnico = true;
                         }

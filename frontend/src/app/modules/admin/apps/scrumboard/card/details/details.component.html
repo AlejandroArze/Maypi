@@ -98,14 +98,14 @@
                     <input matInput
                            [value]="getSelectedTecnicoDisplay()"
                            (input)="onSearchChange($event.target.value)"
-                           (focus)="showDropdown = true"
+                           (focus)="showDropdown = canSelectTecnico"
                            [placeholder]="'Buscar técnico...'"
-                           [disabled]="!canSelectTecnico">
-                    <mat-icon matSuffix class="icon-size-5">search</mat-icon>
+                           [readonly]="!canSelectTecnico">
+                    <mat-icon matSuffix class="icon-size-5" *ngIf="canSelectTecnico">search</mat-icon>
                 </mat-form-field>
 
                 <!-- Dropdown para resultados de técnicos -->
-                <div *ngIf="showDropdown && filteredTecnicos.length > 0"
+                <div *ngIf="showDropdown && filteredTecnicos.length > 0 && canSelectTecnico"
                      class="dropdown-container absolute left-0 right-0 z-[9999] mt-1 shadow-lg overflow-hidden border rounded-md bg-white dark:bg-gray-800"
                      style="backdrop-filter: none; -webkit-backdrop-filter: none;">
                     <div class="max-h-64 overflow-y-auto">
