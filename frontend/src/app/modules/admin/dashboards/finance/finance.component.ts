@@ -111,7 +111,9 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         
         // Inicializar las fechas para la API
         this.fechaInicio = this.formatDateForApi(hace7Dias);
-        this.fechaFin = this.formatDateForApi(hoy);
+        // Ajustar la fecha fin si es el día actual
+        const fechaFinAjustada = this.adjustEndDate(hoy);
+        this.fechaFin = this.formatDateForApi(fechaFinAjustada);
 
         // Agregar observer para cambios en el tema
         this.observer = new MutationObserver((mutations) => {
@@ -216,7 +218,8 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
     onFechaFinChange(event: MatDatepickerInputEvent<Date>): void {
         if (event.value) {
-            this.fechaFin = this.formatDateForApi(event.value);
+            const fechaFinAjustada = this.adjustEndDate(event.value);
+            this.fechaFin = this.formatDateForApi(fechaFinAjustada);
         }
     }
 
@@ -469,16 +472,35 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    // Agregar métodos para los filtros rápidos de fecha
+    private adjustEndDate(endDate: Date): Date {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const compareDate = new Date(endDate);
+        compareDate.setHours(0, 0, 0, 0);
+        
+        // Si la fecha fin es el día actual, agregar un día más
+        if (compareDate.getTime() === today.getTime()) {
+            const adjustedDate = new Date(endDate);
+            adjustedDate.setDate(adjustedDate.getDate() + 1);
+            return adjustedDate;
+        }
+        
+        return endDate;
+    }
+
+    // Modificar los métodos existentes de filtros de fecha
     setUltimoDia(): void {
         const hoy = new Date();
         const ayer = new Date();
         ayer.setDate(hoy.getDate() - 1);
         
+        const fechaFinAjustada = this.adjustEndDate(hoy);
+        
         this.fechaInicioDisplay = ayer;
         this.fechaFinDisplay = hoy;
         this.fechaInicio = this.formatDateForApi(ayer);
-        this.fechaFin = this.formatDateForApi(hoy);
+        this.fechaFin = this.formatDateForApi(fechaFinAjustada);
         this.selectedDateFilter = 'day';
         this.consultar();
     }
@@ -488,10 +510,12 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         const hace7Dias = new Date();
         hace7Dias.setDate(hoy.getDate() - 7);
         
+        const fechaFinAjustada = this.adjustEndDate(hoy);
+        
         this.fechaInicioDisplay = hace7Dias;
         this.fechaFinDisplay = hoy;
         this.fechaInicio = this.formatDateForApi(hace7Dias);
-        this.fechaFin = this.formatDateForApi(hoy);
+        this.fechaFin = this.formatDateForApi(fechaFinAjustada);
         this.selectedDateFilter = 'week';
         this.consultar();
     }
@@ -501,10 +525,12 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         const hace30Dias = new Date();
         hace30Dias.setDate(hoy.getDate() - 30);
         
+        const fechaFinAjustada = this.adjustEndDate(hoy);
+        
         this.fechaInicioDisplay = hace30Dias;
         this.fechaFinDisplay = hoy;
         this.fechaInicio = this.formatDateForApi(hace30Dias);
-        this.fechaFin = this.formatDateForApi(hoy);
+        this.fechaFin = this.formatDateForApi(fechaFinAjustada);
         this.selectedDateFilter = 'month';
         this.consultar();
     }
@@ -514,10 +540,12 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         const hace1Anio = new Date();
         hace1Anio.setFullYear(hoy.getFullYear() - 1);
         
+        const fechaFinAjustada = this.adjustEndDate(hoy);
+        
         this.fechaInicioDisplay = hace1Anio;
         this.fechaFinDisplay = hoy;
         this.fechaInicio = this.formatDateForApi(hace1Anio);
-        this.fechaFin = this.formatDateForApi(hoy);
+        this.fechaFin = this.formatDateForApi(fechaFinAjustada);
         this.selectedDateFilter = 'year';
         this.consultar();
     }

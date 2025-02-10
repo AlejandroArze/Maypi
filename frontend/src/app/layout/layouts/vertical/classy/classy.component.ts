@@ -58,8 +58,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         if (userString) {
             try {
                 const userData = JSON.parse(userString);
-                console.log('userData completo:', userData); // Para ver toda la estructura
-                console.log('userData.data:', userData?.data); // Para ver específicamente data
+                //console.log('userData completo:', userData); // Para ver toda la estructura
+                //console.log('userData.data:', userData?.data); // Para ver específicamente data
                 
                 if (userData?.data) {
                     this.user = {

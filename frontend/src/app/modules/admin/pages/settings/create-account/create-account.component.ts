@@ -53,18 +53,17 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
      * On init
      */
     ngOnInit(): void {
-        // Crear el formulario
+        // Crear el formulario con username y password vacíos
         this.createAccountForm = this._formBuilder.group({
-          name     : ['', Validators.required],
-          lastname : ['', Validators.required],
-          username : ['', Validators.required],
-          password : ['', [Validators.required, Validators.minLength(6)]],
-          email    : ['', [Validators.required, Validators.email]],
-          photo    : [null], // No tiene validación, pero puede agregarla si es necesario.
-          roles    : ['', Validators.required],
-          status   : ['', Validators.required]
+            name     : ['', Validators.required],
+            lastname : ['', Validators.required],
+            username : [''], // Sin valor inicial y sin validador required
+            password : [''], // Sin valor inicial y sin validador required
+            email    : ['', [Validators.required, Validators.email]],
+            photo    : [null],
+            roles    : ['', Validators.required],
+            status   : ['', Validators.required]
         });
-        
     }
 
     /**
@@ -86,42 +85,38 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
   }
 
   onSubmit(): void {
-    console.log('Formulario válido:', this.createAccountForm.valid);  // Verifica si el formulario es válido
     if (this.createAccountForm.valid) {
-      console.log('Valores del formulario:', this.createAccountForm.value);  // Imprime los valores del formulario
-  
-      const formData = new FormData();
-      formData.append('email', this.createAccountForm.get('email')?.value);
-      formData.append('usuario', this.createAccountForm.get('username')?.value);
-      formData.append('nombres', this.createAccountForm.get('name')?.value);
-      formData.append('apellidos', this.createAccountForm.get('lastname')?.value);
-      formData.append('password', this.createAccountForm.get('password')?.value);
-      formData.append('role', this.createAccountForm.get('roles')?.value);
-      formData.append('estado', this.createAccountForm.get('status')?.value);
-  
-      // Si hay una imagen seleccionada, se agrega al FormData
-      const fileInput = <HTMLInputElement>document.getElementById('photo'); // Asegúrate de que el id sea correcto
-      const file = fileInput?.files?.[0]; // Obtén el archivo de imagen
-      if (file) {
-        formData.append('image', file); // Añadir el archivo al FormData
-      } else {
-        // Si no hay archivo, asigna una imagen predeterminada
-        formData.append('image', '/uploads/default-profile.png');
-      }
-  
-      // Hacer la solicitud POST utilizando la URL base de environment
-      this._httpClient.post(`${environment.baseUrl}/user`, formData)
-        .subscribe(
-          (response) => {
-            console.log('Usuario creado con éxito', response);
-          },
-          (error) => {
-            console.error('Error al crear usuario', error);
-          }
-        );
-    } else {
-      console.log('Formulario inválido');
-      console.log('Errores del formulario:', this.createAccountForm.errors);  // Muestra los errores de validación
+        const formData = new FormData();
+        
+        // Solo incluir username y password si tienen valor
+        const username = this.createAccountForm.get('username')?.value;
+        const password = this.createAccountForm.get('password')?.value;
+        
+        formData.append('email', this.createAccountForm.get('email')?.value);
+        if (username) formData.append('usuario', username);
+        formData.append('nombres', this.createAccountForm.get('name')?.value);
+        formData.append('apellidos', this.createAccountForm.get('lastname')?.value);
+        if (password) formData.append('password', password);
+        formData.append('role', this.createAccountForm.get('roles')?.value);
+        formData.append('estado', this.createAccountForm.get('status')?.value);
+
+        const fileInput = <HTMLInputElement>document.getElementById('photo');
+        const file = fileInput?.files?.[0];
+        if (file) {
+            formData.append('image', file);
+        } else {
+            formData.append('image', '/uploads/default-profile.png');
+        }
+
+        this._httpClient.post(`${environment.baseUrl}/user`, formData)
+            .subscribe({
+                next: (response) => {
+                    console.log('Usuario creado con éxito', response);
+                },
+                error: (error) => {
+                    console.error('Error al crear usuario', error);
+                }
+            });
     }
   }
   
