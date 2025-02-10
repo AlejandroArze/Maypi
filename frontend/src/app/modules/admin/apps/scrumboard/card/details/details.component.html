@@ -226,5 +226,23 @@
             (click)="onSubmit()">
             {{ actualizando ? 'Actualizando...' : 'Actualizar' }}
         </button>
+        <!-- Botón PDF -->
+        <button
+            mat-mini-fab
+            [color]="'accent'"
+            class="ml-2"
+            matTooltip="Generar PDF"
+            (click)="generarPDF()">
+            <mat-icon class="icon-size-5">picture_as_pdf</mat-icon>
+        </button>
+        <!-- Botón Imprimir -->
+        <button
+            mat-mini-fab
+            [color]="'accent'"
+            class="ml-2"
+            matTooltip="Imprimir"
+            (click)="imprimirPDF()">
+            <mat-icon class="icon-size-5">print</mat-icon>
+        </button>
     </div>
 </div>

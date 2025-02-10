@@ -19,6 +19,14 @@ import { ConfirmationDialogComponent } from '../../dialogs/confirmation-dialog.c
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+
+// Agregar la interfaz para jsPDF con autoTable
+interface jsPDFWithPlugin extends jsPDF {
+    autoTable: (options: any) => jsPDF;
+    internal: any;
+}
 
 @Component({
     selector: 'scrumboard-card-details',
@@ -628,6 +636,194 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
     getSelectedTecnicoDisplay(): string {
         const selectedTecnico = this.tecnicos.find(t => t.id === this.cardForm.get('tecnicoAsignado').value);
         return selectedTecnico ? selectedTecnico.nombre : 'Sin asignar';
+    }
+
+    private loadImage(url: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
+    private async generarPDFCompleto(): Promise<jsPDFWithPlugin> {
+        if (!this.data.card) {
+            throw new Error('No hay servicio seleccionado');
+        }
+
+        const doc = new jsPDF() as jsPDFWithPlugin;
+        const pageWidth = doc.internal.pageSize.width;
+        const today = new Date();
+
+        try {
+            // Cargar logo
+            const logoImg = await this.loadImage('/assets/images/logo/logo.svg');
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
+            const logoBase64 = canvas.toDataURL('image/png');
+
+            // Agregar logo
+            doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+
+            // Título
+            doc.setFontSize(16);
+            doc.text('Detalle de Servicio Técnico', pageWidth/2, 25, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, pageWidth/2, 35, { align: 'center' });
+
+            // Obtener el nombre del técnico asignado
+            const tecnicoAsignado = this.tecnicos.find(t => t.id === this.data.card.tecnicoAsignado)?.nombre || 'Sin asignar';
+
+            // Formatear las fechas
+            const fechaRegistro = this.data.card.fechaRegistro ? new Date(this.data.card.fechaRegistro).toLocaleDateString() : 'N/A';
+            const fechaInicio = this.data.card.fechaInicio ? new Date(this.data.card.fechaInicio).toLocaleDateString() : 'N/A';
+            const fechaTerminado = this.data.card.fechaTerminado ? new Date(this.data.card.fechaTerminado).toLocaleDateString() : 'N/A';
+
+            // Información del servicio
+            const data = [
+                ['ID Servicio', this.data.card.id || 'N/A'],
+                ['Nombre Solicitante', this.data.card.nombreSolicitante || 'N/A'],
+                ['Carnet', this.data.card.carnet || 'N/A'],
+                ['Cargo', this.data.card.cargo || 'N/A'],
+                ['Tipo de Solicitante', this.data.card.tipoSolicitante || 'N/A'],
+                ['Oficina', this.data.card.oficinaSolicitante || 'N/A'],
+                ['Teléfono', this.data.card.telefonoSolicitante || 'N/A'],
+                ['Tipo de Servicio', this.data.card.tipo || 'N/A'],
+                ['Estado', this.data.card.estado || 'N/A'],
+                ['Técnico Asignado', tecnicoAsignado],
+                ['Técnico Registro', this.tecnicoRegistroNombre || 'N/A'],
+                ['Fecha de Registro', fechaRegistro],
+                ['Fecha de Inicio', fechaInicio],
+                ['Fecha de Término', fechaTerminado],
+                ['Problema', this.data.card.problema || 'N/A'],
+                ['Observaciones', this.data.card.observacionesProblema || 'N/A'],
+                ['Informe', this.data.card.informe || 'N/A']
+            ];
+
+            doc.autoTable({
+                startY: 45,
+                head: [['Campo', 'Valor']],
+                body: data,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [63, 81, 181],
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold',
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3,
+                },
+            });
+
+            // Si hay información de bienes, agregar en una nueva página
+            if (this.bienes?.data) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.text('Información de Bienes', pageWidth/2, 20, { align: 'center' });
+
+                const bienesData = [
+                    ['Tipo Hardware', this.bienes.data.tipo || 'N/A'],
+                    ['Descripción', this.bienes.data.observacion || 'N/A'],
+                    ['Unidad', this.bienes.data.unidad || 'N/A'],
+                    ['Marca', this.bienes.data.caracteristicas?.MARCA || 'N/A'],
+                    ['Modelo', this.bienes.data.caracteristicas?.MODELO || 'N/A'],
+                    ['Serie', this.bienes.data.caracteristicas?.SERIE || 'N/A']
+                ];
+
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Característica', 'Valor']],
+                    body: bienesData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [63, 81, 181],
+                        textColor: 255,
+                        fontSize: 10,
+                        fontStyle: 'bold',
+                    },
+                    styles: {
+                        fontSize: 9,
+                        cellPadding: 3,
+                    },
+                });
+            }
+
+            // Agregar numeración de páginas
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Página ${i} de ${pageCount}`, pageWidth - 20, doc.internal.pageSize.height - 10);
+            }
+
+        } catch (error) {
+            console.error('Error al generar el PDF:', error);
+            throw error;
+        }
+
+        return doc;
+    }
+
+    async generarPDF(): Promise<void> {
+        try {
+            const doc = await this.generarPDFCompleto();
+            const pdfBuffer = doc.output('arraybuffer');
+            const blob = new Blob([pdfBuffer], { type: 'application/pdf' });
+            
+            // Crear URL para el blob
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Abrir en nueva pestaña
+            window.open(blobUrl, '_blank');
+            
+            // Crear el link de descarga
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `servicio_${this.data.card.id}_${new Date().toISOString().split('T')[0]}.pdf`;
+            
+            // Simular click para mostrar el diálogo nativo de descarga
+            link.click();
+            
+            // Limpiar
+            setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+            }, 2000);
+        } catch (error) {
+            console.error('Error al generar el PDF:', error);
+        }
+    }
+
+    async imprimirPDF(): Promise<void> {
+        try {
+            const doc = await this.generarPDFCompleto();
+            const printFrame = document.createElement('iframe');
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = 'none';
+            document.body.appendChild(printFrame);
+
+            const blob = doc.output('blob');
+            const blobUrl = URL.createObjectURL(blob);
+
+            printFrame.onload = () => {
+                printFrame.contentWindow?.focus();
+                printFrame.contentWindow?.print();
+            };
+
+            printFrame.src = blobUrl;
+        } catch (error) {
+            console.error('Error al imprimir el PDF:', error);
+        }
     }
 }
 
