@@ -162,7 +162,7 @@
         <div class="board-container">
             <div class="lists-container">
                 <!-- Lists -->
-                <div *ngFor="let list of lists" 
+                <div *ngFor="let list of filterListsByRole(lists)" 
                      [id]="list.id" 
                      class="list-wrapper"
                      [class.hidden]="isListHidden(list.id)">

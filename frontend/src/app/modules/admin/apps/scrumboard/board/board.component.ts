@@ -72,6 +72,7 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
     canSelectTecnico: boolean = true;
     searchTerm: string = '';
     filteredTecnicos: any[] = [];
+    userRole: string = '3'; // valor por defecto
 
     private readonly HIDDEN_LISTS_KEY = 'scrumboard_hidden_lists';
 
@@ -256,6 +257,18 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                         this._changeDetectorRef.detectChanges();
                     }
                 });
+        }
+
+        // Obtener el rol del usuario del token
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            try {
+                const tokenParts = token.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+                this.userRole = payload.role;
+            } catch (e) {
+                console.error('Error al obtener rol del usuario:', e);
+            }
         }
     }
 
@@ -1022,5 +1035,16 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         );
         
         this._changeDetectorRef.detectChanges();
+    }
+
+    /**
+     * Filtrar listas según el rol del usuario
+     */
+    filterListsByRole(lists: any[]): any[] {
+        if (this.userRole === '3') {
+            // Para rol 3, filtrar la lista "SIN ASIGNAR"
+            return lists.filter(list => list.title !== 'SIN ASIGNAR');
+        }
+        return lists; // Roles 1 y 2 ven todas las listas
     }
 }
