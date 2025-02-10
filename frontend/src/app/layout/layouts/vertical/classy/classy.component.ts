@@ -33,8 +33,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
 {
     isScreenSmall: boolean;
     navigation: Navigation;
-    user: User;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    user: any;
 
     /**
      * Constructor
@@ -43,11 +43,37 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         private _activatedRoute: ActivatedRoute,
         private _router: Router,
         private _navigationService: NavigationService,
-        private _userService: UserService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService,
     )
     {
+        this.loadUserData();
+    }
+
+    /**
+     * Cargar datos del usuario desde localStorage
+     */
+    private loadUserData(): void {
+        const userString = localStorage.getItem('user');
+        if (userString) {
+            try {
+                const userData = JSON.parse(userString);
+                if (userData?.data) {
+                    this.user = {
+                        name: `${userData.data.nombres || ''} ${userData.data.apellidos || ''}`.trim(),
+                        email: userData.data.email || '',
+                        image: null
+                    };
+                }
+            } catch (error) {
+                console.error('Error al parsear datos del usuario:', error);
+                this.user = {
+                    name: 'Usuario',
+                    email: 'No disponible',
+                    image: null
+                };
+            }
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -71,20 +97,16 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
+        // Recargar datos del usuario al iniciar y cada vez que cambie el localStorage
+        this.loadUserData();
+        window.addEventListener('storage', () => this.loadUserData());
+
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((navigation: Navigation) =>
             {
                 this.navigation = navigation;
-            });
-
-        // Subscribe to the user service
-        this._userService.user$
-            .pipe((takeUntil(this._unsubscribeAll)))
-            .subscribe((user: User) =>
-            {
-                this.user = user;
             });
 
         // Subscribe to media changes
@@ -95,8 +117,6 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
                 // Check if the screen is small
                 this.isScreenSmall = !matchingAliases.includes('md');
             });
-
-            
     }
 
     /**
@@ -104,11 +124,13 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      */
     ngOnDestroy(): void
     {
+        // Remover el listener de storage
+        window.removeEventListener('storage', () => this.loadUserData());
+        
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
-
 
     getImageUrl(imagePath: string): string {
         return imagePath ? `${environment.baseUrl}${imagePath}` : '';
