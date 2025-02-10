@@ -220,82 +220,181 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
+    private loadImage(url: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+        });
+    }
+
     private async generarPDFCompleto(): Promise<jsPDFWithPlugin> {
         const doc = new jsPDF() as jsPDFWithPlugin;
         const pageWidth = doc.internal.pageSize.width;
         const today = new Date();
 
-        // Obtener todos los datos primero
-        const response = await this._financeService.consultarTodosServicios({
-            fechaInicio: this.fechaInicio,
-            fechaFin: this.fechaFin,
-            tipoServicio: this.tipoServicio,
-            tecnico: this.tecnico
-        }).toPromise();
+        try {
+            // Cargar logo SVG desde assets
+            const logoImg = await this.loadImage('/assets/images/logo/logo.svg');
+            
+            // Convertir SVG a PNG usando canvas
+            const canvas = document.createElement('canvas');
+            // Ajustar tamaño del canvas para mejor calidad
+            canvas.width = 100;  // Ancho deseado del logo
+            canvas.height = 100; // Alto deseado del logo
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
+            const logoBase64 = canvas.toDataURL('image/png');
 
-        if (!response) {
-            throw new Error('No se pudieron obtener los datos');
-        }
+            // Agregar logo al PDF
+            doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25); // Ajustar tamaño y posición según necesites
 
-        // Configurar el encabezado
-        doc.setFontSize(16);
-        doc.text('Sistema de Soporte Técnico - Alcaldía de Cochabamba', pageWidth/2, 15, { align: 'center' });
-        
-        doc.setFontSize(12);
-        doc.text(`Fecha de generación: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, pageWidth/2, 25, { align: 'center' });
+            // Ajustar posición del título para dejar espacio al logo
+            doc.setFontSize(16);
+            doc.text('Sistema de Soporte Técnico - Alcaldía de Cochabamba', pageWidth/2, 25, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, pageWidth/2, 35, { align: 'center' });
 
-        // Título del reporte con parámetros
-        doc.setFontSize(14);
-        const titulo = 'Reporte de Servicios';
-        doc.text(titulo, pageWidth/2, 35, { align: 'center' });
+            // Título del reporte con parámetros
+            doc.setFontSize(14);
+            const titulo = 'Reporte de Servicios';
+            doc.text(titulo, pageWidth/2, 45, { align: 'center' });
 
-        // Parámetros de la consulta
-        const parametros = [
-            `Fecha Inicio: ${this.fechaInicio}`,
-            `Fecha Fin: ${this.fechaFin}`,
-            `Tipo de Servicio: ${this.tipoServicio}`,
-            `Técnico: ${this.tecnico === 'TODOS' ? 'TODOS' : this.getTecnicoNombre(Number(this.tecnico))}`
-        ];
+            // Parámetros de la consulta
+            const parametros = [
+                `Fecha Inicio: ${this.fechaInicio}`,
+                `Fecha Fin: ${this.fechaFin}`,
+                `Tipo de Servicio: ${this.tipoServicio}`,
+                `Técnico: ${this.tecnico === 'TODOS' ? 'TODOS' : this.getTecnicoNombre(Number(this.tecnico))}`
+            ];
 
-        doc.setFontSize(10);
-        parametros.forEach((param, index) => {
-            doc.text(param, 14, 45 + (index * 5));
-        });
+            doc.setFontSize(10);
+            parametros.forEach((param, index) => {
+                doc.text(param, 14, 55 + (index * 5));
+            });
 
-        // Generar la tabla con todos los datos
-        const tableData = response.data.data.map((row, index) => [
-            index + 1,
-            row.numero,
-            row.tipo,
-            this.getTecnicoNombre(row.tecnicoAsignado),
-            new Date(row.fechaInicio).toLocaleDateString(),
-            new Date(row.fechaTerminado).toLocaleDateString(),
-            row.nombreSolicitante
-        ]);
+            // Generar la tabla con todos los datos
+            const response = await this._financeService.consultarTodosServicios({
+                fechaInicio: this.fechaInicio,
+                fechaFin: this.fechaFin,
+                tipoServicio: this.tipoServicio,
+                tecnico: this.tecnico
+            }).toPromise();
 
-        doc.autoTable({
-            head: [['#', 'Número', 'Tipo de Servicio', 'Técnico Asignado', 'Fecha Inicio', 'Fecha Terminado', 'Solicitante']],
-            body: tableData,
-            startY: 65,
-            theme: 'grid',
-            styles: {
-                fontSize: 8,
-                cellPadding: 2,
-            },
-            headStyles: {
-                fillColor: [63, 81, 181],
-                textColor: 255,
-                fontSize: 8,
-                fontStyle: 'bold',
-            },
-        });
+            if (!response) {
+                throw new Error('No se pudieron obtener los datos');
+            }
 
-        // Agregar numeración de páginas
-        const pageCount = doc.internal.getNumberOfPages();
-        for(let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setFontSize(8);
-            doc.text(`Página ${i} de ${pageCount}`, pageWidth - 20, doc.internal.pageSize.height - 10);
+            const tableData = response.data.data.map((row, index) => [
+                index + 1,
+                row.numero,
+                row.tipo,
+                this.getTecnicoNombre(row.tecnicoAsignado),
+                new Date(row.fechaInicio).toLocaleDateString(),
+                new Date(row.fechaTerminado).toLocaleDateString(),
+                row.nombreSolicitante
+            ]);
+
+            doc.autoTable({
+                head: [['#', 'Número', 'Tipo de Servicio', 'Técnico Asignado', 'Fecha Inicio', 'Fecha Terminado', 'Solicitante']],
+                body: tableData,
+                startY: 65,
+                theme: 'grid',
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                },
+                headStyles: {
+                    fillColor: [63, 81, 181],
+                    textColor: 255,
+                    fontSize: 8,
+                    fontStyle: 'bold',
+                },
+            });
+
+            // Agregar numeración de páginas
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Página ${i} de ${pageCount}`, pageWidth - 20, doc.internal.pageSize.height - 10);
+            }
+
+        } catch (error) {
+            console.error('Error al cargar el logo:', error);
+            // Si hay error al cargar el logo, continuar sin él
+            doc.setFontSize(16);
+            doc.text('Sistema de Soporte Técnico - Alcaldía de Cochabamba', pageWidth/2, 15, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`Fecha de generación: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, pageWidth/2, 25, { align: 'center' });
+
+            // Título del reporte con parámetros
+            doc.setFontSize(14);
+            const titulo = 'Reporte de Servicios';
+            doc.text(titulo, pageWidth/2, 35, { align: 'center' });
+
+            // Parámetros de la consulta
+            const parametros = [
+                `Fecha Inicio: ${this.fechaInicio}`,
+                `Fecha Fin: ${this.fechaFin}`,
+                `Tipo de Servicio: ${this.tipoServicio}`,
+                `Técnico: ${this.tecnico === 'TODOS' ? 'TODOS' : this.getTecnicoNombre(Number(this.tecnico))}`
+            ];
+
+            doc.setFontSize(10);
+            parametros.forEach((param, index) => {
+                doc.text(param, 14, 45 + (index * 5));
+            });
+
+            // Generar la tabla con todos los datos
+            const response = await this._financeService.consultarTodosServicios({
+                fechaInicio: this.fechaInicio,
+                fechaFin: this.fechaFin,
+                tipoServicio: this.tipoServicio,
+                tecnico: this.tecnico
+            }).toPromise();
+
+            if (!response) {
+                throw new Error('No se pudieron obtener los datos');
+            }
+
+            const tableData = response.data.data.map((row, index) => [
+                index + 1,
+                row.numero,
+                row.tipo,
+                this.getTecnicoNombre(row.tecnicoAsignado),
+                new Date(row.fechaInicio).toLocaleDateString(),
+                new Date(row.fechaTerminado).toLocaleDateString(),
+                row.nombreSolicitante
+            ]);
+
+            doc.autoTable({
+                head: [['#', 'Número', 'Tipo de Servicio', 'Técnico Asignado', 'Fecha Inicio', 'Fecha Terminado', 'Solicitante']],
+                body: tableData,
+                startY: 65,
+                theme: 'grid',
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2,
+                },
+                headStyles: {
+                    fillColor: [63, 81, 181],
+                    textColor: 255,
+                    fontSize: 8,
+                    fontStyle: 'bold',
+                },
+            });
+
+            // Agregar numeración de páginas
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Página ${i} de ${pageCount}`, pageWidth - 20, doc.internal.pageSize.height - 10);
+            }
         }
 
         return doc;
