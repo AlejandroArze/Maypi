@@ -63,13 +63,31 @@ class EquipmentController {
                 return jsonResponse.errorResponse(res, 404, "Equipment not found");
             }
 
-            // Crea un DTO con los datos obtenidos del equipo
+            // Crea un DTO con los datos obtenidos del equipo, incluyendo __v
             const equipmentDTO = new EquipmentDTO(
-                equipment.equipos_id, equipment.ip, equipment.procesador, equipment.funcionariousuario, 
-                equipment.lector, equipment.tarjetavideo, equipment.funcionarioasignado, equipment.oficina, 
-                equipment.fecharegistro, equipment.codigo, equipment.memoria, equipment.tarjetamadre, 
-                equipment.antivirus, equipment.garantia, equipment.discoduro, equipment.marca, equipment.tipo, 
-                equipment.modelo, equipment.serie, equipment.so, equipment.responsable, equipment.mac
+                equipment.equipos_id, 
+                equipment.ip, 
+                equipment.procesador, 
+                equipment.funcionariousuario, 
+                equipment.lector, 
+                equipment.tarjetavideo, 
+                equipment.funcionarioasignado, 
+                equipment.oficina, 
+                equipment.fecharegistro, 
+                equipment.codigo, 
+                equipment.memoria, 
+                equipment.tarjetamadre, 
+                equipment.antivirus, 
+                equipment.garantia, 
+                equipment.discoduro, 
+                equipment.marca, 
+                equipment.tipo, 
+                equipment.modelo, 
+                equipment.serie, 
+                equipment.so, 
+                equipment.responsable, 
+                equipment.mac,
+                equipment.__v  // Agregamos __v al DTO
             );
 
             // Retorna una respuesta exitosa en formato JSON indicando que el equipo existe
@@ -225,17 +243,45 @@ static async paginate(req, res) {
             const id = req.params.equipos_id;
             console.log("id ", id);
 
-            // Elimina al equipo mediante el servicio 'equipmentService'
+            // Realiza el borrado lógico y obtiene el registro actualizado
             await equipmentService.destroy(id);
+            
+            // Obtener el registro actualizado para mostrarlo en la respuesta
+            const updatedEquipment = await equipmentService.show(id);
 
-            // Retorna una respuesta exitosa en formato JSON indicando que el equipo ha sido eliminado
+            // Crear un DTO con los datos actualizados
+            const equipmentDTO = new EquipmentDTO(
+                updatedEquipment.equipos_id,
+                updatedEquipment.ip,
+                updatedEquipment.procesador,
+                updatedEquipment.funcionariousuario,
+                updatedEquipment.lector,
+                updatedEquipment.tarjetavideo,
+                updatedEquipment.funcionarioasignado,
+                updatedEquipment.oficina,
+                updatedEquipment.fecharegistro,
+                updatedEquipment.codigo,
+                updatedEquipment.memoria,
+                updatedEquipment.tarjetamadre,
+                updatedEquipment.antivirus,
+                updatedEquipment.garantia,
+                updatedEquipment.discoduro,
+                updatedEquipment.marca,
+                updatedEquipment.tipo,
+                updatedEquipment.modelo,
+                updatedEquipment.serie,
+                updatedEquipment.so,
+                updatedEquipment.responsable,
+                updatedEquipment.mac
+            );
+
             return jsonResponse.successResponse(
                 res,
                 200,
-                "Equipment has been deleted"
+                "Equipment has been marked as deleted",
+                equipmentDTO
             );
         } catch (error) {
-            // Si hay un error de validación de Joi, retorna una respuesta de validación
             return Joi.isError(error) ? jsonResponse.validationResponse(
                 res,
                 409,

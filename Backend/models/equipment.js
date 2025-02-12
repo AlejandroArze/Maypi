@@ -98,6 +98,11 @@ module.exports = (sequelize, DataTypes) => {
     mac: {
       type: DataTypes.TEXT, // El tipo de dato es TEXT.
       allowNull: true
+    },
+    __v: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false
     }
   }, {
     sequelize, // Pasamos la instancia de Sequelize para manejar la conexión con la base de datos.

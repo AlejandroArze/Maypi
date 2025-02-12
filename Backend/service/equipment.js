@@ -57,13 +57,17 @@ class EquipmentService {
             // Valida el ID del equipo
             await idDTO.validateAsync({ equipos_id: id });
 
-            // Busca el equipo por su ID (campo equipos_id)
-            const equipment = await Equipment.findByPk(id);
+            // Busca el equipo por su ID (campo equipos_id), incluyendo los marcados como eliminados
+            const equipment = await Equipment.findOne({
+                where: {
+                    equipos_id: id
+                }
+            });
 
-            return equipment; // Retorna el equipo
+            return equipment;
 
         } catch (error) {
-            throw error; // Lanza el error para manejarlo
+            throw error;
         }
     }
    
@@ -148,24 +152,30 @@ static async paginate(queryParams) {
     const columns = Object.keys(Equipment.rawAttributes);
 
     // Construir las condiciones de búsqueda
-    const whereCondition = search
-        ? {
-            [Op.or]: columns.map((field) => {
-                const columnType = Equipment.rawAttributes[field].type.key;
+    let whereCondition = {
+        __v: 0  // Cambiado de _v a __v
+    };
 
-                if (columnType === "STRING" || columnType === "TEXT") {
-                    // Si la columna es texto, usa unaccent y ILIKE
-                    return Sequelize.literal(`unaccent("${field}") ILIKE unaccent('%${search}%')`);
-                } else {
-                    // Si no es texto, conviértelo a texto con CAST
-                    return Sequelize.literal(`CAST("${field}" AS TEXT) ILIKE '%${search}%'`);
+    if (search) {
+        whereCondition = {
+            [Op.and]: [
+                { __v: 0 },  // Cambiado de _v a __v
+                {
+                    [Op.or]: columns.map((field) => {
+                        const columnType = Equipment.rawAttributes[field].type.key;
+
+                        if (columnType === "STRING" || columnType === "TEXT") {
+                            return Sequelize.literal(`unaccent("${field}") ILIKE unaccent('%${search}%')`);
+                        } else {
+                            return Sequelize.literal(`CAST("${field}" AS TEXT) ILIKE '%${search}%'`);
+                        }
+                    })
                 }
-            }),
-        }
-        : {};
+            ]
+        };
+    }
 
     try {
-        // Realiza la consulta con las condiciones dinámicas
         const { count, rows } = await Equipment.findAndCountAll({
             where: whereCondition,
             limit: limit,
@@ -232,20 +242,25 @@ static async paginate(queryParams) {
     // Método para eliminar un equipo por su ID
     static async destroy(id) {
         console.log("Service Destroy ID: ", id);
-        const DB = await sequelize.transaction(); // Inicia una transacción de base de datos
+        const DB = await sequelize.transaction();
         
         try {
-            // Valida el ID del equipo
             await idDTO.validateAsync({ equipos_id: id });
 
-            // Elimina el equipo por su ID (campo equipos_id)
-            await Equipment.destroy({ where: { equipos_id: id } });
+            // Cambiado de _v a __v
+            await Equipment.update(
+                { __v: 1 },
+                { 
+                    where: { equipos_id: id },
+                    transaction: DB 
+                }
+            );
 
-            await DB.commit(); // Confirma la transacción
+            await DB.commit();
 
         } catch (error) {
-            await DB.rollback(); // Deshace los cambios si hay un error
-            throw error; // Lanza el error para manejarlo
+            await DB.rollback();
+            throw error;
         }
     }
 }
