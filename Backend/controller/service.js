@@ -330,17 +330,16 @@ class ServiceController {
             const id = req.params.servicios_id;
             console.log("id ", id);
 
-            // Elimina al equipo mediante el servicio 'serviceService'
+            // Ahora realiza una eliminación lógica
             await serviceService.destroy(id);
 
-            // Retorna una respuesta exitosa en formato JSON indicando que el equipo ha sido eliminado
+            // Actualizar el mensaje para reflejar que es una eliminación lógica
             return jsonResponse.successResponse(
                 res,
                 200,
-                "Service has been deleted"
+                "Service has been logically deleted"
             );
         } catch (error) {
-            // Si hay un error de validación de Joi, retorna una respuesta de validación
             return Joi.isError(error) ? jsonResponse.validationResponse(
                 res,
                 409,

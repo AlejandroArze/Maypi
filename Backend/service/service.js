@@ -111,22 +111,30 @@ class ServiceService {
 
     // Método para eliminar un servicio por su ID
     static async destroy(id) {
-        console.log("Service Destroy ID: ", id);
-        const DB = await sequelize.transaction(); // Inicia una transacción de base de datos
+        console.log("Service Logical Delete ID: ", id);
+        const DB = await sequelize.transaction();
         
         try {
             // Valida el ID del servicio
             await idDTO.validateAsync({ servicios_id: id });
 
-            // Elimina el servicio por su ID (campo servicios_id)
-            await Service.destroy({ where: { servicios_id: id } });
+             // Elimina el servicio por su ID (campo servicios_id)
+             //await Service.destroy({ where: { servicios_id: id } });
 
-            await DB.commit(); // Confirma la transacción
-            
+            // En lugar de eliminar, actualiza el campo __v a 1
+            await Service.update(
+                { __v: 1 },
+                { 
+                    where: { servicios_id: id },
+                    transaction: DB
+                }
+            );
+
+            await DB.commit();
 
         } catch (error) {
-            await DB.rollback(); // Deshace los cambios si hay un error
-            throw error; // Lanza el error para manejarlo
+            await DB.rollback();
+            throw error;
         }
     }
 
@@ -140,23 +148,22 @@ class ServiceService {
                 order = 'DESC'
             } = queryParams;
 
-            // Asegurar que order sea un string y convertirlo a mayúsculas
             const orderDirection = (order || 'DESC').toString().toUpperCase();
-            
-            // Decodificar el término de búsqueda y eliminar espacios extra
             const decodedSearch = decodeURIComponent(search).trim();
             
-            // Construir las condiciones de búsqueda
-            const whereConditions = {};
+            // Agregar condición para __v en whereConditions
+            const whereConditions = {
+                __v: 0 // Solo mostrar registros activos
+            };
+
             if (decodedSearch) {
                 whereConditions[Op.or] = [
                     { nombreSolicitante: { [Op.iLike]: `%${decodedSearch}%` } },
                     { problema: { [Op.iLike]: `%${decodedSearch}%` } },
-                    { estado: { [Op.iLike]: `%${decodedSearch}%` } }  // Agregamos búsqueda por estado
+                    { estado: { [Op.iLike]: `%${decodedSearch}%` } }
                 ];
             }
 
-            // Realizar la consulta
             const { count, rows } = await Service.findAndCountAll({
                 where: whereConditions,
                 order: [[sort, orderDirection]],
@@ -191,7 +198,10 @@ class ServiceService {
             
             console.log('Query params:', { tipo, tecnicoAsignado, estado, page, limit, search });
             
-            const whereConditions = {};
+            const whereConditions = {
+
+                __v: 0  // Agregar esta condición
+            };
             
             if (tipo) {
                 whereConditions.tipo = decodeURIComponent(tipo).trim();
@@ -250,7 +260,9 @@ class ServiceService {
 
             console.log('Query params:', { fechaInicio, fechaFin, tipo, tecnicoAsignado, estado, page, limit });
 
-            const whereConditions = {};
+            const whereConditions = {
+             __v: 0  // Agregar esta condición
+            };
 
             // Agregar filtro de rango de fechas si se proporcionan
             if (fechaInicio && fechaFin) {
@@ -320,7 +332,9 @@ class ServiceService {
     static async getServiceMetrics(params) {
         try {
             const { fechaInicio, fechaFin, tipo, tecnicoAsignado, estado } = params;
-            const whereConditions = {};
+            const whereConditions = {
+             __v: 0  // Agregar esta condición
+            };
 
             // Agregar filtros según los parámetros recibidos
             if (fechaInicio && fechaFin) {
@@ -427,8 +441,7 @@ class ServiceService {
                         'servicios_terminados'
                     ],
                     [
-                        sequelize.literal(`
-                            EXTRACT(EPOCH FROM AVG(
+                        sequelize.literal(`                            EXTRACT(EPOCH FROM AVG(
                                 CASE 
                                     WHEN "fechaTerminado" IS NOT NULL AND "fechaInicio" IS NOT NULL 
                                     THEN GREATEST("fechaTerminado"::timestamp, "fechaInicio"::timestamp) - 
@@ -482,3 +495,4 @@ class ServiceService {
 }
 
 module.exports = ServiceService;
+

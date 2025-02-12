@@ -158,6 +158,12 @@ module.exports = (sequelize, DataTypes) => {
     ciResponsableEgreso: {
       type: DataTypes.TEXT, 
       allowNull: false, 
+    },
+    // Agregar el nuevo campo __v
+    __v: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0 // 0 = activo, 1 = eliminado
     }
   }, {
     sequelize, // Pasamos la instancia de Sequelize para manejar la conexión con la base de datos.
