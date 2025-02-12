@@ -22,10 +22,9 @@ class EquipmentResponseDTO {
     so; // Operating system
     responsable; // Responsible person (integer)
     mac; // MAC address
-    __v; // Agregamos la propiedad __v
 
     // Constructor para inicializar el DTO con valores
-    constructor(equipos_id, ip, procesador, funcionariousuario, lector, tarjetavideo, funcionarioasignado, oficina, fecharegistro, codigo, memoria, tarjetamadre, antivirus, garantia, discoduro, marca, tipo, modelo, serie, so, responsable, mac, __v) {
+    constructor(equipos_id, ip, procesador, funcionariousuario, lector, tarjetavideo, funcionarioasignado, oficina, fecharegistro, codigo, memoria, tarjetamadre, antivirus, garantia, discoduro, marca, tipo, modelo, serie, so, responsable, mac) {
         this.equipos_id = equipos_id; // Asigna el ID del equipo
         this.ip = ip; // Asigna la dirección IP
         this.procesador = procesador; // Asigna el procesador
@@ -48,35 +47,10 @@ class EquipmentResponseDTO {
         this.so = so; // Asigna el sistema operativo
         this.responsable = responsable; // Asigna el responsable
         this.mac = mac; // Asigna la dirección MAC
-        this.__v = __v; // Asignamos el valor de __v
     }
 
     static createFromEntity(entity) {
-        return new EquipmentResponseDTO(
-            entity.equipos_id,
-            entity.ip,
-            entity.procesador,
-            entity.funcionariousuario,
-            entity.lector,
-            entity.tarjetavideo,
-            entity.funcionarioasignado,
-            entity.oficina,
-            entity.fecharegistro,
-            entity.codigo,
-            entity.memoria,
-            entity.tarjetamadre,
-            entity.antivirus,
-            entity.garantia,
-            entity.discoduro,
-            entity.marca,
-            entity.tipo,
-            entity.modelo,
-            entity.serie,
-            entity.so,
-            entity.responsable,
-            entity.mac,
-            entity.__v
-        );
+        return new EquipmentResponseDTO(entity);
     }
 }
 

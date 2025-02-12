@@ -63,31 +63,13 @@ class EquipmentController {
                 return jsonResponse.errorResponse(res, 404, "Equipment not found");
             }
 
-            // Crea un DTO con los datos obtenidos del equipo, incluyendo __v
+            // Crea un DTO con los datos obtenidos del equipo
             const equipmentDTO = new EquipmentDTO(
-                equipment.equipos_id, 
-                equipment.ip, 
-                equipment.procesador, 
-                equipment.funcionariousuario, 
-                equipment.lector, 
-                equipment.tarjetavideo, 
-                equipment.funcionarioasignado, 
-                equipment.oficina, 
-                equipment.fecharegistro, 
-                equipment.codigo, 
-                equipment.memoria, 
-                equipment.tarjetamadre, 
-                equipment.antivirus, 
-                equipment.garantia, 
-                equipment.discoduro, 
-                equipment.marca, 
-                equipment.tipo, 
-                equipment.modelo, 
-                equipment.serie, 
-                equipment.so, 
-                equipment.responsable, 
-                equipment.mac,
-                equipment.__v  // Agregamos __v al DTO
+                equipment.equipos_id, equipment.ip, equipment.procesador, equipment.funcionariousuario, 
+                equipment.lector, equipment.tarjetavideo, equipment.funcionarioasignado, equipment.oficina, 
+                equipment.fecharegistro, equipment.codigo, equipment.memoria, equipment.tarjetamadre, 
+                equipment.antivirus, equipment.garantia, equipment.discoduro, equipment.marca, equipment.tipo, 
+                equipment.modelo, equipment.serie, equipment.so, equipment.responsable, equipment.mac
             );
 
             // Retorna una respuesta exitosa en formato JSON indicando que el equipo existe
