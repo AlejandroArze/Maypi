@@ -1047,4 +1047,26 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
         }
         return lists; // Roles 1 y 2 ven todas las listas
     }
+
+    /**
+     * Verificar si el usuario puede crear servicios
+     */
+    canCreateService(): boolean {
+        // Obtener el token del localStorage
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            try {
+                // Decodificar el token
+                const tokenParts = token.split('.');
+                const payload = JSON.parse(atob(tokenParts[1]));
+                console.log("rol del usuario:", payload.role);
+                // Retornar true solo si el rol es 1 o 2
+                return ['1', '2'].includes(payload.role);
+            } catch (e) {
+                console.error('Error al verificar permisos:', e);
+                return false;
+            }
+        }
+        return false; // Si no hay token, no permitir crear
+    }
 }

@@ -120,6 +120,7 @@
                         <button
                             mat-flat-button
                             [color]="'primary'"
+                            [disabled]="!canCreateService()"
                             (click)="createNewService()">
                             <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                             <span class="ml-2 hidden sm:inline">Nuevo Servicio</span>
