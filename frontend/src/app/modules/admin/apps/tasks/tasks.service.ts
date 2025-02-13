@@ -260,7 +260,7 @@ export class TasksService
                             endIndex: response.data.currentPage * response.data.perPage,
                         };
 
-                        // Filtrar los servicios por estado y mapear correctamente la estructura
+                        // Mapear y filtrar los servicios
                         const services = response.data.data
                             .map((item: any) => ({
                                 ...item.servicios_id,  // Expandir los datos del servicio
@@ -272,11 +272,19 @@ export class TasksService
                             }))
                             .filter((service: any) => service.estado === estado);
 
+                        // Eliminar duplicados basados en servicios_id
+                        const uniqueServices = services.filter((service, index, self) =>
+                            index === self.findIndex((s) => s.servicios_id === service.servicios_id)
+                        );
+
+                        // Ordenar por ID de forma descendente (los más nuevos primero)
+                        const sortedServices = uniqueServices.sort((a, b) => b.servicios_id - a.servicios_id);
+
                         // Emitir los datos
                         this._pagination.next(pagination);
-                        this._services.next(services);
+                        this._services.next(sortedServices);
 
-                        return { pagination, services };
+                        return { pagination, services: sortedServices };
                     })
                 );
         }
@@ -451,16 +459,12 @@ export class TasksService
             ciSolicitante: " ",
             nombreSolicitante: " ",
             tipo: "EN LABORATORIO",
-            tecnicoRegistro:  user?.data?.usuarios_id || 1,// Obtener el usuario del localStorage
+            tecnicoRegistro: user?.data?.usuarios_id || 1,
             tecnicoEgreso: " ",
             ciResponsableEgreso: " ",
             ...serviceData
-
-
-            
         };
 
-        // Asegurarse de que tecnicoAsignado sea null si no es un número válido
         if (defaultData2.tecnicoAsignado === undefined || 
             defaultData2.tecnicoAsignado === null || 
             isNaN(Number(defaultData2.tecnicoAsignado))) {
@@ -469,17 +473,24 @@ export class TasksService
 
         return this._httpClient.post<{ message: string, data: Servicio }>(`${this.baseUrl}/service`, defaultData2)
             .pipe(
-                map(response => {
-                    // Mapea y devuelve solo el objeto Servicio desde la respuesta
-                    return response.data;
-                }),
-                tap(newService => {
-                    // Actualiza la lista actual de servicios con el nuevo servicio
-                    const currentServices = this._services.getValue();
-                    this._services.next([newService, ...currentServices]);
+                switchMap(response => {
+                    const newService = response.data;
+                    // Obtener la lista actual
+                    const currentServices = this._services.getValue() || [];
+                    
+                    // Crear una nueva lista con el nuevo servicio al principio
+                    const updatedServices = [
+                        newService,
+                        ...currentServices
+                    ].sort((a, b) => b.servicios_id - a.servicios_id); // Asegurar orden descendente por ID
+                    
+                    // Actualizar la lista con el nuevo servicio al principio
+                    this._services.next(updatedServices);
+                    
+                    // Devolver el nuevo servicio
+                    return of(newService);
                 }),
                 catchError(error => {
-                    // Manejo de errores
                     console.error('Error al crear el servicio:', error);
                     return throwError(() => new Error('No se pudo crear el servicio debido a un error en el servidor.'));
                 })
@@ -548,13 +559,13 @@ export class TasksService
             equipos_id: task.equipo === '' ? null : task.equipo,
             tipo: task.tipo === '' ? " " : task.tipo
         };
-        
 
         console.log('Actualizando servicio:', {
             url: `${this.baseUrl}/service/${servicioId}`,
             data: taskToUpdate,
             equipo: taskToUpdate.equipo,
-            equipos_id: taskToUpdate.equipos_id
+            equipos_id: taskToUpdate.equipos_id,
+            tipo: taskToUpdate.tipo // Agregar log específico para el tipo
         });
 
         return this._httpClient.put<any>(
@@ -572,7 +583,8 @@ export class TasksService
                         const updatedServices = [...currentServices];
                         updatedServices[index] = {
                             ...updatedServices[index],
-                            ...taskToUpdate
+                            ...taskToUpdate,
+                            tipo: taskToUpdate.tipo // Asegurarse de que el tipo se actualice correctamente
                         };
                         this._services.next(updatedServices);
                     }

@@ -162,7 +162,7 @@ export class TasksListComponent implements OnInit, OnDestroy
     {
         this._tasksService.createTask({}).subscribe((newService: Servicio) =>
         {
-            this.services.push(newService); // Agrega el nuevo servicio a la lista local
+            //this.services.push(newService); // Agrega el nuevo servicio a la lista local
             this._router.navigate(['./', newService.servicios_id], {relativeTo: this._activatedRoute}); // Navega al nuevo servicio creado
             this._changeDetectorRef.markForCheck(); // Marca el componente para chequeo de cambios
         });

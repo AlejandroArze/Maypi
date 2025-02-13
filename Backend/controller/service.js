@@ -279,17 +279,12 @@ class ServiceController {
             // Limpia todos los campos del body y solo incluye los campos permitidos
             const cleanedBody = Object.keys(req.body).reduce((acc, key) => {
                 if (allowedFields.includes(key)) {
-                    // Para el campo tipo, usar siempre tiposId
-                    if (key === 'tipo') {
-                        acc[key] = req.body.tiposId;
-                    } else {
-                        acc[key] = cleanField(req.body[key], key);
-                    }
+                    acc[key] = cleanField(req.body[key], key);
                 }
                 return acc;
             }, {});
 
-            // Si no hay tiposId, mantener el valor actual
+            // Mantener el tipo actual solo si no se envió uno nuevo
             if (!cleanedBody.tipo) {
                 cleanedBody.tipo = currentService.tipo;
             }

@@ -1258,10 +1258,13 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
      */
     saveServicio(): void {
         const servicio = this.servicioForm.getRawValue();
+        
+        console.log('Guardando servicio con tipo:', servicio.tipo); // Agregar log
 
         if (this.servicio.servicios_id) {
             this._tasksService.updateTask(this.servicio.servicios_id, servicio).subscribe({
-                next: () => {
+                next: (response) => {
+                    console.log('Servicio actualizado:', response); // Agregar log
                     this.flashMessage = 'success';
                 },
                 error: (err) => {
