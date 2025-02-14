@@ -193,25 +193,49 @@ class ServiceService {
                 estado,  
                 page = 1, 
                 limit = 100, 
-                search = '' 
+                search = ''
             } = req.query;
             
+            // Obtener el rol del usuario autenticado
+            const role = req.user.role;
+            
             console.log('Query params:', { tipo, tecnicoAsignado, estado, page, limit, search });
+            console.log('User role:', role);
             
             const whereConditions = {
-
-                __v: 0  // Agregar esta condición
+                __v: 0  // Agregar esta condición para servicios activos
             };
-            
+
+            // Si es rol 2 y no se especifica un técnico, filtrar por usuarios activos
+            if (role === '2' && (!tecnicoAsignado || tecnicoAsignado === 'null')) {
+                // Obtener lista de usuarios activos primero
+                const activeUsers = await sequelize.models.User.findAll({
+                    where: {
+                        estado: 1 // Usuarios ACTIVOS tienen estado = 1
+                    }
+                });
+
+                console.log('Usuarios activos encontrados:', activeUsers.length);
+
+                // Extraer los IDs de usuarios activos
+                const activeUserIds = activeUsers.map(user => user.usuarios_id);
+                
+                console.log('IDs de usuarios activos:', activeUserIds);
+
+                // Si hay usuarios activos, agregar la condición
+                if (activeUserIds.length > 0) {
+                    whereConditions.tecnicoAsignado = {
+                        [Op.in]: activeUserIds
+                    };
+                }
+            } else if (tecnicoAsignado && tecnicoAsignado !== 'null') {
+                whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
+            }
+
             if (tipo) {
                 whereConditions.tipo = decodeURIComponent(tipo).trim();
             }
 
-            if (tecnicoAsignado && tecnicoAsignado !== 'null') {
-                whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
-            }
-
-            // Decodificar y limpiar el estado antes de usarlo en la consulta
             if (estado && estado !== 'null' && estado !== 'undefined') {
                 whereConditions.estado = {
                     [Op.iLike]: decodeURIComponent(estado).trim()

@@ -4,7 +4,11 @@ const sequelize = require('../config/dataBase'); // Importa la instancia de Sequ
 module.exports = (sequelize, DataTypes) => {
   class Service extends Model {
     static associate(models) {
-      // Aquí se pueden definir asociaciones entre otros modelos si es necesario.
+      // Define la asociación con User
+      Service.belongsTo(models.User, {
+        foreignKey: 'tecnicoAsignado',
+        as: 'tecnico'
+      });
     }
   }
 
