@@ -10,7 +10,7 @@ import { FuseNavigationService, FuseVerticalNavigationComponent } from '@fuse/co
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher'; // Importa servicio para observar cambios en los medios
 import { TasksService } from 'app/modules/admin/apps/tasks/tasks.service'; // Importa el servicio de tareas personalizado
 import { Tag, Servicio } from 'app/modules/admin/apps/tasks/tasks.types'; // Importa tipos de datos personalizados
-import { filter, fromEvent, Subject, takeUntil } from 'rxjs'; // Importa operadores y clases de RxJS
+import { filter, fromEvent, Subject, takeUntil, forkJoin } from 'rxjs'; // Importa operadores y clases de RxJS
 
 @Component({
     selector       : 'tasks-list', // Define el selector del componente
@@ -75,11 +75,41 @@ export class TasksListComponent implements OnInit, OnDestroy
                 this._changeDetectorRef.markForCheck();
             });
 
-            this.servicesCount = {
-                incomplete: this.services.filter(task => task.estado !== 'completado').length,
-                completed: this.services.filter(task => task.estado === 'completado').length,
-            };
-            
+        // Llamar al servicio para cada tipo
+        const tiposServicio = ['ASISTENCIA', 'EN LABORATORIO', 'REMOTA'];
+        
+        // Hacer las tres llamadas en paralelo
+        forkJoin(
+            tiposServicio.map(tipo => 
+                this._tasksService.getServicesByType(tipo)
+            )
+        ).pipe(
+            takeUntil(this._unsubscribeAll)
+        ).subscribe({
+            next: (results) => {
+                // Combinar los resultados de los tres tipos
+                const allServices = results.reduce((acc, curr) => {
+                    return [...acc, ...curr.services];
+                }, []);
+
+                // Actualizar los servicios
+                this._tasksService.updateServices(allServices);
+
+                // Actualizar la paginación con el total combinado
+                const totalCount = results.reduce((acc, curr) => acc + curr.pagination.length, 0);
+                this._tasksService.updatePagination({
+                    length: totalCount,
+                    size: results[0].pagination.size,
+                    page: results[0].pagination.page,
+                    lastPage: results[0].pagination.lastPage,
+                    startIndex: results[0].pagination.startIndex,
+                    endIndex: results[0].pagination.endIndex
+                });
+
+                // El resto del código se mantiene igual gracias a las suscripciones existentes
+                this._changeDetectorRef.markForCheck();
+            }
+        });
 
         // Obtiene los servicios
         this._tasksService.services$

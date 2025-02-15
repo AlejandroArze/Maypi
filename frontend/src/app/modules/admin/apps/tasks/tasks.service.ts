@@ -36,6 +36,8 @@ export class TasksService
     private baseUrl = environment.baseUrl;//llamamos a los enviment de la url
     private _pagination: BehaviorSubject<InventoryPagination | null> = new BehaviorSubject(null);
     
+    // Constante para el estado
+    private readonly ESTADO_SIN_ASIGNAR = 'SIN ASIGNAR';
 
     /**
      * Constructor
@@ -233,7 +235,7 @@ export class TasksService
         
     
         
-        getTasks(
+        getTasksAnterior(
             page: number = 0,
             size: number = 100,
             sort: string = 'name',
@@ -915,6 +917,67 @@ export class TasksService
                 return of([]);
             })
         );
+    }
+
+    /**
+     * Obtener servicios por tipo
+     */
+    getServicesByType(
+        tipoServicio: string,
+        page: number = 1,
+        limit: number = 100
+    ): Observable<{ pagination: InventoryPagination; services: Servicio[] }> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('limit', limit.toString())
+            .set('tipo', tipoServicio)
+            .set('estado', this.ESTADO_SIN_ASIGNAR);
+
+        return this._httpClient.get<any>(`${this.baseUrl}/service/board`, { params })
+            .pipe(
+                map(response => {
+                    const pagination: InventoryPagination = {
+                        length: response.data.total,
+                        size: response.data.perPage,
+                        page: response.data.currentPage,
+                        lastPage: response.data.totalPages,
+                        startIndex: ((response.data.currentPage) * response.data.perPage),
+                        endIndex: response.data.currentPage * response.data.perPage,
+                    };
+
+                    const services = response.data.data.map(item => ({
+                        servicios_id: item.servicios_id,
+                        nombreSolicitante: item.nombreSolicitante || '',
+                        problema: item.problema || '',
+                        tipo: item.tipo,
+                        estado: item.estado,
+                        tecnicoAsignado: item.tecnicoAsignado || null,
+                        oficinaSolicitante: item.oficinaSolicitante || '',
+                        // ... otros campos necesarios
+                    }));
+
+                    // Actualizar el estado global
+                    const currentServices = this._services.value || [];
+                    const updatedServices = [
+                        ...currentServices.filter(s => s.tipo !== tipoServicio),
+                        ...services
+                    ];
+                    this._services.next(updatedServices);
+                    this._pagination.next(pagination);
+
+                    return { pagination, services };
+                })
+            );
+    }
+
+    // Agregar este método público en TasksService
+    updateServices(services: Servicio[]): void {
+        this._services.next(services);
+    }
+
+    // Agregar este método público en TasksService
+    updatePagination(pagination: InventoryPagination): void {
+        this._pagination.next(pagination);
     }
 
 }

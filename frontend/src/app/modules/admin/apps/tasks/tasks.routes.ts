@@ -4,7 +4,7 @@ import { TasksDetailsComponent } from 'app/modules/admin/apps/tasks/details/deta
 import { TasksListComponent } from 'app/modules/admin/apps/tasks/list/list.component'; // Componente de lista de tareas
 import { TasksComponent } from 'app/modules/admin/apps/tasks/tasks.component'; // Componente principal de tareas
 import { TasksService } from 'app/modules/admin/apps/tasks/tasks.service'; // Servicio para gestionar las tareas
-import { catchError, throwError } from 'rxjs'; // Operadores de RxJS para manejo de errores
+import { catchError, throwError, forkJoin, map } from 'rxjs'; // Operadores de RxJS para manejo de errores
 
 /**
  * Resolución de tareas
@@ -79,7 +79,22 @@ export default [
                 path: '', // Ruta para la lista de tareas
                 component: TasksListComponent, // Componente de lista de tareas
                 resolve: {
-                    tasks: () => inject(TasksService).getTasks(), // Obtiene las tareas antes de cargar el componente
+                    tasks: () => {
+                        const service = inject(TasksService);
+                        const tipos = ['ASISTENCIA', 'EN LABORATORIO', 'REMOTA'];
+                        return forkJoin(
+                            tipos.map(tipo => service.getServicesByType(tipo))
+                        ).pipe(
+                            map(results => {
+                                // Combinar todos los servicios
+                                const allServices = results.reduce((acc, curr) => 
+                                    [...acc, ...curr.services], []);
+                                // Actualizar el estado del servicio
+                                service.updateServices(allServices);
+                                return allServices;
+                            })
+                        );
+                    }
                 },
                 children: [
                     {

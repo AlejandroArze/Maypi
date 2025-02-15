@@ -228,6 +228,89 @@ class ServiceService {
                         [Op.in]: activeUserIds
                     };
                 }
+            } else if (role === '3' && (!tecnicoAsignado || tecnicoAsignado === 'null')) {
+                console.log('Entrando a verificación de rol 3:', {
+                    role,
+                    tecnicoAsignado,
+                    user: req.user
+                });
+
+                // Verificar que existe el ID del usuario
+                const userId = req.user?.id || req.user?.usuarios_id; // Intentar obtener el ID de cualquiera de las dos formas
+
+                if (!userId) {
+                    console.log('Usuario no autenticado o sin ID válido');
+                    // Si no hay usuario autenticado, continuar sin filtrar por técnico
+                    if (tipo) {
+                        whereConditions.tipo = decodeURIComponent(tipo).trim();
+                    }
+                } else {
+                    // Primero verificar el estado del usuario que hace la solicitud
+                    const requestingUser = await sequelize.models.User.findOne({
+                        where: {
+                            usuarios_id: userId
+                        }
+                    });
+
+                    console.log('Usuario solicitante encontrado:', {
+                        found: !!requestingUser,
+                        estado: requestingUser?.estado,
+                        userData: requestingUser
+                    });
+
+                    // Solo proceder si el usuario está inactivo (estado = 0)
+                    if (requestingUser && requestingUser.estado === 0) {
+                        console.log('Usuario está inactivo, procediendo a buscar otros usuarios inactivos');
+                        
+                        // Obtener lista de usuarios inactivos
+                        const inactiveUsers = await sequelize.models.User.findAll({
+                            where: {
+                                estado: 0 // Usuarios INACTIVOS tienen estado = 0
+                            }
+                        });
+
+                        console.log('Usuarios inactivos encontrados:', {
+                            count: inactiveUsers.length,
+                            users: inactiveUsers
+                        });
+
+                        // Extraer los IDs de usuarios inactivos
+                        const inactiveUserIds = inactiveUsers.map(user => user.usuarios_id);
+                        
+                        if (inactiveUserIds.length > 0) {
+                            whereConditions.tecnicoAsignado = {
+                                [Op.in]: inactiveUserIds
+                            };
+                            console.log('Condición de filtrado actualizada:', whereConditions);
+                        }
+                    } else {
+                        console.log('No se cumplieron las condiciones para usuarios inactivos:', {
+                            userFound: !!requestingUser,
+                            userState: requestingUser?.estado
+                        });
+
+                         // Obtener lista de usuarios activos primero
+                        const activeUsers = await sequelize.models.User.findAll({
+                            where: {
+                                estado: 1 // Usuarios ACTIVOS tienen estado = 1
+                            }
+                        });
+
+                        console.log('Usuarios activos encontrados:', activeUsers.length);
+
+                        // Extraer los IDs de usuarios activos
+                        const activeUserIds = activeUsers.map(user => user.usuarios_id);
+                        
+                        console.log('IDs de usuarios activos:', activeUserIds);
+
+                        // Si hay usuarios activos, agregar la condición
+                        if (activeUserIds.length > 0) {
+                            whereConditions.tecnicoAsignado = {
+                                [Op.in]: activeUserIds
+                            };
+                        }
+                    }
+                }
             } else if (tecnicoAsignado && tecnicoAsignado !== 'null') {
                 whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
             }
