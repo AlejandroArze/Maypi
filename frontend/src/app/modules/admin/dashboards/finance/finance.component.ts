@@ -694,8 +694,66 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         });
     }
 
-    getMetricByTipo(tipo: string): { tiempo_promedio_horas: number; total_servicios: number } | undefined {
+    getMetricByTipo(tipo: string): { tiempo_promedio_horas: number; tiempo_promedio_minutos: number; tiempo_promedio_segundos: number; total_servicios: number } | undefined {
         return this.metrics?.tiemposResolucion.find(item => item.tipo === tipo);
     }
+
+    formatTiempoResolucion(metric: { tiempo_promedio_horas: number; tiempo_promedio_minutos: number; tiempo_promedio_segundos: number; } | undefined): { valor: string; unidad: string } {
+        if (!metric) {
+            return { valor: '0', unidad: 'seg' };
+        }
+
+        // Si hay horas
+        if (metric.tiempo_promedio_horas >= 1) {
+            // Obtener la parte entera de las horas
+            const horas = Math.floor(metric.tiempo_promedio_horas);
+            // Convertir la parte decimal a minutos
+            const minutosDecimal = (metric.tiempo_promedio_horas - horas) * 60;
+            
+            if (minutosDecimal >= 1) {
+                return { 
+                    valor: `${horas} hrs ${Math.floor(minutosDecimal)}`, 
+                    unidad: 'min' 
+                };
+            }
+            
+            return { 
+                valor: `${horas}`, 
+                unidad: 'hrs' 
+            };
+        }
+
+        // Si hay minutos
+        if (metric.tiempo_promedio_minutos >= 1) {
+            // Obtener la parte entera de los minutos
+            const minutos = Math.floor(metric.tiempo_promedio_minutos);
+            // Convertir la parte decimal a segundos
+            const segundosDecimal = (metric.tiempo_promedio_minutos - minutos) * 60;
+            
+            if (segundosDecimal >= 1) {
+                return { 
+                    valor: `${minutos} min ${Math.floor(segundosDecimal)}`, 
+                    unidad: 'seg' 
+                };
+            }
+            
+            return { 
+                valor: `${minutos}`, 
+                unidad: 'min' 
+            };
+        }
+
+        // Si hay segundos, mostrar solo la parte entera
+        if (metric.tiempo_promedio_segundos > 0) {
+            return { 
+                valor: Math.floor(metric.tiempo_promedio_segundos).toString(), 
+                unidad: 'seg' 
+            };
+        }
+
+        // Si todo es 0, mostrar 0 segundos
+        return { valor: '0', unidad: 'seg' };
+    }
+       
 }
 

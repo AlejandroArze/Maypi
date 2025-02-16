@@ -48,6 +48,8 @@ export interface MetricsResponse {
         tiemposResolucion: Array<{
             tipo: string;
             tiempo_promedio_horas: number;
+            tiempo_promedio_minutos: number;
+            tiempo_promedio_segundos: number;
             total_servicios: number;
         }>;
     };
