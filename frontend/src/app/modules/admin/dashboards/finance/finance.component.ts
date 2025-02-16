@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FinanceService } from './finance.service';
 import { ScrumboardService } from 'app/modules/admin/apps/scrumboard/scrumboard.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -19,6 +20,9 @@ import 'jspdf-autotable';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { MetricsResponse } from './finance.service';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { environment } from 'environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 
 // Registrar el plugin
 Chart.register(ChartDataLabels);
@@ -44,7 +48,8 @@ interface jsPDFWithPlugin extends jsPDF {
         MatDatepickerModule,
         MatNativeDateModule,
         MatInputModule,
-        MatIconModule
+        MatIconModule,
+        MatTooltipModule
     ],
 })
 export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -89,6 +94,15 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Agregar variable para las métricas
     metrics: MetricsResponse['data'] | null = null;
+    rendimientoTecnicos: Array<{
+        tecnico_id: number;
+        tecnico: string;
+        total_servicios: number;
+        completados: number;
+        tiempo_promedio_horas: number;
+        tiempo_promedio_minutos: number;
+        tiempo_promedio_segundos: number;
+    }> = [];
     
     // Referencias a los gráficos
     private charts: { [key: string]: Chart } = {};
@@ -96,9 +110,17 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     // Agregar observer para cambios en el tema
     private observer: MutationObserver | null = null;
 
+    // Variable para controlar qué tooltip se muestra
+    selectedTecnicoIndex: number | null = null;
+
+    // Variable para almacenar las URLs de las imágenes
+    private imageUrls: Map<number, string> = new Map();
+
     constructor(
         private _financeService: FinanceService,
-        private _scrumboardService: ScrumboardService
+        private _scrumboardService: ScrumboardService,
+        private http: HttpClient,
+        private cdr: ChangeDetectorRef
     ) {
         // Inicializar con últimos 7 días por defecto
         const hoy = new Date();
@@ -567,6 +589,9 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
             tecnico: this.tecnico
         }).subscribe(response => {
             this.metrics = response.data;
+            // Ordenar técnicos por cantidad de servicios completados
+            this.rendimientoTecnicos = [...response.data.rendimientoTecnicos]
+                .sort((a, b) => b.completados - a.completados);
             this.updateCharts();
         });
     }
@@ -754,6 +779,94 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         // Si todo es 0, mostrar 0 segundos
         return { valor: '0', unidad: 'seg' };
     }
-       
+
+    formatTiempoResolucionSimple(tecnico: { tiempo_promedio_horas: number; tiempo_promedio_minutos: number; tiempo_promedio_segundos: number; }): string {
+        if (!tecnico) {
+            return '0 seg';
+        }
+
+        // Si hay horas
+        if (tecnico.tiempo_promedio_horas >= 1) {
+            const horas = Math.floor(tecnico.tiempo_promedio_horas);
+            const minutosDecimal = (tecnico.tiempo_promedio_horas - horas) * 60;
+            
+            if (minutosDecimal >= 1) {
+                return `${horas} hrs ${Math.floor(minutosDecimal)} min`;
+            }
+            
+            return `${horas} hrs`;
+        }
+
+        // Si hay minutos
+        if (tecnico.tiempo_promedio_minutos >= 1) {
+            const minutos = Math.floor(tecnico.tiempo_promedio_minutos);
+            const segundosDecimal = (tecnico.tiempo_promedio_minutos - minutos) * 60;
+            
+            if (segundosDecimal >= 1) {
+                return `${minutos} min ${Math.floor(segundosDecimal)} seg`;
+            }
+            
+            return `${minutos} min`;
+        }
+
+        // Si hay segundos
+        if (tecnico.tiempo_promedio_segundos > 0) {
+            return `${Math.floor(tecnico.tiempo_promedio_segundos)} seg`;
+        }
+
+        return '0 seg';
+    }
+
+    getTooltipPosition(index: number): string {
+        // Cada fila tiene aproximadamente 64px de alto (incluyendo el padding)
+        // Ajustamos la posición base considerando el header y otros elementos
+        const baseOffset = 200; // Offset base para considerar elementos superiores
+        const rowHeight = 64; // Altura aproximada de cada fila
+        return `${baseOffset + (index * rowHeight)}`;
+    }
+
+    showTooltip(event: MouseEvent, index: number): void {
+        this.selectedTecnicoIndex = index;
+    }
+
+    hideTooltip(): void {
+        this.selectedTecnicoIndex = null;
+    }
+
+    // Agregar el método getImageUrl
+    getImageUrl2(tecnicoId: number): string {
+        const user = this.tecnicos.find(t => t.id === tecnicoId);
+        if (user?.image) {
+            return `${environment.baseUrl}${user.image}`;
+        }
+        return 'assets/images/avatars/default.jpg';
+    }
+    
+    // Método getImageUrl modificado
+    getImageUrl(tecnicoId: number): string {
+        // Si ya tenemos la URL en caché, la retornamos
+        if (this.imageUrls.has(tecnicoId)) {
+            return this.imageUrls.get(tecnicoId);
+        }
+
+        // Si no está en caché, establecemos la imagen por defecto mientras se carga
+        this.imageUrls.set(tecnicoId, 'assets/images/avatars/default-profile.png');
+
+        // Hacemos la llamada a la API solo si no está en caché
+        this.http.get<any>(`${environment.baseUrl}/user/${tecnicoId}`).subscribe(
+            (response) => {
+                if (response.data.image) {
+                    const imageUrl = `${environment.baseUrl}${response.data.image}`;
+                    this.imageUrls.set(tecnicoId, imageUrl);
+                    this.cdr.detectChanges();
+                }
+            },
+            (error) => {
+                console.error('Error al obtener imagen del técnico:', error);
+            }
+        );
+
+        return this.imageUrls.get(tecnicoId);
+    }
 }
 

@@ -40,10 +40,13 @@ export interface MetricsResponse {
             }>;
         };
         rendimientoTecnicos: Array<{
+            tecnico_id: number;
             tecnico: string;
             total_servicios: number;
             completados: number;
-            tiempo_promedio: number;
+            tiempo_promedio_horas: number;
+            tiempo_promedio_minutos: number;
+            tiempo_promedio_segundos: number;
         }>;
         tiemposResolucion: Array<{
             tipo: string;
