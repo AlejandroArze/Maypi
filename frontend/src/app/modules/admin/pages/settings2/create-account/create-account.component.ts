@@ -75,68 +75,55 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
     onFileSelected(event: any): void {
       const file: File = event.target.files[0];
       if (file) {
-          // Guardar el archivo en el formulario
-          this.createAccountForm.patchValue({
-              photo: file
-          });
-
           const reader = new FileReader();
           reader.onload = (e: any) => {
               this.imagePreview = e.target.result;
               this.imageName = file.name;
-              console.log('Imagen cargada:', this.imagePreview);
-              console.log('Nombre de la imagen:', this.imageName);
-              this.cdr.detectChanges();
+              console.log('Imagen cargada:', this.imagePreview);  // Verifica la URL generada
+              console.log('Nombre de la imagen:', this.imageName);  // Verifica el nombre
+              this.cdr.detectChanges(); // Forzar la actualización de la vista
           };
           reader.readAsDataURL(file);
       }
-    }
+  }
 
-    onSubmit(): void {
-        if (this.createAccountForm.valid) {
-            const formData = new FormData();
-            
-            // Mapear los campos del formulario a los nombres esperados por el backend
-            formData.append('email', this.createAccountForm.get('email').value);
-            formData.append('usuario', this.createAccountForm.get('username').value);
-            formData.append('nombres', this.createAccountForm.get('name').value);
-            formData.append('apellidos', this.createAccountForm.get('lastname').value);
-            formData.append('password', this.createAccountForm.get('password').value);
-            formData.append('role', this.createAccountForm.get('roles').value);
-            formData.append('estado', this.createAccountForm.get('status').value);
-
-            // Agregar la imagen si existe
-            const photoFile = this.createAccountForm.get('photo').value;
-            if (photoFile) {
-                console.log('Enviando imagen:', photoFile);
-                formData.append('image', photoFile);
+  onSubmit(): void {
+    if (this.createAccountForm.valid) {
+        const formData = new FormData();
+        
+        // Agregar los campos del formulario al FormData
+        Object.keys(this.createAccountForm.controls).forEach(key => {
+            if (key !== 'confirmPassword' && key !== 'photo') {
+                formData.append(key, this.createAccountForm.get(key).value);
             }
+        });
 
-            // Imprimir el contenido del FormData para debugging
-            formData.forEach((value, key) => {
-                console.log(`${key}:`, value);
-            });
-
-            // Enviar la solicitud al servidor
-            this._httpClient.post(`${environment.baseUrl}/user`, formData)
-                .subscribe(
-                    (response) => {
-                        console.log('Usuario creado exitosamente', response);
-                        this.createAccountForm.reset();
-                        this.imagePreview = null;
-                        this.imageName = null;
-                        this.accountCreated.emit();
-                    },
-                    (error) => {
-                        console.error('Error al crear usuario', error);
-                    }
-                );
+        // Agregar la foto si existe
+        const fileInput = document.querySelector('#photo') as HTMLInputElement;
+        if (fileInput?.files?.length > 0) {
+            formData.append('image', fileInput.files[0]);
         }
-    }
 
-    // Validador personalizado para confirmar contraseña
-    passwordMatchValidator(g: UntypedFormGroup) {
-        return g.get('password').value === g.get('confirmPassword').value
-            ? null : { 'passwordMismatch': true };
+        // Enviar la solicitud al servidor
+        this._httpClient.post(`${environment.baseUrl}/user`, formData)
+            .subscribe(
+                (response) => {
+                    console.log('Usuario creado exitosamente', response);
+                    this.createAccountForm.reset();
+                    this.imagePreview = null;
+                    this.imageName = null;
+                    this.accountCreated.emit();
+                },
+                (error) => {
+                    console.error('Error al crear usuario', error);
+                }
+            );
     }
+  }
+
+  // Validador personalizado para confirmar contraseña
+  passwordMatchValidator(g: UntypedFormGroup) {
+    return g.get('password').value === g.get('confirmPassword').value
+        ? null : { 'passwordMismatch': true };
+  }
 }

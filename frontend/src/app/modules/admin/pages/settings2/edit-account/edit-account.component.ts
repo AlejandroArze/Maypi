@@ -53,26 +53,8 @@ export class EditAccountComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('ID de usuario recibido:', this.userId);
     this.checkSessionStorage();
-    this.initializeForms();
-    
-    // Obtener el ID del usuario del sessionStorage si no se proporcionó como Input
-    const storedUserId = sessionStorage.getItem('selectedUserId');
-    if (storedUserId && !this.userId) {
-      this.userId = storedUserId;
-      console.log('ID de usuario desde sessionStorage:', this.userId);
-    }
-
-    if (this.userId) {
-      this.loadUserData();
-    } else {
-      console.error('No se encontró ID de usuario');
-      this.message = 'No se pudo cargar la información del usuario';
-    }
-  }
-
-  initializeForms(): void {
+    this.userId = sessionStorage.getItem('selectedUserId');
     this.editAccountForm = this._formBuilder.group({
       name: ['', Validators.required],
       lastname: ['', Validators.required],
@@ -81,66 +63,47 @@ export class EditAccountComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       photo: [null],
       roles: ['', Validators.required],
-      status: ['', Validators.required],
+      status: ['', Validators.required]
     });
 
-    this.passwordForm = this._formBuilder.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required]
-    }, { validator: this.passwordMatchValidator });
+    if (this.userId) {
+      this.loadUserData(this.userId);
+    } else {
+      console.error('ID de usuario no encontrado en sessionStorage');
+    }
   }
 
-  loadUserData(): void {
-    console.log('Cargando datos del usuario con ID:', this.userId);
-    
-    this._httpClient.get(`${environment.baseUrl}/user/${this.userId}`).subscribe(
+  loadUserData(userId: string): void {
+    this._httpClient.get<any>(`${environment.baseUrl}/user/${userId}`).subscribe(
       (response: any) => {
         console.log('Respuesta del servidor:', response);
         
+        const { apellidos, email, estado, image, nombres, role, usuario } = response.data || {};
+  
         if (response.data) {
-          const userData = response.data;
-          console.log('Datos del usuario obtenidos:', userData);
-
-          // Actualizar el formulario con los datos
           this.editAccountForm.patchValue({
-            name: userData.nombres,
-            lastname: userData.apellidos,
-            username: userData.usuario,
-            email: userData.email,
-            roles: userData.role,
-            status: userData.estado.toString()
+            name: nombres || '',
+            lastname: apellidos || '',
+            username: usuario || '',
+            email: email || '',
+            roles: role || '',
+            status: estado.toString() || '1'
           });
-
-          // Manejar la imagen del perfil
-          if (userData.image) {
-            this.imagePreview = `${environment.baseUrl}${userData.image}`;
-            this.imageName = userData.image.split('/').pop();
+  
+          if (image) {
+            this.imagePreview = `${environment.baseUrl}${image}`;
+            this.imageName = image.split('/').pop();
           }
-
+  
           this.cdr.detectChanges();
-          console.log('Formulario actualizado:', this.editAccountForm.value);
-        } else {
-          console.error('No se recibieron datos válidos del usuario');
-          this.message = 'No se pudieron cargar los datos del usuario';
         }
       },
-      error => {
-        console.error('Error al cargar datos del usuario:', error);
-        this.message = 'Error al cargar los datos del usuario';
+      (error) => {
+        console.error('Error al obtener los datos del usuario:', error);
       }
     );
   }
-  
-  
-  
-  // Cambiar al panel del equipo
-  goToTeam(): void {
-    this.panelChanged.emit('team');
-  }
-  
 
-  // Maneja la selección de archivos
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
@@ -148,9 +111,7 @@ export class EditAccountComponent implements OnInit {
       reader.onload = (e: any) => {
         this.imagePreview = e.target.result;
         this.imageName = file.name;
-        console.log('Imagen cargada:', this.imagePreview);  // Verifica la URL generada
-        console.log('Nombre de la imagen:', this.imageName);  // Verifica el nombre
-        this.cdr.detectChanges(); // Forzar la actualización de la vista
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -158,51 +119,52 @@ export class EditAccountComponent implements OnInit {
 
   onSubmit(): void {
     if (this.editAccountForm.valid && this.userId) {
-      console.log('Enviando formulario con datos:', this.editAccountForm.value);
-      
       const formData = new FormData();
-      
-      // Agregar todos los campos del formulario al FormData
-      Object.keys(this.editAccountForm.controls).forEach(key => {
-        if (key !== 'photo') {
-          formData.append(key, this.editAccountForm.get(key).value);
-        }
-      });
+      formData.append('email', this.editAccountForm.get('email')?.value);
+      formData.append('usuario', this.editAccountForm.get('username')?.value);
+      formData.append('nombres', this.editAccountForm.get('name')?.value);
+      formData.append('apellidos', this.editAccountForm.get('lastname')?.value);
+      formData.append('password', this.editAccountForm.get('password')?.value);
+      formData.append('role', this.editAccountForm.get('roles')?.value);
+      formData.append('estado', this.editAccountForm.get('status')?.value);    
 
-      // Agregar la imagen si existe
-      const fileInput = document.querySelector('#photo') as HTMLInputElement;
-      if (fileInput?.files?.length > 0) {
-        formData.append('image', fileInput.files[0]);
+      const fileInput = <HTMLInputElement>document.getElementById('photo');
+      const file = fileInput?.files?.[0];
+      if (file) {
+        formData.append('image', file);
+      } else {
+        formData.append('image', '/uploads/default-profile.png');
       }
 
-      this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
-        .subscribe(
-          response => {
-            console.log('Usuario actualizado exitosamente:', response);
-            this.accountUpdated.emit();
-          },
-          error => {
-            console.error('Error al actualizar usuario:', error);
-            this.message = 'Error al actualizar el usuario';
-          }
-        );
-    } else {
-      console.log('Formulario inválido o ID de usuario no disponible');
+      this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData).subscribe(
+        (response) => {
+          this.editAccountForm.reset();
+          this.imagePreview = null;
+          this.imageName = null;
+          this.goToTeam();
+          sessionStorage.clear();
+          console.log('Usuario actualizado con éxito', response);
+        },
+        (error) => {
+          console.error('Error al actualizar usuario', error);
+        }
+      );
     }
   }
 
   checkSessionStorage(): void {
-    // Verificar si el dato clave está en sessionStorage
-    const userId = sessionStorage.getItem('selectedUserId'); // Cambia 'userId' por la clave que estés verificando
-
+    const userId = sessionStorage.getItem('selectedUserId');
     if (!userId) {
-      // Si el dato no existe, redirigir al usuario
       console.log('No se encontró el dato en sessionStorage. Redirigiendo...');
       this.message = 'Debe seleccionar un usuario antes de editar.';
       this.panelChanged.emit('team');
     }
   }
-  
+
+  goToTeam(): void {
+    this.panelChanged.emit('team');
+  }
+
   // Validador personalizado para confirmar contraseña
   passwordMatchValidator(g: FormGroup) {
     return g.get('newPassword').value === g.get('confirmPassword').value
