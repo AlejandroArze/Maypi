@@ -206,8 +206,8 @@ class ServiceService {
                 __v: 0  // Agregar esta condición para servicios activos
             };
 
-            // Si es rol 2 y no se especifica un técnico, filtrar por usuarios activos
-            if (role === '2' && (!tecnicoAsignado || tecnicoAsignado === 'null')) {
+            // Si es rol 2, manejar las dos situaciones
+            if (role === '2') {
                 // Obtener lista de usuarios activos primero
                 const activeUsers = await sequelize.models.User.findAll({
                     where: {
@@ -216,98 +216,126 @@ class ServiceService {
                 });
 
                 console.log('Usuarios activos encontrados:', activeUsers.length);
-
-                // Extraer los IDs de usuarios activos
                 const activeUserIds = activeUsers.map(user => user.usuarios_id);
-                
                 console.log('IDs de usuarios activos:', activeUserIds);
 
-                // Si hay usuarios activos, agregar la condición
                 if (activeUserIds.length > 0) {
-                    whereConditions.tecnicoAsignado = {
-                        [Op.in]: activeUserIds
-                    };
+                    
+                       
+                        // Situación 1: tecnicoAsignado es null y tecnicoRegistro es activo
+                        whereConditions[Op.and] = [
+                            {
+                                [Op.or]: [
+                                    {
+                                        tecnicoAsignado: null
+                                    },
+                                    {
+                                        tecnicoAsignado: {
+                                            [Op.in]: activeUserIds
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                tecnicoRegistro: {
+                                    [Op.in]: activeUserIds
+                                }
+                            }
+                        ];
+                    
                 }
-            } else if (role === '3' && (!tecnicoAsignado || tecnicoAsignado === 'null')) {
+            } else if (role === '3' ) {
                 console.log('Entrando a verificación de rol 3:', {
                     role,
                     tecnicoAsignado,
                     user: req.user
                 });
 
-                // Verificar que existe el ID del usuario
-                const userId = req.user?.id || req.user?.usuarios_id; // Intentar obtener el ID de cualquiera de las dos formas
+                const userId = req.user?.id || req.user?.usuarios_id;
 
                 if (!userId) {
                     console.log('Usuario no autenticado o sin ID válido');
-                    // Si no hay usuario autenticado, continuar sin filtrar por técnico
                     if (tipo) {
                         whereConditions.tipo = decodeURIComponent(tipo).trim();
                     }
                 } else {
-                    // Primero verificar el estado del usuario que hace la solicitud
+                    // Verificar estado del usuario solicitante
                     const requestingUser = await sequelize.models.User.findOne({
-                        where: {
-                            usuarios_id: userId
-                        }
+                        where: { usuarios_id: userId }
                     });
 
-                    console.log('Usuario solicitante encontrado:', {
-                        found: !!requestingUser,
-                        estado: requestingUser?.estado,
-                        userData: requestingUser
-                    });
-
-                    // Solo proceder si el usuario está inactivo (estado = 0)
                     if (requestingUser && requestingUser.estado === 0) {
-                        console.log('Usuario está inactivo, procediendo a buscar otros usuarios inactivos');
+                        // Usuario INACTIVO
+                        console.log('Usuario está inactivo, buscando servicios de técnicos inactivos');
                         
-                        // Obtener lista de usuarios inactivos
                         const inactiveUsers = await sequelize.models.User.findAll({
-                            where: {
-                                estado: 0 // Usuarios INACTIVOS tienen estado = 0
-                            }
-                        });
+                            where: { estado: 0 }
+                        });                        
 
-                        console.log('Usuarios inactivos encontrados:', {
-                            count: inactiveUsers.length,
-                            users: inactiveUsers
-                        });
-
-                        // Extraer los IDs de usuarios inactivos
                         const inactiveUserIds = inactiveUsers.map(user => user.usuarios_id);
-                        
+                        console.log('IDs de usuarios inactivos:', inactiveUserIds);
+
                         if (inactiveUserIds.length > 0) {
-                            whereConditions.tecnicoAsignado = {
-                                [Op.in]: inactiveUserIds
-                            };
-                            console.log('Condición de filtrado actualizada:', whereConditions);
+                            
+
+                            // Luego agregar las condiciones de técnicos
+                            whereConditions[Op.or] = [
+                                {
+                                    
+                                        
+                                    tecnicoAsignado: null,
+                                    tecnicoRegistro: {
+                                        [Op.in]: inactiveUserIds
+                                    }
+                                        
+                                    
+                                },
+                                {
+                                    
+                                        
+                                    tecnicoAsignado: {
+                                        [Op.in]: inactiveUserIds
+                                    },
+                                    tecnicoRegistro: {
+                                        [Op.in]: inactiveUserIds
+                                    }
+                                        
+                                }
+                            ];
+
+                            console.log('Condiciones completas para inactivos:', JSON.stringify(whereConditions, null, 2));
                         }
                     } else {
-                        console.log('No se cumplieron las condiciones para usuarios inactivos:', {
-                            userFound: !!requestingUser,
-                            userState: requestingUser?.estado
-                        });
-
-                         // Obtener lista de usuarios activos primero
+                        // Usuario ACTIVO
+                        console.log('Usuario está activo, buscando servicios de técnicos activos');
+                        
                         const activeUsers = await sequelize.models.User.findAll({
-                            where: {
-                                estado: 1 // Usuarios ACTIVOS tienen estado = 1
-                            }
+                            where: { estado: 1 }
                         });
 
-                        console.log('Usuarios activos encontrados:', activeUsers.length);
-
-                        // Extraer los IDs de usuarios activos
                         const activeUserIds = activeUsers.map(user => user.usuarios_id);
                         
-                        console.log('IDs de usuarios activos:', activeUserIds);
-
-                        // Si hay usuarios activos, agregar la condición
                         if (activeUserIds.length > 0) {
-                            whereConditions.tecnicoAsignado = {
-                                [Op.in]: activeUserIds
-                            };
+                            // Situación 1: tecnicoAsignado es null y tecnicoRegistro es activo
+                        whereConditions[Op.and] = [
+                            {
+                                [Op.or]: [
+                                    {
+                                        tecnicoAsignado: null
+                                    },
+                                    {
+                                        tecnicoAsignado: {
+                                            [Op.in]: activeUserIds
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                tecnicoRegistro: {
+                                    [Op.in]: activeUserIds
+                                }
+                            }
+                        ];
                         }
                     }
                 }
