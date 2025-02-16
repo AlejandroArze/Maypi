@@ -75,32 +75,46 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         if (userString) {
             try {
                 const userData = JSON.parse(userString);
-                //console.log('userData completo:', userData); // Para ver toda la estructura
-                //console.log('userData.data:', userData?.data); // Para ver específicamente data
+                console.log('Datos completos del usuario:', userData);
                 
                 if (userData?.data) {
-                    const userImage = userData.data.imagen || userData.data.image;
+                    // Intentar obtener la imagen de diferentes propiedades posibles
+                    let userImage = userData.data.imagen || userData.data.image || userData.data.photo;
+                    console.log('Path original de la imagen:', userImage);
+                    
+                    // Construir URL de la imagen
+                    let avatarUrl = null;
+                    if (userImage) {
+                        // Limpiar la ruta de la imagen
+                        userImage = userImage.replace(/^\/+/, ''); // Eliminar slashes iniciales
+                        userImage = userImage.replace(/\/+/g, '/'); // Eliminar dobles slashes
+                        
+                        // Construir URL completa
+                        avatarUrl = userImage.startsWith('http') ? 
+                            userImage : 
+                            `${environment.baseUrl}/${userImage}`;
+                            
+                        console.log('URL final de la imagen:', avatarUrl);
+                    }
+                    
                     const nombres = userData.data.nombres || '';
                     const apellidos = userData.data.apellidos || '';
-                    
-                    // Obtener iniciales
                     const iniciales = this.getInitials(nombres, apellidos);
                     
-                    // Obtener estado del usuario del localStorage o default a 'online'
-                    const userStatus = localStorage.getItem('userStatus') || 'online';
-                    
                     this.user = {
+                        id: userData.data.usuarios_id,
                         name: `${nombres} ${apellidos}`.trim(),
                         email: userData.data.email || '',
-                        // Si no hay imagen, avatar será null y se mostrarán las iniciales
-                        avatar: userImage ? `${environment.baseUrl}/${userImage}` : null,
-                        status: userStatus,
+                        avatar: avatarUrl,
+                        status: localStorage.getItem('userStatus') || 'online',
                         initials: iniciales
                     };
-                    console.log('Usuario cargado:', this.user);
+                    
+                    console.log('Objeto usuario configurado:', this.user);
                 }
             } catch (error) {
-                console.error('Error al parsear datos del usuario:', error);
+                console.error('Error al procesar datos del usuario:', error);
+                // Configurar usuario por defecto en caso de error
                 this.user = {
                     name: 'Usuario',
                     email: 'No disponible',
@@ -126,9 +140,34 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      * Obtiene las iniciales del nombre y apellido
      */
     private getInitials(nombres: string, apellidos: string): string {
-        const nombreInicial = nombres.charAt(0);
-        const apellidoInicial = apellidos.charAt(0);
+        const nombreInicial = nombres ? nombres.charAt(0) : '';
+        const apellidoInicial = apellidos ? apellidos.charAt(0) : '';
         return (nombreInicial + apellidoInicial).toUpperCase() || 'U';
+    }
+
+    /**
+     * Obtiene la URL completa de la imagen
+     */
+    getImageUrl(imagePath: string): string {
+        if (!imagePath) {
+            console.log('No hay path de imagen');
+            return null;
+        }
+
+        console.log('Procesando path de imagen:', imagePath);
+        
+        // Si ya es una URL completa, retornarla
+        if (imagePath.startsWith('http')) {
+            console.log('URL completa detectada:', imagePath);
+            return imagePath;
+        }
+
+        // Limpiar y construir la URL
+        const cleanPath = imagePath.replace(/^\/+/, '');
+        const fullUrl = `${environment.baseUrl}/${cleanPath}`;
+        console.log('URL construida:', fullUrl);
+        
+        return fullUrl;
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -150,26 +189,27 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     /**
      * On init
      */
-    ngOnInit(): void
-    {
-        // Recargar datos del usuario al iniciar y cada vez que cambie el localStorage
+    ngOnInit(): void {
+        // Recargar datos del usuario al iniciar
         this.loadUserData();
-        window.addEventListener('storage', () => this.loadUserData());
+
+        // Suscribirse a cambios en el localStorage
+        window.addEventListener('storage', () => {
+            console.log('Cambios detectados en localStorage');
+            this.loadUserData();
+        });
 
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((navigation: Navigation) =>
-            {
+            .subscribe((navigation: Navigation) => {
                 this.navigation = navigation;
             });
 
         // Subscribe to media changes
         this._fuseMediaWatcherService.onMediaChange$
             .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe(({matchingAliases}) =>
-            {
-                // Check if the screen is small
+            .subscribe(({matchingAliases}) => {
                 this.isScreenSmall = !matchingAliases.includes('md');
             });
     }
@@ -177,28 +217,13 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     /**
      * On destroy
      */
-    ngOnDestroy(): void
-    {
+    ngOnDestroy(): void {
         // Remover el listener de storage
         window.removeEventListener('storage', () => this.loadUserData());
         
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-    }
-
-    getImageUrl(imagePath: string): string {
-        console.log('Path de imagen recibido:', imagePath); // Para ver qué path llega
-        if (!imagePath) {
-            return null;
-        }
-        // Si la URL ya es completa (comienza con http o https), retornarla tal cual
-        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-            return imagePath;
-        }
-        // Si la URL comienza con una barra, quitarla para evitar doble barra
-        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
-        return `${environment.baseUrl}/${cleanPath}`;
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -210,14 +235,9 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      *
      * @param name
      */
-    toggleNavigation(name: string): void
-    {
-        // Get the navigation
+    toggleNavigation(name: string): void {
         const navigation = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>(name);
-
-        if ( navigation )
-        {
-            // Toggle the opened status
+        if (navigation) {
             navigation.toggle();
         }
     }
