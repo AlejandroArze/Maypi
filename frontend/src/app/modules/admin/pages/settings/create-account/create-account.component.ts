@@ -70,26 +70,80 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
     }
 
     /**
+     * Convierte una imagen a formato PNG
+     */
+    private convertToPNG(file: File): Promise<File> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                // Crear un canvas con las dimensiones de la imagen
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Dibujar la imagen en el canvas
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                // Convertir el canvas a Blob PNG
+                canvas.toBlob((blob) => {
+                    // Crear un nuevo archivo con el Blob PNG
+                    const newFile = new File([blob], 'imagen.png', {
+                        type: 'image/png',
+                        lastModified: new Date().getTime()
+                    });
+                    resolve(newFile);
+                }, 'image/png', 0.9); // 0.9 es la calidad de la imagen
+            };
+            img.onerror = (error) => reject(error);
+            
+            // Leer el archivo como URL de datos
+            const reader = new FileReader();
+            reader.onload = (e) => img.src = e.target.result as string;
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /**
      * Maneja la selección de archivos
      */
     onFileSelected(event: any): void {
-      const file: File = event.target.files[0];
-      if (file) {
-          // Guardar el archivo en el formulario
-          this.createAccountForm.patchValue({
-              photo: file
-          });
+        const file: File = event.target.files[0];
+        if (file) {
+            // Mostrar preview inmediato
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.imagePreview = e.target.result;
+                this.imageName = 'imagen.png'; // Nuevo nombre estandarizado
+                this.cdr.detectChanges();
+            };
+            reader.readAsDataURL(file);
 
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-              this.imagePreview = e.target.result;
-              this.imageName = file.name;
-              console.log('Imagen cargada:', this.imagePreview);
-              console.log('Nombre de la imagen:', this.imageName);
-              this.cdr.detectChanges();
-          };
-          reader.readAsDataURL(file);
-      }
+            // Convertir a PNG si no es PNG
+            if (file.type !== 'image/png') {
+                console.log('Convirtiendo imagen a PNG...');
+                this.convertToPNG(file)
+                    .then(pngFile => {
+                        console.log('Imagen convertida exitosamente a PNG');
+                        this.createAccountForm.patchValue({
+                            photo: pngFile
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error al convertir la imagen:', error);
+                        // Si falla la conversión, usar el archivo original
+                        this.createAccountForm.patchValue({
+                            photo: file
+                        });
+                    });
+            } else {
+                // Si ya es PNG, usar el archivo directamente
+                this.createAccountForm.patchValue({
+                    photo: file
+                });
+            }
+        }
     }
 
     onSubmit(): void {
@@ -108,8 +162,8 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
             // Agregar la imagen si existe
             const photoFile = this.createAccountForm.get('photo').value;
             if (photoFile) {
-                console.log('Enviando imagen:', photoFile);
-                formData.append('image', photoFile);
+                console.log('Enviando imagen PNG:', photoFile);
+                formData.append('image', photoFile, 'imagen.png');
             }
 
             // Imprimir el contenido del FormData para debugging
