@@ -47,6 +47,7 @@ export const appRoutes: Route[] = [
             {path: 'forgot-password', loadChildren: () => import('app/modules/auth/forgot-password/forgot-password.routes')},
             {path: 'reset-password', loadChildren: () => import('app/modules/auth/reset-password/reset-password.routes')},
             {path: 'sign-in', loadChildren: () => import('app/modules/auth/sign-in/sign-in.routes')},
+            {path: 'landing', loadChildren: () => import('app/modules/landing/home/home.routes')},
             {path: 'sign-up', loadChildren: () => import('app/modules/auth/sign-up/sign-up.routes')}
         ]
     },
@@ -68,7 +69,7 @@ export const appRoutes: Route[] = [
 
     // Landing routes
     {
-        path: '',
+        path: 'landing',
         component: LayoutComponent,
         data: {
             layout: 'empty'

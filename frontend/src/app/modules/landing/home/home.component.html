@@ -1,31 +1,225 @@
-<div class="flex flex-col items-center justify-center w-full h-full">
-    <div class="w-full max-w-3xl">
-        <div class="max-w-none mx-auto prose prose-sm">
-            <img
-                class="w-20"
-                src="assets/images/logo/logo.svg"
-                alt="Logo image">
-            <h1>Landing Module</h1>
-            <p>
-                This can be the landing or the welcome page of your application. If you have an SSR (Server Side Rendering) setup, or if you don't need to have Search engine
-                visibility and optimizations, you can even use this page as your primary landing page.
-            </p>
-            <p>
-                This is a separate "module", it has its own directory and routing setup and also it's completely separated from the actual application. This is also a simple example of
-                a multiple applications setup that uses the same codebase. You can have different entry points and essentially have different applications within the same codebase.
-            </p>
+<div class="flex flex-col w-full h-screen">
+    <header class="bg-gray-200 w-full">
+        <nav class="flex p-4 items-center justify-between">
+            <!-- Logo -->
+            <div class="flex gap-3 items-center">
+                <img
+                    src="assets/images/logo/logo-text-on-dark.svg"
+                    class="w-20 h-20"
+                    alt="Logo"
+                />
+                <ul class="flex gap-3">
+                    <li class="text-xl">Inicio</li>
+                    <li class="text-xl">Centro de Ayuda</li>
+                </ul>
+            </div>
+            <div class="flex justify-center">
+                <a
+                    href="#"
+                    class="text-purple-600 border text-pretty border-purple-500 p-3 rounded-md text-xl"
+                >
+                    Quiero reportar persona desaparecida
+                </a>
+            </div>
+            <div class="flex justify-end gap-3">
+                <a
+                    href="#"
+                    class="border border-purple-500 text-purple-500 text-lg px-3 py-2"
+                    >Ingresar</a
+                >
+                <a
+                    href="#"
+                    class="px-3 py-2 rounded-md bg-purple-500 text-white text-lg"
+                    >Registrarse</a
+                >
+            </div>
+        </nav>
+    </header>
+
+    <div class="flex flex-row flex-wrap justify-center gap-5">
+        <div
+            *ngFor="let person of persons_list"
+            class="relative bg-white rounded-lg hover:scale-105 my-4 overflow-hidden w-[30%] h-auto shadow-lg"
+        >
+            <!-- Fondo y encabezado -->
+            <div class="bg-purple-400 p-3 relative z-0">
+                <h3 class="text-2xl text-end text-white font-bold uppercase">
+                    Desaparecido
+                </h3>
+            </div>
+
+            <!-- Contenido principal de la tarjeta -->
+            <div
+                class="relative z-10 flex justify-center items-center gap-4 p-3"
+            >
+                <div class="p-2">
+                    <img
+                        src="data:image/webp;base64,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"
+                        class="h-96 object-cover border-4 border-white"
+                        alt="persona desaparecida"
+                    />
+                </div>
+                <div class="w-40 sm:w-full">
+                    <h2 class="text-4xl font-bold">{{ person.name }}</h2>
+                    <ul class="flex flex-col gap-1 mt-1 text-xl">
+                        <li>Edad: {{ person.age }} años</li>
+                        <li>Altura: {{ person.height }} m</li>
+                        <li>Peso: {{ person.weight }} kg</li>
+                        <li>Cabello: {{ person.hair }}</li>
+                        <li class="font-bold text-xl">
+                            Contacto de Emergencia:
+                            {{ person.emergency_contact }}
+                        </li>
+                    </ul>
+
+                    <div class="my-2">
+                        <h4 class="font-bold text-xl">Última Ubicación</h4>
+                        <p class="text-gray-600 text-xl">
+                            {{ person.last_location }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center p-3">
+                <a
+                    href="#"
+                    class="rounded-md border w-50 hover:bg-purple-300 bg-purple-500 text-white p-3 text-center font-bold text-2xl"
+                >
+                    Ver Más
+                </a>
+            </div>
         </div>
-        <div>
-            <a
-                class="mt-8"
-                mat-flat-button
-                [color]="'primary'"
-                [routerLink]="'/dashboards/project'">
-                <span>Launch the App</span>
-                <mat-icon
-                    class="ml-2 icon-size-5"
-                    [svgIcon]="'heroicons_mini:arrow-long-right'"></mat-icon>
-            </a>
+    </div>
+
+    <div class="p-3">
+        <span class="text-gray-500 text-4xl p-3"
+            >1 - {{ persons_list.length }}</span
+        >
+    </div>
+    <div class="bg-gray-200 p-20">
+        <h3 class="text-5xl font-bold text-center">Descubre como funciona</h3>
+        <div class="flex justify-center">
+            <div class="bg-gray-500 w-2/4 h-96"></div>
+        </div>
+        <div class="grid gap-15 grid-cols-4 px-3 mt-15 items-center">
+            <div>
+                <h3 class="text-4xl font-bold text-center">
+                    Te ayudamos a encontrar
+                </h3>
+                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+                    Compartimos información sobre personas desaparecidas a
+                    través de las redes sociales e involucramos a comunidades de
+                    todo Bolivia y alrededor del mundo en la búsqueda de estas
+                    personas. Nuestro objetivo es aumentar las posibilidades de
+                    reunir a las familias bolivianas con sus seres queridos
+                    desaparecidos.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-4xl font-bold text-center">Colaboraciones</h3>
+                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+                    Colaboramos estrechamente con la Policía Boliviana, Interpol
+                    y organizaciones tanto gubernamentales como no
+                    gubernamentales, incluyendo la Cruz Roja Boliviana, el
+                    Viceministerio de Defensa Civil y agencias de detectives
+                    privados, para compartir y difundir información sobre
+                    personas desaparecidas.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-4xl font-bold text-center">Nos fortalecemos</h3>
+                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+                    Buscamos fortalecer la conexión entre las familias afectadas
+                    por desapariciones y todas las entidades que trabajan en
+                    este ámbito. Nuestro compromiso es crear mayor conciencia,
+                    combatir la trata de personas y hacer de Bolivia un lugar
+                    más seguro para adultos y niños.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-4xl font-bold text-center">
+                    Nosotros Educamos
+                </h3>
+                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+                    Educamos a la población sobre los problemas sociales y
+                    económicos que emergen de las alteraciones de la vida
+                    familiar, causadas por la desaparición repentina y sin
+                    rastro de un miembro de la familia. Nos esforzamos en
+                    sensibilizar sobre las repercusiones de estas tragedias y en
+                    fomentar una sociedad más informada y alerta.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-100 text-gray-800">
+        <div class="container mx-auto px-4 py-8">
+            <h1
+                class="text-6xl font-bold text-center mb-5 bg-purple-500 text-white"
+            >
+                Más de 30.000 personas desaparecen cada día en todo el mundo
+            </h1>
+
+            <div class="bg-purple-500 p-6 rounded-lg shadow-lg">
+                <ul class="list-disc pl-5 space-y-2 text-3xl text-white">
+                    <li>
+                        Reúna toda la información disponible sobre su ser
+                        querido desaparecido, incluidos incluso los pequeños
+                        detalles.
+                    </li>
+                    <li>
+                        Crea un perfil de persona desaparecida con la última
+                        foto y una descripción detallada
+                    </li>
+                    <li>
+                        Pon tu perfil a la vista del público publicándolo en el
+                        muro
+                    </li>
+                    <li>
+                        Deje sus datos de contacto y espere respuestas de
+                        personas que puedan haber visto a su ser querido
+                        desaparecido.
+                    </li>
+                    <li>
+                        Busque a su ser querido desaparecido utilizando las
+                        bases de datos globales de nuestros socios
+                    </li>
+                    <li>
+                        Recuerda que los primeros días son cruciales para
+                        encontrar a tu ser querido desaparecido.
+                    </li>
+                </ul>
+                <div class="flex justify-end">
+                    <a href="#" class="bg-white px-3 py-2 text-xl">Empezar a buscar</a>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <h2 class="text-2xl font-semibold mb-4 uppercase">
+                    DANOS TU MANO
+                </h2>
+                <p class="mb-4">
+                    Publica tu perfil en el muro y compártelo con personas de
+                    todo el mundo.
+                </p>
+                <button
+                    class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+                >
+                    DANOS UNA MANO
+                </button>
+                <button
+                    class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 ml-4"
+                >
+                    DONAR
+                </button>
+            </div>
+
+            <div class="text-center mt-8">
+                <p class="mb-4">
+                    Apóyanos y ayudamos a encontrar a personas desaparecidas y
+                    reunir a familias.
+                </p>
+            </div>
         </div>
     </div>
 </div>
