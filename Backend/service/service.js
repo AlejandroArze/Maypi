@@ -401,12 +401,31 @@ class ServiceService {
 
             // Agregar filtro de rango de fechas si se proporcionan
             if (fechaInicio && fechaFin) {
-                whereConditions.fechaRegistro = {
-                    [Op.between]: [
-                        decodeURIComponent(fechaInicio).trim(),
-                        decodeURIComponent(fechaFin).trim()
-                    ]
-                };
+                const startDate = new Date(decodeURIComponent(fechaInicio).trim());
+                let endDate = new Date(decodeURIComponent(fechaFin).trim());
+                
+                // Ajustar fechas al inicio y fin del día
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+
+                whereConditions[Op.or] = [
+                    {
+                        fechaInicio: {
+                            [Op.between]: [
+                                startDate.toISOString(),
+                                endDate.toISOString()
+                            ]
+                        }
+                    },
+                    {
+                        fechaTerminado: {
+                            [Op.between]: [
+                                startDate.toISOString(),
+                                endDate.toISOString()
+                            ]
+                        }
+                    }
+                ];
             }
 
             // Agregar filtro de tipo si se proporciona
@@ -473,12 +492,31 @@ class ServiceService {
 
             // Agregar filtros según los parámetros recibidos
             if (fechaInicio && fechaFin) {
-                whereConditions.fechaRegistro = {
-                    [Op.between]: [
-                        decodeURIComponent(fechaInicio).trim(),
-                        decodeURIComponent(fechaFin).trim()
-                    ]
-                };
+                const startDate = new Date(decodeURIComponent(fechaInicio).trim());
+                let endDate = new Date(decodeURIComponent(fechaFin).trim());
+                
+                // Ajustar fechas al inicio y fin del día
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+
+                whereConditions[Op.or] = [
+                    {
+                        fechaInicio: {
+                            [Op.between]: [
+                                startDate.toISOString(),
+                                endDate.toISOString()
+                            ]
+                        }
+                    },
+                    {
+                        fechaTerminado: {
+                            [Op.between]: [
+                                startDate.toISOString(),
+                                endDate.toISOString()
+                            ]
+                        }
+                    }
+                ];
             }
 
             if (tipo && tipo !== 'null' && tipo !== 'undefined') {
