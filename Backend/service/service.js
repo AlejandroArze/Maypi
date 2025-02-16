@@ -569,13 +569,14 @@ class ServiceService {
                                 END
                             ))
                         `),
-                        'tiempo_promedio_resolucion'
+                        'tiempo_promedio_segundos'
                     ]
                 ],
                 where: {
                     ...whereConditions,
                     tecnicoAsignado: { [Op.not]: null }
                 },
+               
                 group: ['tecnicoAsignado']
             });
 
@@ -645,18 +646,33 @@ class ServiceService {
                 },
                 rendimientoTecnicos: await Promise.all(metricasPorTecnico.map(async item => {
                     const tecnico = await sequelize.models.User.findByPk(item.tecnicoAsignado);
+                    const tiempoPromedioSegundos = parseFloat(item.get('tiempo_promedio_segundos')) || 0;
+                    const tiempoPromedioHoras = tiempoPromedioSegundos / 3600;
+                    const tiempoPromedioMinutos = tiempoPromedioSegundos / 60;
+
                     return {
+                        tecnico_id: item.tecnicoAsignado,
                         tecnico: tecnico ? `${tecnico.nombres} ${tecnico.apellidos}` : `Técnico ${item.tecnicoAsignado}`,
                         total_servicios: parseInt(item.get('total_servicios')) || 0,
                         completados: parseInt(item.get('servicios_completados')) || 0,
-                        tiempo_promedio: parseFloat(item.get('tiempo_promedio_resolucion')) / 3600 || 0
+                        tiempo_promedio_horas: parseFloat(tiempoPromedioHoras.toFixed(2)),
+                        tiempo_promedio_minutos: parseFloat(tiempoPromedioMinutos.toFixed(2)),
+                        tiempo_promedio_segundos: parseFloat(tiempoPromedioSegundos.toFixed(2))
                     };
                 })),
-                tiemposResolucion: tiempoResolucionPorTipo.map(item => ({
-                    tipo: item.tipo || 'Sin tipo',
-                    tiempo_promedio_horas: parseFloat(item.get('tiempo_promedio')) / 3600 || 0,
-                    total_servicios: parseInt(item.get('total_servicios')) || 0
-                }))
+                tiemposResolucion: tiempoResolucionPorTipo.map(item => {
+                    const tiempoPromedioSegundos = parseFloat(item.get('tiempo_promedio')) || 0;
+                    const tiempoPromedioHoras = tiempoPromedioSegundos / 3600;
+                    const tiempoPromedioMinutos = tiempoPromedioSegundos / 60;
+
+                    return {
+                        tipo: item.tipo || 'Sin tipo',
+                        tiempo_promedio_horas: parseFloat(tiempoPromedioHoras.toFixed(2)),
+                        tiempo_promedio_minutos: parseFloat(tiempoPromedioMinutos.toFixed(2)),
+                        tiempo_promedio_segundos: parseFloat(tiempoPromedioSegundos.toFixed(2)),
+                        total_servicios: parseInt(item.get('total_servicios')) || 0
+                    };
+                })
             };
 
             return chartData;
