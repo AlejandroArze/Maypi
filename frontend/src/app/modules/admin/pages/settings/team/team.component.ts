@@ -118,6 +118,12 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         this.currentView = 'create';
     }
 
+    // Método para manejar la creación exitosa de una cuenta
+    handleAccountCreated(): void {
+        this.reloadUsers();
+        this.currentView = 'team';
+    }
+
     // Método para cambiar a la vista de editar cuenta
     showEditAccount(userId: string): void {
         console.log('Seleccionado usuario para editar:', userId);
