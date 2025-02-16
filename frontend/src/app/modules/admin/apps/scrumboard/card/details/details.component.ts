@@ -638,6 +638,34 @@ export class ScrumboardCardDetailsComponent implements OnInit, OnDestroy {
         return selectedTecnico ? selectedTecnico.nombre : 'Sin asignar';
     }
 
+    // Agregar nuevo método
+    getTecnicoEstado(): { message: string; color: string } | null {
+        // Obtener el usuario actual del localStorage
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const userRole = user?.data?.role;
+
+        // Solo mostrar el estado si el usuario es admin (role 1)
+        if (userRole !== '1') {
+            return null;
+        }
+
+        const selectedTecnico = this.tecnicos.find(t => 
+            t.id === this.cardForm.get('tecnicoAsignado').value
+        );
+
+        if (!selectedTecnico) {
+            return null;
+        }
+
+        return {
+            message: selectedTecnico.estado === 1 
+                ? 'Asignado a técnico activo' 
+                : 'Asignado a técnico inactivo',
+            color: selectedTecnico.estado === 1 ? 'text-red-500' : 'text-green-500'
+        };
+    }
+
     private loadImage(url: string): Promise<HTMLImageElement> {
         return new Promise((resolve, reject) => {
             const img = new Image();
