@@ -91,7 +91,7 @@
                 <label class="text-sm mb-2">Técnico</label>
                 <mat-form-field class="w-full">
                     <mat-select [(ngModel)]="tecnico">
-                        <mat-option value="TODOS">TODOS</mat-option>
+                        
                         <mat-option *ngFor="let tec of tecnicos" [value]="tec.id">
                             {{tec.nombre}}
                         </mat-option>
