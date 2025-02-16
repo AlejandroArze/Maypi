@@ -290,8 +290,10 @@ export class ScrumboardService {
                             fechaTerminado = " ";
                             break;
                         case EstadoServicio.TERMINADO:
-                            // Mantener fecha de inicio, actualizar término
-                            fechaInicio = currentService.fechaInicio || " ";
+                            // Si no tiene fecha de inicio (es " " o null), establecerla como la fecha actual
+                            fechaInicio = (!currentService.fechaInicio || currentService.fechaInicio === " ") ? 
+                                new Date().toISOString() : 
+                                currentService.fechaInicio;
                             fechaTerminado = new Date().toISOString();
                             break;
                     }
@@ -305,7 +307,9 @@ export class ScrumboardService {
                         }, {}),
                         estado: newStatus,
                         fechaInicio: fechaInicio,
-                        fechaTerminado: fechaTerminado
+                        fechaTerminado: fechaTerminado,
+                        tipo: currentService.tipo,
+                        tecnicoAsignado: currentService.tecnicoAsignado
                     };
                     console.log('URL de actualización:', `${this.apiUrl}/service/${serviceId}`);
                     console.log('Datos a actualizar:', updateData);
@@ -313,7 +317,42 @@ export class ScrumboardService {
                     return this._httpClient.put<Card>(`${this.apiUrl}/service/${serviceId}`, updateData)
                         .pipe(
                             tap({
-                                next: (response) => console.log('Actualización exitosa:', response),
+                                next: (response) => {
+                                    // Imprimir en consola la respuesta de la actualización exitosa
+                                    console.log('Actualización exitosa:', response);
+                                    
+                                    // Obtener la lista actual de tarjetas
+                                    const currentCards = this.cards$.value;
+                                    
+                                    // Mapear las tarjetas actuales para actualizar solo la tarjeta modificada
+                                    const updatedCards = currentCards.map(card => {
+                                        // Verificar si la tarjeta actual es la que se está actualizando
+                                        if (card.id === serviceId) {
+                                            return {
+                                                ...card, // Mantener los datos existentes de la tarjeta
+                                                ...updateData, // Incorporar los nuevos datos actualizados
+                                                estado: newStatus, // Actualizar el estado de la tarjeta
+                                                fechaInicio: fechaInicio, // Asegurar que se mantenga la fecha de inicio
+                                                fechaTerminado: fechaTerminado // Asegurar que se mantenga la fecha de término
+                                            };
+                                        }
+                                        return card; // Retornar la tarjeta sin cambios si no es la que se actualiza
+                                    });
+                                    
+                                    // Actualizar el estado de las tarjetas en el BehaviorSubject
+                                    this.cards$.next(updatedCards);
+
+                                    // Recargar la lista específica después de un breve delay
+                                    setTimeout(() => {
+                                        this.getCardsByStatus(
+                                            updateData.tipo,
+                                            newStatus,
+                                            updateData.tecnicoAsignado?.toString(),
+                                            1,
+                                            100
+                                        ).subscribe();
+                                    }, 100);
+                                },
                                 error: (error) => console.error('Error en PUT:', {
                                     status: error.status,
                                     message: error.message,

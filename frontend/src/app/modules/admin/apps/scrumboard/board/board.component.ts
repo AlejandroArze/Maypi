@@ -386,6 +386,10 @@ export class ScrumboardBoardComponent implements OnInit, OnDestroy {
                         movedCard.fechaTerminado = " ";
                         break;
                     case EstadoServicio.TERMINADO:
+                        // Si no tiene fecha de inicio o está vacía, establecerla
+                        if (!movedCard.fechaInicio || movedCard.fechaInicio === " ") {
+                            movedCard.fechaInicio = new Date().toISOString();
+                        }
                         movedCard.fechaTerminado = new Date().toISOString();
                         break;
                 }
