@@ -1536,4 +1536,32 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy
             console.error('Error al imprimir el PDF:', error);
         }
     }
+
+    // Agregar nuevo método
+    getTecnicoEstado(): { message: string; color: string } | null {
+        // Obtener el usuario actual del localStorage
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const userRole = user?.data?.role;
+
+        // Solo mostrar el estado si el usuario es admin (role 1)
+        if (userRole !== '1') {
+            return null;
+        }
+
+        const selectedTecnico = this.tecnicos.find(t => 
+            t.id === this.servicioForm.get('tecnicoAsignado').value
+        );
+
+        if (!selectedTecnico) {
+            return null;
+        }
+
+        return {
+            message: selectedTecnico.estado === 1 
+                ? 'Asignado a técnico activo' 
+                : 'Asignado a técnico inactivo',
+            color: selectedTecnico.estado === 1 ? 'text-red-500' : 'text-green-500'
+        };
+    }
 }
