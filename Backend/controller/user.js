@@ -200,7 +200,7 @@ class UserController {
         });
 
         // Retorna los datos del nuevo usuario
-        const newUser = new UserDTO(usuarios_id, email, usuario, nombres, apellidos, role, imagePath, estadoInt);
+        const newUser = new UserDTO(usuarios_id, nombres, apellidos, usuario, email, estadoInt, role, imagePath);
         return jsonResponse.successResponse(res, 201, "User has been registered successfully", newUser);
     } catch (error) {
         return Joi.isError(error)
