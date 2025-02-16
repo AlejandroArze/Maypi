@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+import { NgIf, NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +27,24 @@ import { SchemeComponent } from 'app/layout/common/scheme/scheme.component';
     templateUrl  : './classy.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, QuickChatComponent, SchemeComponent],
+    imports      : [
+        FuseLoadingBarComponent, 
+        FuseVerticalNavigationComponent, 
+        NotificationsComponent, 
+        UserComponent, 
+        NgIf,
+        NgClass, 
+        MatIconModule, 
+        MatButtonModule, 
+        LanguagesComponent, 
+        FuseFullscreenComponent, 
+        SearchComponent, 
+        ShortcutsComponent, 
+        MessagesComponent, 
+        RouterOutlet, 
+        QuickChatComponent, 
+        SchemeComponent
+    ],
 })
 export class ClassyLayoutComponent implements OnInit, OnDestroy
 {
@@ -62,22 +79,56 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
                 //console.log('userData.data:', userData?.data); // Para ver específicamente data
                 
                 if (userData?.data) {
+                    const userImage = userData.data.imagen || userData.data.image;
+                    const nombres = userData.data.nombres || '';
+                    const apellidos = userData.data.apellidos || '';
+                    
+                    // Obtener iniciales
+                    const iniciales = this.getInitials(nombres, apellidos);
+                    
+                    // Obtener estado del usuario del localStorage o default a 'online'
+                    const userStatus = localStorage.getItem('userStatus') || 'online';
+                    
                     this.user = {
-                        name: `${userData.data.nombres || ''} ${userData.data.apellidos || ''}`.trim(),
+                        name: `${nombres} ${apellidos}`.trim(),
                         email: userData.data.email || '',
-                        image: userData.data.imagen || userData.data.image || null // Intentamos ambos nombres posibles
+                        // Si no hay imagen, avatar será null y se mostrarán las iniciales
+                        avatar: userImage ? `${environment.baseUrl}/${userImage}` : null,
+                        status: userStatus,
+                        initials: iniciales
                     };
-                    console.log('Usuario cargado:', this.user); // Para ver qué datos se están asignando
+                    console.log('Usuario cargado:', this.user);
                 }
             } catch (error) {
                 console.error('Error al parsear datos del usuario:', error);
                 this.user = {
                     name: 'Usuario',
                     email: 'No disponible',
-                    image: null
+                    avatar: null,
+                    status: 'online',
+                    initials: 'U'
                 };
             }
         }
+    }
+
+    /**
+     * Actualiza el estado del usuario
+     */
+    updateUserStatus(status: 'online' | 'away' | 'busy' | 'not-visible'): void {
+        if (this.user) {
+            this.user.status = status;
+            localStorage.setItem('userStatus', status);
+        }
+    }
+
+    /**
+     * Obtiene las iniciales del nombre y apellido
+     */
+    private getInitials(nombres: string, apellidos: string): string {
+        const nombreInicial = nombres.charAt(0);
+        const apellidoInicial = apellidos.charAt(0);
+        return (nombreInicial + apellidoInicial).toUpperCase() || 'U';
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -139,11 +190,15 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     getImageUrl(imagePath: string): string {
         console.log('Path de imagen recibido:', imagePath); // Para ver qué path llega
         if (!imagePath) {
-            return 'assets/images/avatars/default-avatar.jpg';
+            return null;
         }
-        const fullUrl = `${environment.baseUrl}${imagePath}`;
-        console.log('URL completa de imagen:', fullUrl); // Para ver la URL completa
-        return fullUrl;
+        // Si la URL ya es completa (comienza con http o https), retornarla tal cual
+        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+            return imagePath;
+        }
+        // Si la URL comienza con una barra, quitarla para evitar doble barra
+        const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+        return `${environment.baseUrl}/${cleanPath}`;
     }
 
     // -----------------------------------------------------------------------------------------------------
