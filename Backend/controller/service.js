@@ -405,7 +405,12 @@ class ServiceController {
     }
     static async getMetrics(req, res) {
         try {
-            const metrics = await ServiceService.getServiceMetrics(req.query);
+            // Agregar role y user a los parámetros
+            const metrics = await ServiceService.getServiceMetrics({
+                ...req.query,
+                role: req.user.role,
+                user: req.user
+            });
             return jsonResponse.successResponse(
                 res,
                 200,

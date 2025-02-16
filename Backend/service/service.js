@@ -393,61 +393,122 @@ class ServiceService {
                 limit = 10
             } = req.query;
 
-            console.log('Query params:', { fechaInicio, fechaFin, tipo, tecnicoAsignado, estado, page, limit });
-
-            const whereConditions = {
-             __v: 0  // Agregar esta condición
+            const role = req.user?.role;
+            
+            let whereConditions = {
+                __v: 0
             };
+
+            // Aplicar restricciones por rol
+            if (role === '2' || role === '3') {
+                const userId = req.user?.id || req.user?.usuarios_id;
+                
+                if (role === '2') {
+                    // Para rol 2 - Solo servicios de técnicos activos
+                    const activeUsers = await sequelize.models.User.findAll({
+                        where: { estado: 1 }
+                    });
+                    const activeUserIds = activeUsers.map(user => user.usuarios_id);
+
+                    whereConditions[Op.and] = [
+                        {
+                            [Op.or]: [
+                                { tecnicoAsignado: null },
+                                { tecnicoAsignado: { [Op.in]: activeUserIds } }
+                            ]
+                        },
+                        {
+                            tecnicoRegistro: { [Op.in]: activeUserIds }
+                        }
+                    ];
+                } else if (role === '3') {
+                    const requestingUser = await sequelize.models.User.findOne({
+                        where: { usuarios_id: userId }
+                    });
+
+                    if (requestingUser?.estado === 0) {
+                        // Usuario inactivo - ver servicios de inactivos
+                        const inactiveUsers = await sequelize.models.User.findAll({
+                            where: { estado: 0 }
+                        });
+                        const inactiveUserIds = inactiveUsers.map(user => user.usuarios_id);
+
+                        whereConditions[Op.or] = [
+                            {
+                                tecnicoAsignado: null,
+                                tecnicoRegistro: { [Op.in]: inactiveUserIds }
+                            },
+                            {
+                                tecnicoAsignado: { [Op.in]: inactiveUserIds },
+                                tecnicoRegistro: { [Op.in]: inactiveUserIds }
+                            }
+                        ];
+                    } else {
+                        // Usuario activo - ver servicios de activos
+                        const activeUsers = await sequelize.models.User.findAll({
+                            where: { estado: 1 }
+                        });
+                        const activeUserIds = activeUsers.map(user => user.usuarios_id);
+
+                        whereConditions[Op.and] = [
+                            {
+                                [Op.or]: [
+                                    { tecnicoAsignado: null },
+                                    { tecnicoAsignado: { [Op.in]: activeUserIds } }
+                                ]
+                            },
+                            {
+                                tecnicoRegistro: { [Op.in]: activeUserIds }
+                            }
+                        ];
+                    }
+                }
+            }
 
             // Agregar filtro de rango de fechas si se proporcionan
             if (fechaInicio && fechaFin) {
                 const startDate = new Date(decodeURIComponent(fechaInicio).trim());
                 let endDate = new Date(decodeURIComponent(fechaFin).trim());
                 
-                // Ajustar fechas al inicio y fin del día
                 startDate.setHours(0, 0, 0, 0);
                 endDate.setHours(23, 59, 59, 999);
 
-                whereConditions[Op.or] = [
-                    {
-                        fechaInicio: {
-                            [Op.between]: [
-                                startDate.toISOString(),
-                                endDate.toISOString()
-                            ]
+                const dateConditions = {
+                    [Op.or]: [
+                        {
+                            fechaInicio: {
+                                [Op.between]: [startDate.toISOString(), endDate.toISOString()]
+                            }
+                        },
+                        {
+                            fechaTerminado: {
+                                [Op.between]: [startDate.toISOString(), endDate.toISOString()]
+                            }
                         }
-                    },
-                    {
-                        fechaTerminado: {
-                            [Op.between]: [
-                                startDate.toISOString(),
-                                endDate.toISOString()
-                            ]
-                        }
-                    }
-                ];
-            }
-
-            // Agregar filtro de tipo si se proporciona
-            if (tipo && tipo !== 'null' && tipo !== 'undefined') {
-                whereConditions.tipo = {
-                    [Op.iLike]: `%${decodeURIComponent(tipo).trim()}%`
+                    ]
                 };
+
+                if (whereConditions[Op.and]) {
+                    whereConditions[Op.and].push(dateConditions);
+                } else if (whereConditions[Op.or]) {
+                    whereConditions = {
+                        [Op.and]: [
+                            whereConditions,
+                            dateConditions
+                        ]
+                    };
+                } else {
+                    whereConditions = {
+                        ...whereConditions,
+                        ...dateConditions
+                    };
+                }
             }
 
-            // Agregar filtro de técnico si se proporciona
-            if (tecnicoAsignado && tecnicoAsignado !== 'null') {
-                whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
-            }
-
-            // Agregar filtro de estado si se proporciona
-            if (estado && estado !== 'null' && estado !== 'undefined') {
-                whereConditions.estado = {
-                    [Op.iLike]: `%${decodeURIComponent(estado).trim()}%`
-                };
-            }
-
-            console.log('Where conditions:', whereConditions);
+            // Resto de los filtros igual que antes...
+            if (tipo) whereConditions.tipo = { [Op.iLike]: `%${decodeURIComponent(tipo).trim()}%` };
+            if (tecnicoAsignado) whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
+            if (estado) whereConditions.estado = { [Op.iLike]: `%${decodeURIComponent(estado).trim()}%` };
 
             const { count, rows } = await Service.findAndCountAll({
                 where: whereConditions,
@@ -457,79 +518,140 @@ class ServiceService {
                 raw: true
             });
 
-            return jsonResponse.successResponse(
-                res,
-                200,
-                "Services filtered successfully",
-                {
-                    total: count,
-                    perPage: parseInt(limit),
-                    currentPage: parseInt(page),
-                    totalPages: Math.ceil(count / limit),
-                    data: rows
-                }
-            );
+            return jsonResponse.successResponse(res, 200, "Services filtered successfully", {
+                total: count,
+                perPage: parseInt(limit),
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(count / limit),
+                data: rows
+            });
         } catch (error) {
             console.error("Service Error:", error);
-            if (error.isJoi) {
-                return jsonResponse.validationResponse(
-                    res,
-                    409,
-                    "Validation error",
-                    error.details.map(err => err.message)
-                );
-            }
             return jsonResponse.errorResponse(res, 500, error.message);
         }
     }
 
     static async getServiceMetrics(params) {
         try {
-            const { fechaInicio, fechaFin, tipo, tecnicoAsignado, estado } = params;
-            const whereConditions = {
-             __v: 0  // Agregar esta condición
+            const { fechaInicio, fechaFin, tipo, tecnicoAsignado, estado, role, user } = params;
+            let whereConditions = {
+                __v: 0
             };
+
+            // Aplicar restricciones por rol
+            if (role === '2' || role === '3') {
+                const userId = user?.id || user?.usuarios_id;
+                
+                if (role === '2') {
+                    const activeUsers = await sequelize.models.User.findAll({
+                        where: { estado: 1 }
+                    });
+                    const activeUserIds = activeUsers.map(user => user.usuarios_id);
+
+                    whereConditions[Op.and] = [
+                        {
+                            [Op.or]: [
+                                { tecnicoAsignado: null },
+                                { tecnicoAsignado: { [Op.in]: activeUserIds } }
+                            ]
+                        },
+                        {
+                            tecnicoRegistro: { [Op.in]: activeUserIds }
+                        }
+                    ];
+                } else if (role === '3') {
+                    const requestingUser = await sequelize.models.User.findOne({
+                        where: { usuarios_id: userId }
+                    });
+
+                    if (requestingUser?.estado === 0) {
+                        const inactiveUsers = await sequelize.models.User.findAll({
+                            where: { estado: 0 }
+                        });
+                        const inactiveUserIds = inactiveUsers.map(user => user.usuarios_id);
+
+                        whereConditions[Op.or] = [
+                            {
+                                tecnicoAsignado: null,
+                                tecnicoRegistro: { [Op.in]: inactiveUserIds }
+                            },
+                            {
+                                tecnicoAsignado: { [Op.in]: inactiveUserIds },
+                                tecnicoRegistro: { [Op.in]: inactiveUserIds }
+                            }
+                        ];
+                    } else {
+                        const activeUsers = await sequelize.models.User.findAll({
+                            where: { estado: 1 }
+                        });
+                        const activeUserIds = activeUsers.map(user => user.usuarios_id);
+
+                        whereConditions[Op.and] = [
+                            {
+                                [Op.or]: [
+                                    { tecnicoAsignado: null },
+                                    { tecnicoAsignado: { [Op.in]: activeUserIds } }
+                                ]
+                            },
+                            {
+                                tecnicoRegistro: { [Op.in]: activeUserIds }
+                            }
+                        ];
+                    }
+                }
+            }
 
             // Agregar filtros según los parámetros recibidos
             if (fechaInicio && fechaFin) {
                 const startDate = new Date(decodeURIComponent(fechaInicio).trim());
                 let endDate = new Date(decodeURIComponent(fechaFin).trim());
                 
-                // Ajustar fechas al inicio y fin del día
                 startDate.setHours(0, 0, 0, 0);
                 endDate.setHours(23, 59, 59, 999);
 
-                whereConditions[Op.or] = [
-                    {
-                        fechaInicio: {
-                            [Op.between]: [
-                                startDate.toISOString(),
-                                endDate.toISOString()
-                            ]
+                const dateConditions = {
+                    [Op.or]: [
+                        {
+                            fechaInicio: {
+                                [Op.between]: [startDate.toISOString(), endDate.toISOString()]
+                            }
+                        },
+                        {
+                            fechaTerminado: {
+                                [Op.between]: [startDate.toISOString(), endDate.toISOString()]
+                            }
                         }
-                    },
-                    {
-                        fechaTerminado: {
-                            [Op.between]: [
-                                startDate.toISOString(),
-                                endDate.toISOString()
-                            ]
-                        }
-                    }
-                ];
+                    ]
+                };
+
+                if (whereConditions[Op.and]) {
+                    whereConditions[Op.and].push(dateConditions);
+                } else if (whereConditions[Op.or]) {
+                    whereConditions = {
+                        [Op.and]: [
+                            whereConditions,
+                            dateConditions
+                        ]
+                    };
+                } else {
+                    whereConditions = {
+                        ...whereConditions,
+                        ...dateConditions
+                    };
+                }
             }
 
-            if (tipo && tipo !== 'null' && tipo !== 'undefined') {
+            if (tipo) {
                 whereConditions.tipo = {
                     [Op.iLike]: `%${decodeURIComponent(tipo).trim()}%`
                 };
             }
 
-            if (tecnicoAsignado && tecnicoAsignado !== 'null') {
+            if (tecnicoAsignado) {
                 whereConditions.tecnicoAsignado = parseInt(tecnicoAsignado, 10);
             }
 
-            if (estado && estado !== 'null' && estado !== 'undefined') {
+            if (estado) {
                 whereConditions.estado = {
                     [Op.iLike]: `%${decodeURIComponent(estado).trim()}%`
                 };
@@ -576,7 +698,6 @@ class ServiceService {
                     ...whereConditions,
                     tecnicoAsignado: { [Op.not]: null }
                 },
-               
                 group: ['tecnicoAsignado']
             });
 
@@ -615,7 +736,8 @@ class ServiceService {
                         'servicios_terminados'
                     ],
                     [
-                        sequelize.literal(`                            EXTRACT(EPOCH FROM AVG(
+                        sequelize.literal(`
+                            EXTRACT(EPOCH FROM AVG(
                                 CASE 
                                     WHEN "fechaTerminado" IS NOT NULL AND "fechaInicio" IS NOT NULL 
                                     THEN GREATEST("fechaTerminado"::timestamp, "fechaInicio"::timestamp) - 
