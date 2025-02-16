@@ -112,6 +112,7 @@
         </div>
         <create-account
             (accountCreated)="handleAccountCreated()"
+            (accountError)="handleAccountError($event)"
             (cancelled)="returnToTeam()">
         </create-account>
     </ng-container>

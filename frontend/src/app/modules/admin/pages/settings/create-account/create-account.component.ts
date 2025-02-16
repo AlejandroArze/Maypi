@@ -34,6 +34,7 @@ import { environment } from '../../../../../../environments/environment';
 export class CreateAccountComponent implements OnInit { // Nombre de la clase ajustado
     @Output() accountCreated = new EventEmitter<void>();
     @Output() cancelled = new EventEmitter<void>(); // Añadir este EventEmitter
+    @Output() accountError = new EventEmitter<any>();
     
     createAccountForm: UntypedFormGroup;
     imagePreview: string | null = null;
@@ -183,6 +184,7 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
                     },
                     (error) => {
                         console.error('Error al crear usuario', error);
+                        this.accountError.emit(error);
                     }
                 );
         }

@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { CreateAccountComponent } from '../create-account/create-account.component';
 import { EditAccountComponent } from '../edit-account/edit-account.component';
 import { Subject } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector       : 'settings-team',
@@ -50,7 +51,8 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         private http: HttpClient,
         private cdr: ChangeDetectorRef,
         private settingsService: SettingsService,
-        private router: Router
+        private router: Router,
+        private _snackBar: MatSnackBar
     ) {}
     
 
@@ -118,10 +120,30 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         this.currentView = 'create';
     }
 
+    // Método para mostrar notificación
+    showNotification(message: string, type: 'success' | 'error'): void {
+        this._snackBar.open(message, 'Cerrar', {
+            duration: 5000,
+            horizontalPosition: 'end',
+            verticalPosition: 'bottom',
+            panelClass: type === 'success' ? ['bg-green-500'] : ['bg-red-500'],
+        });
+    }
+
     // Método para manejar la creación exitosa de una cuenta
     handleAccountCreated(): void {
         this.reloadUsers();
         this.currentView = 'team';
+        this.showNotification('Usuario creado exitosamente', 'success');
+    }
+
+    // Método para manejar error en la creación de cuenta
+    handleAccountError(error: any): void {
+        let errorMessage = 'Error al crear el usuario';
+        if (error.error && error.error.message) {
+            errorMessage += `: ${error.error.message}`;
+        }
+        this.showNotification(errorMessage, 'error');
     }
 
     // Método para cambiar a la vista de editar cuenta
