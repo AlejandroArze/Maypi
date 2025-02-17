@@ -617,6 +617,75 @@ static async paginate(req, res) {
         }
     }
 
+    // Método para actualizar la contraseña
+    static async updatePassword(req, res) {
+        try {
+            const id = req.params.usuarios_id;
+            const { currentPassword, newPassword } = req.body;
+            const requesterId = req.user.id; // ID del usuario que hace la solicitud
+
+            // Verificar que el usuario solo pueda cambiar su propia contraseña
+            if (parseInt(id) !== requesterId) {
+                return jsonResponse.errorResponse(
+                    res,
+                    403,
+                    "Solo puedes cambiar tu propia contraseña"
+                );
+            }
+
+            // Obtener el usuario actual
+            const currentUser = await User.findByPk(id);
+            if (!currentUser) {
+                return jsonResponse.errorResponse(
+                    res,
+                    404,
+                    "Usuario no encontrado"
+                );
+            }
+
+            // Verificar la contraseña actual
+            const isPasswordValid = await bcrypt.compare(currentPassword, currentUser.password);
+            if (!isPasswordValid) {
+                return jsonResponse.errorResponse(
+                    res,
+                    401,
+                    "La contraseña actual es incorrecta"
+                );
+            }
+
+            // Validar la nueva contraseña
+            if (!newPassword || newPassword.length < 6) {
+                return jsonResponse.errorResponse(
+                    res,
+                    400,
+                    "La nueva contraseña debe tener al menos 6 caracteres"
+                );
+            }
+
+            // Encriptar la nueva contraseña
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            // Actualizar la contraseña
+            await User.update(
+                { password: hashedPassword },
+                { where: { usuarios_id: id } }
+            );
+
+            return jsonResponse.successResponse(
+                res,
+                200,
+                "Contraseña actualizada exitosamente"
+            );
+        } catch (error) {
+            console.error('Error al actualizar la contraseña:', error);
+            return jsonResponse.errorResponse(
+                res,
+                500,
+                "Error al actualizar la contraseña"
+            );
+        }
+    }
+
 }
 
 // Exporta la clase UserController para que pueda ser utilizada en otros archivos

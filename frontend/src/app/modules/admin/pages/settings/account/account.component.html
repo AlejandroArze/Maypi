@@ -108,14 +108,48 @@
                     <mat-label>Nueva contraseña</mat-label>
                     <input matInput type="password" formControlName="newPassword">
                     <mat-icon matPrefix>lock_reset</mat-icon>
-                    <mat-hint>Mínimo 8 caracteres. Debe incluir números, letras y caracteres especiales.</mat-hint>
+                   
                 </mat-form-field>
+                <!-- Mensajes dinámicos de validación -->
+                <div class="mt-1">
+                    <div class="flex flex-wrap gap-4">
+                        <div class="text-sm" [class.text-green-600]="passwordLength" [class.text-red-600]="!passwordLength">
+                            <mat-icon class="icon-size-4 align-middle" [svgIcon]="passwordLength ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"></mat-icon>
+                            Mínimo 8 caracteres
+                        </div>
+                        <div class="text-sm" [class.text-green-600]="hasNumber" [class.text-red-600]="!hasNumber">
+                            <mat-icon class="icon-size-4 align-middle" [svgIcon]="hasNumber ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"></mat-icon>
+                            Incluir número
+                        </div>
+                        <div class="text-sm" [class.text-green-600]="hasLetter" [class.text-red-600]="!hasLetter">
+                            <mat-icon class="icon-size-4 align-middle" [svgIcon]="hasLetter ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"></mat-icon>
+                            Incluir letra
+                        </div>
+                        <div class="text-sm" [class.text-green-600]="hasSpecialChar" [class.text-red-600]="!hasSpecialChar">
+                            <mat-icon class="icon-size-4 align-middle" [svgIcon]="hasSpecialChar ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'"></mat-icon>
+                            Incluir carácter especial
+                        </div>
+                    </div>
+                </div>
 
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Confirmar nueva contraseña</mat-label>
                     <input matInput type="password" formControlName="confirmPassword">
                     <mat-icon matPrefix>lock_reset</mat-icon>
                 </mat-form-field>
+                <!-- Mensajes de validación para confirmación -->
+                <div class="mt-1">
+                    <div class="flex flex-wrap gap-4">
+                        <div class="text-sm" [class.text-green-600]="!passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword').value" 
+                             [class.text-red-600]="passwordForm.hasError('mismatch') || !passwordForm.get('confirmPassword').value">
+                            <mat-icon class="icon-size-4 align-middle" 
+                                     [svgIcon]="!passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword').value ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'">
+                            </mat-icon>
+                            Contraseñas coinciden
+                        </div>
+                       
+                    </div>
+                </div>
 
                 <div class="flex justify-end">
                     <button type="button"

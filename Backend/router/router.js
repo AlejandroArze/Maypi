@@ -55,6 +55,8 @@ router.patch("/user/:usuarios_id/status", authMiddleware([1,2,3]), user.updateSt
 // Nuevas rutas para actualizar rol y estado
 router.patch("/user/:usuarios_id/role", authMiddleware([1,2]), user.updateRole);
 router.patch("/user/:usuarios_id/status", authMiddleware([1]), user.updateUserStatus);
+// Ruta para actualizar contraseña
+router.patch("/user/:usuarios_id/password", authMiddleware([1,2,3]), user.updatePassword);
 
 // Login de usuario
 router.post("/user/login", user.login);

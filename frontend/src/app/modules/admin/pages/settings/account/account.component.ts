@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { jwtDecode } from 'jwt-decode';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'settings-account',
@@ -27,6 +28,7 @@ import { jwtDecode } from 'jwt-decode';
         MatOptionModule,
         MatButtonModule,
         CommonModule,
+        MatSnackBarModule,
     ],
 })
 export class SettingsAccountComponent implements OnInit {
@@ -40,15 +42,27 @@ export class SettingsAccountComponent implements OnInit {
     pendingFormData: FormData | null = null;
     selectedFile: File | null = null;
 
+    // Propiedades para validación dinámica
+    passwordLength: boolean = false;
+    hasNumber: boolean = false;
+    hasLetter: boolean = false;
+    hasSpecialChar: boolean = false;
+
     constructor(
         private _formBuilder: UntypedFormBuilder,
         private _httpClient: HttpClient,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private _snackBar: MatSnackBar
     ) {}
 
     ngOnInit(): void {
         this.initializeForms();
         this.loadUserData();
+
+        // Suscribirse a los cambios de la nueva contraseña
+        this.passwordForm.get('newPassword').valueChanges.subscribe(value => {
+            this.updatePasswordValidation(value);
+        });
     }
 
     initializeForms(): void {
@@ -67,7 +81,11 @@ export class SettingsAccountComponent implements OnInit {
         // Formulario de contraseña
         this.passwordForm = this._formBuilder.group({
             currentPassword: ['', Validators.required],
-            newPassword: ['', [Validators.required, Validators.minLength(8)]],
+            newPassword: ['', [
+                Validators.required, 
+                Validators.minLength(8),
+                this.createPasswordValidator()
+            ]],
             confirmPassword: ['', Validators.required]
         }, { validator: this.passwordMatchValidator });
     }
@@ -265,26 +283,16 @@ export class SettingsAccountComponent implements OnInit {
 
     changePassword(): void {
         if (this.passwordForm.valid) {
-            const formData = new FormData();
-            
-            // Mantener los datos actuales del usuario
-            formData.append('email', this.accountForm.get('email').value);
-            formData.append('usuario', this.accountForm.get('username').value);
-            formData.append('nombres', this.accountForm.get('name').value);
-            formData.append('apellidos', this.accountForm.get('lastname').value);
-            formData.append('role', this.accountForm.get('role').value);
-            formData.append('estado', this.accountForm.get('estado').value);
-            
-            // Agregar la contraseña actual y la nueva
-            formData.append('password', this.passwordForm.get('currentPassword').value);
-            formData.append('newPassword', this.passwordForm.get('newPassword').value);
+            const passwordData = {
+                currentPassword: this.passwordForm.get('currentPassword').value,
+                newPassword: this.passwordForm.get('newPassword').value
+            };
 
-            this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
-                .subscribe(
-                    (response: any) => {
+            this._httpClient.patch(`${environment.baseUrl}/user/${this.userId}/password`, passwordData)
+                .subscribe({
+                    next: (response: any) => {
                         console.log('✅ Contraseña actualizada exitosamente');
-                        // Actualizar el localStorage con los nuevos datos
-                        localStorage.setItem('user', JSON.stringify(response));
+                        this.showNotification('Contraseña actualizada exitosamente', 'success');
                         // Disparar evento de actualización
                         window.dispatchEvent(new Event('userDataUpdated'));
                         
@@ -292,28 +300,39 @@ export class SettingsAccountComponent implements OnInit {
                         this.showPasswordSection = false;
                         this.cdr.detectChanges();
                     },
-                    error => {
+                    error: (error) => {
                         console.error('❌ Error al actualizar la contraseña:', error);
-                        if (error.status === 401) {
+                        if (error.error?.message === 'La contraseña actual es incorrecta') {
                             this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+                            this.showNotification('La contraseña actual es incorrecta', 'error');
+                        } else {
+                            this.showNotification('Error al actualizar la contraseña', 'error');
                         }
+                        this.cdr.detectChanges();
                     }
-                );
+                });
         }
     }
 
-    confirmUpdate(): void {
-        if (!this.userId) {
-            console.error('No se encontró el ID del usuario');
-            return;
-        }
+    // Método para mostrar notificaciones
+    private showNotification(message: string, type: 'success' | 'error'): void {
+        this._snackBar.open(
+            message,
+            'Cerrar',
+            {
+                duration: 3000,
+                horizontalPosition: 'right',
+                verticalPosition: 'bottom',
+                panelClass: type === 'success' ? ['bg-green-500'] : ['bg-red-500']
+            }
+        );
+    }
 
+    onSubmit(): void {
         if (this.accountForm.valid) {
-            console.log('🔄 Iniciando actualización del usuario ID:', this.userId);
-            
             const formData = new FormData();
             
-            // Mapear los campos del formulario a los nombres esperados por el backend
+            // Agregar los campos del formulario al FormData
             formData.append('email', this.accountForm.get('email').value);
             formData.append('usuario', this.accountForm.get('username').value);
             formData.append('nombres', this.accountForm.get('name').value);
@@ -321,81 +340,61 @@ export class SettingsAccountComponent implements OnInit {
             formData.append('role', this.accountForm.get('role').value);
             formData.append('estado', this.accountForm.get('estado').value);
 
-            // Manejar la imagen usando el archivo guardado
             if (this.selectedFile) {
-                console.log('🖼️ Enviando imagen:', {
-                    nombre: this.selectedFile.name,
-                    tipo: this.selectedFile.type,
-                    tamaño: this.selectedFile.size
-                });
-                formData.append('image', this.selectedFile, 'imagen.png');
-            } else {
-                console.log('⚠️ No hay nueva imagen seleccionada');
+                formData.append('image', this.selectedFile);
             }
 
-            // Imprimir todo el contenido del FormData
-            console.log('📦 Contenido del FormData:');
-            formData.forEach((value, key) => {
-                console.log(`${key}:`, value);
-            });
-
-            // Guardar el FormData pendiente y mostrar el diálogo de contraseña
             this.pendingFormData = formData;
-            // Resetear el campo de contraseña antes de mostrar el diálogo
-            this.passwordForm.get('currentPassword').reset();
             this.showPasswordConfirmation = true;
             this.cdr.detectChanges();
         }
     }
 
-    onSubmit(): void {
-        if (!this.pendingFormData || !this.passwordForm.get('currentPassword').value) {
+    confirmUpdate(): void {
+        if (!this.userId) {
+            console.error('❌ No se encontró el ID del usuario');
             return;
         }
 
-        // Agregar la contraseña al FormData
-        this.pendingFormData.append('password', this.passwordForm.get('currentPassword').value);
+        if (this.accountForm.valid) {
+            console.log('🔄 Iniciando actualización del usuario ID:', this.userId);
 
-        console.log('📤 Enviando datos al servidor...');
-        this.pendingFormData.forEach((value, key) => {
-            if (key === 'image') {
-                const file = value as File;
-                console.log('image:', {
-                    nombre: file.name,
-                    tipo: file.type,
-                    tamaño: file.size
-                });
-            } else {
-                console.log(`${key}:`, value);
+            if (!this.pendingFormData) {
+                console.error('❌ No hay datos pendientes para actualizar');
+                return;
             }
-        });
 
-        this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, this.pendingFormData)
-            .subscribe(
-                (response: any) => {
-                    console.log('✅ Perfil actualizado exitosamente:', response);
-                    if (response.data?.image) {
-                        this.imagePreview = `${environment.baseUrl}${response.data.image}`;
-                        this.imageName = response.data.image.split('/').pop();
-                        console.log('🖼️ Nueva imagen guardada:', this.imagePreview);
+            // Agregar la contraseña al FormData
+            this.pendingFormData.append('password', this.passwordForm.get('currentPassword').value);
+
+            this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, this.pendingFormData)
+                .subscribe({
+                    next: (response: any) => {
+                        console.log('✅ Perfil actualizado exitosamente:', response);
+                        if (response.data?.image) {
+                            this.imagePreview = `${environment.baseUrl}${response.data.image}`;
+                            this.imageName = response.data.image.split('/').pop();
+                            console.log('🖼️ Nueva imagen guardada:', this.imagePreview);
+                        }
+                        // Actualizar el localStorage con los nuevos datos
+                        localStorage.setItem('user', JSON.stringify(response));
+                        // Disparar evento de actualización
+                        window.dispatchEvent(new Event('userDataUpdated'));
+                        
+                        this.showPasswordConfirmation = false;
+                        this.pendingFormData = null;
+                        this.passwordForm.reset();
+                        this.cdr.detectChanges();
+                    },
+                    error: (error) => {
+                        console.error('❌ Error al actualizar el perfil:', error);
+                        if (error.status === 401) {
+                            this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+                        }
+                        this.cdr.detectChanges();
                     }
-                    // Actualizar el localStorage con los nuevos datos
-                    localStorage.setItem('user', JSON.stringify(response));
-                    // Disparar evento de actualización
-                    window.dispatchEvent(new Event('userDataUpdated'));
-                    
-                    this.showPasswordConfirmation = false;
-                    this.pendingFormData = null;
-                    this.passwordForm.reset();
-                    this.cdr.detectChanges();
-                },
-                error => {
-                    console.error('❌ Error al actualizar el perfil:', error);
-                    if (error.status === 401) {
-                        this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
-                    }
-                }
-            );
+                });
+        }
     }
 
     cancelPasswordConfirmation(): void {
@@ -415,5 +414,52 @@ export class SettingsAccountComponent implements OnInit {
     passwordMatchValidator(g: UntypedFormGroup) {
         return g.get('newPassword').value === g.get('confirmPassword').value
             ? null : { 'passwordMismatch': true };
+    }
+
+    // Método para actualizar la validación de contraseña en tiempo real
+    private updatePasswordValidation(value: string): void {
+        if (!value) {
+            this.passwordLength = false;
+            this.hasNumber = false;
+            this.hasLetter = false;
+            this.hasSpecialChar = false;
+            return;
+        }
+
+        this.passwordLength = value.length >= 8;
+        this.hasNumber = /[0-9]/.test(value);
+        this.hasLetter = /[a-zA-Z]/.test(value);
+        this.hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+        
+        this.cdr.detectChanges();
+    }
+
+    // Validador personalizado para la contraseña
+    private createPasswordValidator() {
+        return (control: AbstractControl): ValidationErrors | null => {
+            const value = control.value;
+            
+            if (!value) {
+                return null;
+            }
+
+            const hasNumber = /[0-9]/.test(value);
+            const hasLetter = /[a-zA-Z]/.test(value);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+            const errors: ValidationErrors = {};
+            
+            if (!hasNumber) {
+                errors['noNumber'] = true;
+            }
+            if (!hasLetter) {
+                errors['noLetter'] = true;
+            }
+            if (!hasSpecialChar) {
+                errors['noSpecialChar'] = true;
+            }
+
+            return Object.keys(errors).length ? errors : null;
+        };
     }
 }
