@@ -72,15 +72,6 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
             status   : ['1', Validators.required] // Valor por defecto '1' para ACTIVO
         });
 
-        // Asegurarse de que el autocompletado esté deshabilitado al inicio
-        setTimeout(() => {
-            const inputs = document.querySelectorAll('input[formControlName]');
-            inputs.forEach(input => {
-                input.setAttribute('readonly', '');
-                input.setAttribute('autocomplete', 'off');
-            });
-        });
-
         // Suscribirse a los cambios de las contraseñas
         this.createAccountForm.get('password').valueChanges.subscribe(() => {
             if (this.createAccountForm.get('confirmPassword').value) {
@@ -108,9 +99,15 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
      */
     onFocusInput(event: FocusEvent): void {
         const input = event.target as HTMLInputElement;
-        input.removeAttribute('readonly');
-        // Solo habilitar autocompletado después del focus
-        input.setAttribute('autocomplete', 'on');
+        const fieldName = input.getAttribute('formcontrolname');
+        
+        // Si es el campo de usuario y está vacío, intentar usar el email
+        if (fieldName === 'username' && !input.value) {
+            const email = this.createAccountForm.get('email').value;
+            if (email) {
+                this.createAccountForm.get('username').setValue(email);
+            }
+        }
     }
 
     /**
@@ -118,8 +115,7 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
      */
     onBlurInput(event: FocusEvent): void {
         const input = event.target as HTMLInputElement;
-        input.setAttribute('readonly', '');
-        input.setAttribute('autocomplete', 'off');
+        // No necesitamos hacer nada especial en el blur
     }
 
     /**

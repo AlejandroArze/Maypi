@@ -6,11 +6,11 @@
     </div>
 
     <!-- Formulario Principal -->
-    <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="space-y-8" autocomplete="off">
-        <!-- Campos ocultos para engañar al autocompletado -->
+    <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="space-y-8" autocomplete="on">
+        <!-- Campos ocultos para ayudar al autocompletado -->
         <div style="display:none">
-            <input type="text" autocomplete="username" name="username" />
-            <input type="password" autocomplete="current-password" name="password" />
+            <input type="text" name="fakeusernameremembered" autocomplete="username">
+            <input type="password" name="fakepasswordremembered" autocomplete="current-password">
         </div>
 
         <!-- Información Personal -->
@@ -51,11 +51,7 @@
                     <mat-label>Nombres</mat-label>
                     <input matInput 
                            formControlName="name"
-                           autocomplete="off"
-                           [autocomplete]="'off'"
-                           readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           autocomplete="given-name"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>person</mat-icon>
@@ -68,11 +64,7 @@
                     <mat-label>Apellidos</mat-label>
                     <input matInput 
                            formControlName="lastname"
-                           autocomplete="off"
-                           [autocomplete]="'off'"
-                           readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           autocomplete="family-name"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>person</mat-icon>
@@ -87,10 +79,9 @@
                            formControlName="username"
                            [type]="'text'"
                            autocomplete="off"
-                           [autocomplete]="'off'"
                            readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           onfocus="this.removeAttribute('readonly'); this.setAttribute('autocomplete', 'username');"
+                           onblur="this.setAttribute('readonly', ''); this.setAttribute('autocomplete', 'off');"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>account_circle</mat-icon>
@@ -107,11 +98,7 @@
                     <input matInput 
                            formControlName="email" 
                            type="email"
-                           autocomplete="off"
-                           [autocomplete]="'off'"
-                           readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           autocomplete="email"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>email</mat-icon>
@@ -168,11 +155,7 @@
                     <input matInput 
                            [type]="'password'" 
                            formControlName="password"
-                           autocomplete="off"
-                           [autocomplete]="'off'"
-                           readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           autocomplete="new-password"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>lock</mat-icon>
@@ -190,11 +173,7 @@
                     <input matInput 
                            [type]="'password'" 
                            formControlName="confirmPassword"
-                           autocomplete="off"
-                           [autocomplete]="'off'"
-                           readonly
-                           onfocus="this.removeAttribute('readonly');"
-                           onblur="this.setAttribute('readonly','');"
+                           autocomplete="new-password"
                            (focus)="onFocusInput($event)"
                            (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>lock</mat-icon>
