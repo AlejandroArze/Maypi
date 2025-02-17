@@ -1,0 +1,80 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <div class="max-w-3xl">
+            <div class="text-3xl font-semibold tracking-tight leading-8">Recepción de Reportes de Desaparecidos</div>
+            <div class="mt-4">
+                <p class="text-lg">
+                    Gestiona los reportes de personas desaparecidas
+                </p>
+            </div>
+
+            <!-- Missing Persons Reports -->
+            <div class="mt-8 bg-card rounded-2xl shadow overflow-hidden">
+                <div class="p-6">
+                    <!-- Filter and search -->
+                    <div class="flex items-center justify-between mb-6">
+                        <mat-form-field class="flex-1 max-w-xs">
+                            <mat-label>Buscar reporte</mat-label>
+                            <input matInput placeholder="Buscar por nombre, ID...">
+                            <mat-icon matSuffix>search</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Reports table -->
+                    <table mat-table class="w-full">
+                        <!-- ID Column -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef>ID</th>
+                            <td mat-cell *matCellDef="let report">{{report.id}}</td>
+                        </ng-container>
+
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="name">
+                            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                            <td mat-cell *matCellDef="let report">{{report.name}}</td>
+                        </ng-container>
+
+                        <!-- Date Column -->
+                        <ng-container matColumnDef="date">
+                            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                            <td mat-cell *matCellDef="let report">{{report.date}}</td>
+                        </ng-container>
+
+                        <!-- Status Column -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef>Estado</th>
+                            <td mat-cell *matCellDef="let report">
+                                <span [matBadge]="''" 
+                                      [ngClass]="{
+                                          'bg-red-100 text-red-800': report.status === 'urgent',
+                                          'bg-yellow-100 text-yellow-800': report.status === 'pending',
+                                          'bg-green-100 text-green-800': report.status === 'found'
+                                      }"
+                                      class="px-2.5 py-0.5 rounded-full text-sm font-medium">
+                                    {{report.status}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                            <td mat-cell *matCellDef="let report">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button mat-icon-button color="accent">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="['id', 'name', 'date', 'status', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['id', 'name', 'date', 'status', 'actions'];"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

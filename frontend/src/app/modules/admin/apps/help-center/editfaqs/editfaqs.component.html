@@ -1,0 +1,55 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <div class="max-w-3xl">
+            <div class="text-3xl font-semibold tracking-tight leading-8">Editar Preguntas Frecuentes</div>
+            <div class="mt-4">
+                <p class="text-lg">
+                    Gestiona y actualiza las preguntas frecuentes del sistema
+                </p>
+            </div>
+
+            <!-- FAQs Editor -->
+            <div class="mt-8 bg-card rounded-2xl shadow overflow-hidden">
+                <div class="p-6">
+                    <!-- Add new FAQ button -->
+                    <button mat-flat-button color="primary" class="mb-6">
+                        <mat-icon class="icon-size-5 mr-2">add</mat-icon>
+                        Nueva Pregunta Frecuente
+                    </button>
+
+                    <!-- FAQs table -->
+                    <table mat-table class="w-full">
+                        <!-- Question Column -->
+                        <ng-container matColumnDef="question">
+                            <th mat-header-cell *matHeaderCellDef>Pregunta</th>
+                            <td mat-cell *matCellDef="let faq">{{faq.question}}</td>
+                        </ng-container>
+
+                        <!-- Category Column -->
+                        <ng-container matColumnDef="category">
+                            <th mat-header-cell *matHeaderCellDef>Categoría</th>
+                            <td mat-cell *matCellDef="let faq">{{faq.category}}</td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                            <td mat-cell *matCellDef="let faq">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button color="warn">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="['question', 'category', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['question', 'category', 'actions'];"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

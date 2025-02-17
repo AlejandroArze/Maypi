@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
-import { SettingsService } from '../Settings.Service';
+import { SettingsService } from '../settings.service';
 import { environment } from '../../../../../../environments/environment';
 import { NgFor, NgIf, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
