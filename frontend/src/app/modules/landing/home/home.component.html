@@ -2,36 +2,48 @@
     <header class="bg-gray-200 w-full">
         <nav class="flex p-4 items-center justify-between">
             <!-- Logo -->
-            <div class="flex gap-3 items-center">
+            <div class="flex gap-4 items-center">
                 <img
                     src="assets/images/logo/logo-text-on-dark.svg"
                     class="w-20 h-20"
                     alt="Logo"
                 />
-                <ul class="flex gap-3">
-                    <li class="text-xl">Inicio</li>
-                    <li class="text-xl">Centro de Ayuda</li>
+                <ul class="flex gap-4 items-center">
+                    <li class="text-xl flex items-center">
+                        <mat-icon fontIcon="home" class="mr-2"></mat-icon>
+                        Inicio
+                    </li>
+                    <li class="text-xl flex items-center">
+                        <mat-icon fontIcon="help" class="mr-2"></mat-icon>
+                        Centro de Ayuda
+                    </li>
                 </ul>
             </div>
-            <div class="flex justify-center">
+            <div class="flex justify-center text-center">
                 <a
-                    href="#"
-                    class="text-purple-600 border text-pretty border-purple-500 p-3 rounded-md text-xl"
+                    href="home/report"
+                    class="text-purple-600 border-2 text-pretty font-semibold border-purple-600 p-3 rounded-md text-lg"
                 >
                     Quiero reportar persona desaparecida
                 </a>
             </div>
-            <div class="flex justify-end gap-3">
+            <div class="flex justify-end gap-3 items-center">
+                <a href="#" class="flex items-center">
+                    <mat-icon fontIcon="search" class="mr-2"></mat-icon>
+                </a>
+
                 <a
                     href="#"
-                    class="border border-purple-500 text-purple-500 text-lg px-3 py-2"
-                    >Ingresar</a
+                    class="border-2 rounded-md font-semibold border-purple-500 text-purple-500 text-lg px-3 py-2"
                 >
+                    Ingresar
+                </a>
                 <a
                     href="#"
                     class="px-3 py-2 rounded-md bg-purple-500 text-white text-lg"
-                    >Registrarse</a
                 >
+                    Registrarse
+                </a>
             </div>
         </nav>
     </header>
@@ -92,21 +104,34 @@
     </div>
 
     <div class="p-3">
-        <span class="text-gray-500 text-4xl p-3"
-            >1 - {{ persons_list.length }}</span
-        >
+        <div class="flex gap-4 items-center justify-center">
+            <span class="text-gray-500 text-3xl p-3"
+                >1 - {{ persons_list.length }} de {{ persons_list.length }}
+            </span>
+            <button
+                type="button"
+                class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+            >
+                &laquo; Anterior
+            </button>
+            <button
+                type="button"
+                class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+            >
+                Siguiente &raquo;
+            </button>
+        </div>
     </div>
+
     <div class="bg-gray-200 p-20">
         <h3 class="text-5xl font-bold text-center">Descubre como funciona</h3>
         <div class="flex justify-center">
             <div class="bg-gray-500 w-2/4 h-96"></div>
         </div>
-        <div class="grid gap-15 grid-cols-4 px-3 mt-15 items-center">
-            <div>
-                <h3 class="text-4xl font-bold text-center">
-                    Te ayudamos a encontrar
-                </h3>
-                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+        <div class="flex justify-between mt-15 px-3 gap-10">
+            <div class="flex-1 text-center">
+                <h3 class="text-4xl font-bold">Te ayudamos a encontrar</h3>
+                <p class="text-3xl font-normal mt-2 leading-10">
                     Compartimos información sobre personas desaparecidas a
                     través de las redes sociales e involucramos a comunidades de
                     todo Bolivia y alrededor del mundo en la búsqueda de estas
@@ -115,9 +140,9 @@
                     desaparecidos.
                 </p>
             </div>
-            <div>
-                <h3 class="text-4xl font-bold text-center">Colaboraciones</h3>
-                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+            <div class="flex-1 text-center">
+                <h3 class="text-4xl font-bold">Colaboraciones</h3>
+                <p class="text-3xl font-normal mt-2 leading-10">
                     Colaboramos estrechamente con la Policía Boliviana, Interpol
                     y organizaciones tanto gubernamentales como no
                     gubernamentales, incluyendo la Cruz Roja Boliviana, el
@@ -126,9 +151,9 @@
                     personas desaparecidas.
                 </p>
             </div>
-            <div>
-                <h3 class="text-4xl font-bold text-center">Nos fortalecemos</h3>
-                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+            <div class="flex-1 text-center">
+                <h3 class="text-4xl font-bold">Nos fortalecemos</h3>
+                <p class="text-3xl font-normal mt-2 leading-10">
                     Buscamos fortalecer la conexión entre las familias afectadas
                     por desapariciones y todas las entidades que trabajan en
                     este ámbito. Nuestro compromiso es crear mayor conciencia,
@@ -136,11 +161,9 @@
                     más seguro para adultos y niños.
                 </p>
             </div>
-            <div>
-                <h3 class="text-4xl font-bold text-center">
-                    Nosotros Educamos
-                </h3>
-                <p class="text-3xl font-normal text-wrap mt-2 leading-10">
+            <div class="flex-1 text-center">
+                <h3 class="text-4xl font-bold">Nosotros Educamos</h3>
+                <p class="text-3xl font-normal mt-2 leading-10">
                     Educamos a la población sobre los problemas sociales y
                     económicos que emergen de las alteraciones de la vida
                     familiar, causadas por la desaparición repentina y sin
@@ -154,71 +177,99 @@
 
     <div class="bg-gray-100 text-gray-800">
         <div class="container mx-auto px-4 py-8">
-            <h1
-                class="text-6xl font-bold text-center mb-5 bg-purple-500 text-white"
+            <h3
+                class="text-4xl font-bold text-center mb-5 bg-purple-500 text-white"
             >
                 Más de 30.000 personas desaparecen cada día en todo el mundo
-            </h1>
+            </h3>
 
             <div class="bg-purple-500 p-6 rounded-lg shadow-lg">
-                <ul class="list-disc pl-5 space-y-2 text-3xl text-white">
-                    <li>
-                        Reúna toda la información disponible sobre su ser
-                        querido desaparecido, incluidos incluso los pequeños
-                        detalles.
-                    </li>
-                    <li>
-                        Crea un perfil de persona desaparecida con la última
-                        foto y una descripción detallada
-                    </li>
-                    <li>
-                        Pon tu perfil a la vista del público publicándolo en el
-                        muro
-                    </li>
-                    <li>
-                        Deje sus datos de contacto y espere respuestas de
-                        personas que puedan haber visto a su ser querido
-                        desaparecido.
-                    </li>
-                    <li>
-                        Busque a su ser querido desaparecido utilizando las
-                        bases de datos globales de nuestros socios
-                    </li>
-                    <li>
-                        Recuerda que los primeros días son cruciales para
-                        encontrar a tu ser querido desaparecido.
-                    </li>
-                </ul>
+                <div class="flex justify-between gap-7">
+                    <img
+                        class="w-96 h-96 object-cover"
+                        src="https://img.freepik.com/vector-gratis/fondo-dibujado-mano-concepto-diversidad_23-2148187956.jpg"
+                        alt="fraternity"
+                    />
+                    <ul class="list-disc pl-5 space-y-2 text-3xl text-white">
+                        <li>
+                            Reúna toda la información disponible sobre su ser
+                            querido desaparecido, incluidos incluso los pequeños
+                            detalles.
+                        </li>
+                        <li>
+                            Crea un perfil de persona desaparecida con la última
+                            foto y una descripción detallada
+                        </li>
+                        <li>
+                            Pon tu perfil a la vista del público publicándolo en
+                            el muro
+                        </li>
+                        <li>
+                            Deje sus datos de contacto y espere respuestas de
+                            personas que puedan haber visto a su ser querido
+                            desaparecido.
+                        </li>
+                        <li>
+                            Busque a su ser querido desaparecido utilizando las
+                            bases de datos globales de nuestros socios
+                        </li>
+                        <li>
+                            Recuerda que los primeros días son cruciales para
+                            encontrar a tu ser querido desaparecido.
+                        </li>
+                    </ul>
+                </div>
                 <div class="flex justify-end">
-                    <a href="#" class="bg-white px-3 py-2 text-xl">Empezar a buscar</a>
+                    <a href="#" class="bg-white px-3 py-2 text-xl"
+                        >Empezar a buscar</a
+                    >
                 </div>
             </div>
 
-            <div class="text-center mt-8">
-                <h2 class="text-2xl font-semibold mb-4 uppercase">
+            <div class="text-center p-4 mt-8 bg">
+                <div class="bg-purple-500 text-white">
+                    <h3
+                        class="text-4xl font-semibold mb-4 p-4 decoration-2 decoration-purple-500"
+                    >
+                        Publica tu perfil en el muro y compártelo con personas
+                        de todo el mundo.
+                    </h3>
+                </div>
+                <h2
+                    class="text-5xl font-bold mb-4 p-4 uppercase decoration-2 decoration-purple-500"
+                >
                     DANOS TU MANO
                 </h2>
-                <p class="mb-4">
-                    Publica tu perfil en el muro y compártelo con personas de
-                    todo el mundo.
-                </p>
-                <button
-                    class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+                <div
+                    class="relative bg-[url(https://static.vecteezy.com/system/resources/previews/055/125/566/non_2x/diverse-group-unity-collaboration-teamwork-people-community-togetherness-vector.jpg)] bg-cover bg-center h-screen"
                 >
-                    DANOS UNA MANO
-                </button>
-                <button
-                    class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 ml-4"
-                >
-                    DONAR
-                </button>
-            </div>
+                    <!-- Capa de superposición con opacidad -->
+                    <div class="absolute inset-0 bg-black opacity-30"></div>
 
-            <div class="text-center mt-8">
-                <p class="mb-4">
-                    Apóyanos y ayudamos a encontrar a personas desaparecidas y
-                    reunir a familias.
-                </p>
+                    <!-- Contenedor centrado con flex -->
+                    <div
+                        class="flex justify-center items-center h-full flex-col z-10 relative"
+                    >
+                        <p class="mb-4 text-center text-4xl text-white">
+                            Ápoyanos y ayudanos a localizar personas
+                            desaparecidas y reunir a familias.
+                        </p>
+                        <div class="flex justify-center">
+                            <a
+                                href="#"
+                                class="bg-white px-6 py-2 rounded-lg text-lg uppercase font-semibold"
+                            >
+                                DONAR
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    class="w-40 h-20 object-cover"
+                    src="assets/images/logo/logo-text-on-dark.svg"
+                    alt="cochabamba logo alcaldia"
+                />
             </div>
         </div>
     </div>
