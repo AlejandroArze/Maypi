@@ -44,6 +44,7 @@ export class EditAccountComponent implements OnInit {
   imagePreview: string | null = null;
   imageName: string | null = null;
   message: string | null = null;
+  userInitials: string | null = null;
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -52,10 +53,42 @@ export class EditAccountComponent implements OnInit {
     private settingsService: SettingsService
   ) {}
 
+  /**
+   * Genera las iniciales del usuario a partir de su nombre y apellido
+   */
+  private generateInitials(name: string, lastname: string): string {
+    const firstInitial = name ? name.charAt(0) : '';
+    const lastInitial = lastname ? lastname.charAt(0) : '';
+    return (firstInitial + lastInitial).toUpperCase();
+  }
+
+  /**
+   * Maneja el error de carga de imagen
+   */
+  handleImageError(): void {
+    console.log('❌ Error al cargar la imagen de perfil');
+    this.imagePreview = null;
+    this.updateInitials();
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Actualiza las iniciales basándose en los datos del formulario
+   */
+  private updateInitials(): void {
+    const name = this.editAccountForm.get('name').value;
+    const lastname = this.editAccountForm.get('lastname').value;
+    this.userInitials = this.generateInitials(name, lastname);
+  }
+
   ngOnInit(): void {
     console.log('ID de usuario recibido:', this.userId);
     this.checkSessionStorage();
     this.initializeForms();
+    
+    // Suscribirse a cambios en nombre y apellido
+    this.editAccountForm.get('name').valueChanges.subscribe(() => this.updateInitials());
+    this.editAccountForm.get('lastname').valueChanges.subscribe(() => this.updateInitials());
     
     // Obtener el ID del usuario del sessionStorage si no se proporcionó como Input
     const storedUserId = sessionStorage.getItem('selectedUserId');
@@ -73,29 +106,47 @@ export class EditAccountComponent implements OnInit {
   }
 
   initializeForms(): void {
+    // Formulario principal
     this.editAccountForm = this._formBuilder.group({
-      name: ['', Validators.required],
-      lastname: ['', Validators.required],
-      username: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      name: ['', [Validators.required]],
+      lastname: ['', [Validators.required]],
+      username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       photo: [null],
-      roles: ['', Validators.required],
-      status: ['', Validators.required],
+      roles: ['', [Validators.required]],
+      status: ['', [Validators.required]]
     });
 
+    // Formulario de contraseña
     this.passwordForm = this._formBuilder.group({
-      currentPassword: ['', Validators.required],
+      currentPassword: ['', [Validators.required]],
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', [Validators.required]]
     }, { validator: this.passwordMatchValidator });
+
+    // Suscribirse a cambios en el formulario para debugging
+    this.editAccountForm.statusChanges.subscribe(status => {
+      console.log('Estado del formulario:', status);
+      console.log('Formulario válido:', this.editAccountForm.valid);
+      console.log('Errores del formulario:', this.editAccountForm.errors);
+      
+      // Mostrar estado de cada control
+      Object.keys(this.editAccountForm.controls).forEach(key => {
+        const control = this.editAccountForm.get(key);
+        console.log(`Control ${key}:`, {
+          valor: control.value,
+          válido: control.valid,
+          errores: control.errors
+        });
+      });
+    });
   }
 
   loadUserData(): void {
     console.log('Cargando datos del usuario con ID:', this.userId);
     
-    this._httpClient.get(`${environment.baseUrl}/user/${this.userId}`).subscribe(
-      (response: any) => {
+    this._httpClient.get(`${environment.baseUrl}/user/${this.userId}`).subscribe({
+      next: (response: any) => {
         console.log('Respuesta del servidor:', response);
         
         if (response.data) {
@@ -104,32 +155,48 @@ export class EditAccountComponent implements OnInit {
 
           // Actualizar el formulario con los datos
           this.editAccountForm.patchValue({
-            name: userData.nombres,
-            lastname: userData.apellidos,
-            username: userData.usuario,
-            email: userData.email,
-            roles: userData.role,
-            status: userData.estado.toString()
+            name: userData.nombres || '',
+            lastname: userData.apellidos || '',
+            username: userData.usuario || '',
+            email: userData.email || '',
+            roles: userData.role?.toString() || '',
+            status: userData.estado?.toString() || ''
           });
+
+          // Generar iniciales inmediatamente
+          this.updateInitials();
 
           // Manejar la imagen del perfil
           if (userData.image) {
             this.imagePreview = `${environment.baseUrl}${userData.image}`;
             this.imageName = userData.image.split('/').pop();
+          } else {
+            this.imagePreview = null;
           }
 
+          // Marcar todos los campos como touched para activar la validación
+          Object.keys(this.editAccountForm.controls).forEach(key => {
+            const control = this.editAccountForm.get(key);
+            control.markAsTouched();
+          });
+
+          console.log('Estado del formulario después de cargar:', {
+            válido: this.editAccountForm.valid,
+            valores: this.editAccountForm.value,
+            errores: this.editAccountForm.errors
+          });
+
           this.cdr.detectChanges();
-          console.log('Formulario actualizado:', this.editAccountForm.value);
         } else {
           console.error('No se recibieron datos válidos del usuario');
           this.message = 'No se pudieron cargar los datos del usuario';
         }
       },
-      error => {
+      error: error => {
         console.error('Error al cargar datos del usuario:', error);
         this.message = 'Error al cargar los datos del usuario';
       }
-    );
+    });
   }
   
   
@@ -140,25 +207,87 @@ export class EditAccountComponent implements OnInit {
   }
   
 
+  /**
+   * Convierte una imagen a formato PNG
+   */
+  private convertToPNG(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        // Crear un canvas con las dimensiones de la imagen
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Dibujar la imagen en el canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        // Convertir el canvas a Blob PNG
+        canvas.toBlob((blob) => {
+          // Crear un nuevo archivo con el Blob PNG
+          const newFile = new File([blob], 'imagen.png', {
+            type: 'image/png',
+            lastModified: new Date().getTime()
+          });
+          resolve(newFile);
+        }, 'image/png', 0.9); // 0.9 es la calidad de la imagen
+      };
+      img.onerror = (error) => reject(error);
+      
+      // Leer el archivo como URL de datos
+      const reader = new FileReader();
+      reader.onload = (e) => img.src = e.target.result as string;
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Variable para almacenar el archivo seleccionado
+  selectedFile: File | null = null;
+
   // Maneja la selección de archivos
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
+      console.log('📸 Archivo seleccionado:', {
+        nombre: file.name,
+        tipo: file.type,
+        tamaño: file.size,
+      });
+
+      // Mostrar preview inmediato
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreview = e.target.result;
-        this.imageName = file.name;
-        console.log('Imagen cargada:', this.imagePreview);  // Verifica la URL generada
-        console.log('Nombre de la imagen:', this.imageName);  // Verifica el nombre
-        this.cdr.detectChanges(); // Forzar la actualización de la vista
+        this.imageName = 'imagen.png'; // Nuevo nombre estandarizado
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
+
+      // Convertir a PNG si no es PNG
+      if (file.type !== 'image/png') {
+        console.log('🔄 Convirtiendo imagen a PNG...');
+        this.convertToPNG(file)
+          .then(pngFile => {
+            console.log('✅ Imagen convertida exitosamente a PNG');
+            this.selectedFile = pngFile;
+          })
+          .catch(error => {
+            console.error('❌ Error al convertir la imagen:', error);
+            // Si falla la conversión, usar el archivo original
+            this.selectedFile = file;
+          });
+      } else {
+        // Si ya es PNG, usar el archivo directamente
+        this.selectedFile = file;
+      }
     }
   }
 
   onSubmit(): void {
     if (this.editAccountForm.valid && this.userId) {
-      console.log('Enviando formulario con datos:', this.editAccountForm.value);
+      console.log('📤 Enviando formulario con datos:', this.editAccountForm.value);
       
       const formData = new FormData();
       
@@ -171,27 +300,60 @@ export class EditAccountComponent implements OnInit {
       formData.append('estado', this.editAccountForm.get('status').value);
 
       // Agregar la imagen si existe
-      const fileInput = document.querySelector('#photo') as HTMLInputElement;
-      if (fileInput?.files?.length > 0) {
-        formData.append('image', fileInput.files[0]);
+      if (this.selectedFile) {
+        console.log('🖼️ Agregando imagen al formData:', {
+          nombre: this.selectedFile.name,
+          tipo: this.selectedFile.type,
+          tamaño: this.selectedFile.size
+        });
+        formData.append('image', this.selectedFile, 'imagen.png');
       }
 
+      // Imprimir contenido del FormData para debugging
+      formData.forEach((value, key) => {
+        if (key === 'image') {
+          const file = value as File;
+          console.log(`${key}:`, {
+            nombre: file.name,
+            tipo: file.type,
+            tamaño: file.size
+          });
+        } else {
+          console.log(`${key}:`, value);
+        }
+      });
+
       this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
-        .subscribe(
-          (response: any) => {
-            console.log('Usuario actualizado exitosamente:', response);
+        .subscribe({
+          next: (response: any) => {
+            console.log('✅ Usuario actualizado exitosamente:', response);
             if (response.data?.image) {
-              this.imagePreview = response.data.image;
+              this.imagePreview = `${environment.baseUrl}${response.data.image}`;
+              this.imageName = response.data.image.split('/').pop();
+              console.log('🖼️ Nueva imagen guardada:', this.imagePreview);
             }
+            
+            // Actualizar localStorage y disparar evento de actualización
+            localStorage.setItem('user', JSON.stringify(response));
+            window.dispatchEvent(new Event('userDataUpdated'));
+            
             this.accountUpdated.emit();
+            this.message = 'Usuario actualizado exitosamente';
+            this.cdr.detectChanges();
           },
-          error => {
-            console.error('Error al actualizar usuario:', error);
+          error: (error) => {
+            console.error('❌ Error al actualizar usuario:', error);
             this.message = 'Error al actualizar el usuario';
+            if (error.status === 401) {
+              this.message = 'No tiene permisos para realizar esta acción';
+            }
+            this.cdr.detectChanges();
           }
-        );
+        });
     } else {
-      console.log('Formulario inválido o ID de usuario no disponible');
+      console.log('❌ Formulario inválido o ID de usuario no disponible');
+      this.message = 'Por favor, complete todos los campos requeridos';
+      this.cdr.detectChanges();
     }
   }
 
@@ -217,31 +379,72 @@ export class EditAccountComponent implements OnInit {
     this.showPasswordSection = !this.showPasswordSection;
   }
 
-  // Actualizar el método changePassword para implementar la funcionalidad
+  // Actualizar el método changePassword para implementar la funcionalidad completa
   changePassword(): void {
     if (this.passwordForm.valid && this.userId) {
-      const passwordData = {
-        currentPassword: this.passwordForm.get('currentPassword').value,
-        newPassword: this.passwordForm.get('newPassword').value
-      };
+      console.log('🔄 Iniciando cambio de contraseña...');
+      
+      const formData = new FormData();
+      
+      // Mantener los datos actuales del usuario
+      formData.append('email', this.editAccountForm.get('email').value);
+      formData.append('usuario', this.editAccountForm.get('username').value);
+      formData.append('nombres', this.editAccountForm.get('name').value);
+      formData.append('apellidos', this.editAccountForm.get('lastname').value);
+      formData.append('role', this.editAccountForm.get('roles').value);
+      formData.append('estado', this.editAccountForm.get('status').value);
+      
+      // Agregar la contraseña actual y la nueva
+      formData.append('password', this.passwordForm.get('currentPassword').value);
+      formData.append('newPassword', this.passwordForm.get('newPassword').value);
 
-      this._httpClient.post(`${environment.baseUrl}/user/${this.userId}/change-password`, passwordData)
-        .subscribe(
-          (response) => {
-            console.log('Contraseña actualizada con éxito');
+      this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
+        .subscribe({
+          next: (response: any) => {
+            console.log('✅ Contraseña actualizada exitosamente');
+            // Actualizar localStorage y disparar evento de actualización
+            localStorage.setItem('user', JSON.stringify(response));
+            window.dispatchEvent(new Event('userDataUpdated'));
+            
             this.passwordForm.reset();
             this.showPasswordSection = false;
+            this.message = 'Contraseña actualizada exitosamente';
+            this.cdr.detectChanges();
           },
-          (error) => {
-            console.error('Error al actualizar la contraseña:', error);
+          error: (error) => {
+            console.error('❌ Error al actualizar la contraseña:', error);
+            if (error.status === 401) {
+              this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+              this.message = 'Contraseña actual incorrecta';
+            } else {
+              this.message = 'Error al actualizar la contraseña';
+            }
+            this.cdr.detectChanges();
           }
-        );
+        });
     }
   }
 
   saveChanges(): void {
+    console.log('Intentando guardar cambios...');
+    console.log('Estado del formulario:', {
+      válido: this.editAccountForm.valid,
+      touched: this.editAccountForm.touched,
+      dirty: this.editAccountForm.dirty,
+      valores: this.editAccountForm.value
+    });
+
     if (this.editAccountForm.valid) {
       this.onSubmit();
+    } else {
+      console.log('Formulario inválido. Errores:', this.editAccountForm.errors);
+      // Marcar todos los campos como touched para mostrar los errores
+      Object.keys(this.editAccountForm.controls).forEach(key => {
+        const control = this.editAccountForm.get(key);
+        control.markAsTouched();
+      });
+      this.message = 'Por favor, complete todos los campos requeridos';
+      this.cdr.detectChanges();
     }
   }
 }

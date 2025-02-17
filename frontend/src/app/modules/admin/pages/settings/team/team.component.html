@@ -84,11 +84,14 @@
                                 </button>
                                 <!-- Eliminar -->
                                 <button
+                                    class="min-w-10 min-h-10 p-0 hover:bg-hover rounded-full"
                                     mat-icon-button
-                                    (click)="toggleUserStatus(member)">
+                                    [matTooltip]="'Eliminar usuario'"
+                                    (click)="confirmDelete(member); $event.stopPropagation()">
                                     <mat-icon
-                                        class="text-hint"
-                                        [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                        class="icon-size-5 text-white"
+                                        [svgIcon]="'heroicons_solid:trash'">
+                                    </mat-icon>
                                 </button>
                             </div>
                         </div>

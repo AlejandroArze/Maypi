@@ -17,6 +17,9 @@ import { CreateAccountComponent } from '../create-account/create-account.compone
 import { EditAccountComponent } from '../edit-account/edit-account.component';
 import { Subject } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
     selector       : 'settings-team',
@@ -24,7 +27,22 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [ScrollingModule, MatFormFieldModule, MatIconModule, MatInputModule, MatButtonModule, NgFor, NgIf, MatSelectModule, MatOptionModule, TitleCasePipe, FormsModule, CreateAccountComponent, EditAccountComponent],
+    imports        : [
+        ScrollingModule, 
+        MatFormFieldModule, 
+        MatIconModule, 
+        MatInputModule, 
+        MatButtonModule, 
+        NgFor, 
+        NgIf, 
+        MatSelectModule, 
+        MatOptionModule, 
+        TitleCasePipe, 
+        FormsModule, 
+        CreateAccountComponent, 
+        EditAccountComponent,
+        MatDialogModule
+    ],
 })
 export class SettingsTeamComponent implements OnInit, OnDestroy
 {
@@ -53,7 +71,8 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         private cdr: ChangeDetectorRef,
         private settingsService: SettingsService,
         private router: Router,
-        private _snackBar: MatSnackBar
+        private _snackBar: MatSnackBar,
+        private _dialog: MatDialog
     ) {}
     
 
@@ -161,19 +180,35 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         this.currentView = 'team';
     }
 
+    // Método para mostrar el diálogo de confirmación
+    confirmDelete(user: any): void {
+        const dialogRef = this._dialog.open(DeleteConfirmationDialog, {
+            width: '400px',
+            data: { userName: user.name }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result === true) {
+                this.toggleUserStatus(user);
+            }
+        });
+    }
+
     toggleUserStatus(user: any): void { 
-      const newStatus = 0; // Establece el nuevo estado a 0
+        const newStatus = 0; // Establece el nuevo estado a 0
     
-      this.http.patch<any>(`${environment.baseUrl}/user/${user.id}/status`, 
-          { estado: newStatus }).subscribe( 
-          (response) => { 
-              console.log('Estado del usuario actualizado:', response); 
-              this.reloadUsers(); // Recargar la lista de usuarios para reflejar los cambios
-          }, 
-          (error) => { 
-              console.error('Error al actualizar el estado del usuario:', error); 
-          }
-      );
+        this.http.patch<any>(`${environment.baseUrl}/user/${user.id}/status`, 
+            { estado: newStatus }).subscribe({ 
+            next: (response) => { 
+                console.log('Estado del usuario actualizado:', response); 
+                this.showNotification('Usuario eliminado exitosamente', 'success');
+                this.reloadUsers(); // Recargar la lista de usuarios para reflejar los cambios
+            }, 
+            error: (error) => { 
+                console.error('Error al actualizar el estado del usuario:', error);
+                this.showNotification('Error al eliminar el usuario', 'error');
+            }
+        });
     }
     
     
@@ -255,5 +290,32 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         // Si hay más de una palabra, tomar la primera letra de las dos primeras palabras
         return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
     }
+}
+
+// Componente del diálogo de confirmación
+@Component({
+    selector: 'delete-confirmation-dialog',
+    template: `
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-4">Confirmar eliminación</h2>
+            <p class="mb-6">¿Está seguro que desea eliminar al usuario <strong>{{data.userName}}</strong>?</p>
+            <div class="flex justify-end space-x-3">
+                <button mat-stroked-button (click)="dialogRef.close(false)">
+                    Cancelar
+                </button>
+                <button mat-flat-button color="warn" (click)="dialogRef.close(true)">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    `,
+    standalone: true,
+    imports: [MatButtonModule, MatDialogModule],
+})
+export class DeleteConfirmationDialog {
+    constructor(
+        public dialogRef: MatDialogRef<DeleteConfirmationDialog>,
+        @Inject(MAT_DIALOG_DATA) public data: { userName: string }
+    ) {}
 }
 

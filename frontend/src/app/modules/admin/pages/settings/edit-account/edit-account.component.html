@@ -1,6 +1,10 @@
 <div class="w-full max-w-3xl p-6 sm:p-8 bg-card shadow rounded-2xl">
     <!-- Mensaje de alerta si no hay usuario seleccionado -->
-    <div *ngIf="message" class="mb-8 p-4 rounded-lg bg-amber-50 text-amber-700 border border-amber-200">
+    <div *ngIf="message" class="mb-8 p-4 rounded-lg" 
+         [ngClass]="{
+             'bg-amber-50 text-amber-700 border border-amber-200': message.includes('Error'),
+             'bg-green-50 text-green-700 border border-green-200': message.includes('exitosamente')
+         }">
         {{ message }}
     </div>
 
@@ -11,18 +15,23 @@
     </div>
 
     <!-- Formulario Principal -->
-    <form [formGroup]="editAccountForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    <form [formGroup]="editAccountForm" class="space-y-8">
         <!-- Información Personal -->
         <div class="space-y-6">
             <!-- Foto de perfil -->
             <div class="flex flex-col items-center space-y-4">
                 <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
-                    <img *ngIf="imagePreview" [src]="imagePreview" 
+                    <img *ngIf="imagePreview" 
+                         [src]="imagePreview" 
                          class="w-full h-full object-cover"
-                         alt="Foto de perfil">
+                         alt="Foto de perfil"
+                         (error)="handleImageError()">
                     <div *ngIf="!imagePreview" 
                          class="w-full h-full flex items-center justify-center bg-gray-100">
-                        <mat-icon class="text-4xl text-gray-400">person</mat-icon>
+                        <span *ngIf="userInitials" class="text-3xl font-bold text-gray-700">
+                            {{ userInitials }}
+                        </span>
+                        <mat-icon *ngIf="!userInitials" class="text-4xl text-gray-400">person</mat-icon>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -34,6 +43,7 @@
                         Cambiar foto
                     </button>
                     <input #fileInput
+                           id="photo"
                            type="file"
                            accept="image/*"
                            class="hidden"
@@ -50,24 +60,39 @@
                     <mat-label>Nombres</mat-label>
                     <input matInput formControlName="name">
                     <mat-icon matPrefix>person</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('name').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Apellidos</mat-label>
                     <input matInput formControlName="lastname">
                     <mat-icon matPrefix>person</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('lastname').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Usuario</mat-label>
                     <input matInput formControlName="username">
                     <mat-icon matPrefix>account_circle</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('username').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Correo Electrónico</mat-label>
                     <input matInput formControlName="email" type="email">
                     <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('email').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
+                    <mat-error *ngIf="editAccountForm.get('email').hasError('email')">
+                        Ingrese un correo electrónico válido
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>
@@ -84,6 +109,9 @@
                         <mat-option value="3">Técnico</mat-option>
                     </mat-select>
                     <mat-icon matPrefix>admin_panel_settings</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('roles').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
@@ -93,6 +121,9 @@
                         <mat-option value="0">INACTIVO</mat-option>
                     </mat-select>
                     <mat-icon matPrefix>how_to_reg</mat-icon>
+                    <mat-error *ngIf="editAccountForm.get('status').hasError('required')">
+                        Este campo es requerido
+                    </mat-error>
                 </mat-form-field>
             </div>
         </div>
@@ -115,28 +146,53 @@
             <div *ngIf="showPasswordSection" class="space-y-4" [formGroup]="passwordForm">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Contraseña actual</mat-label>
-                    <input matInput type="password" formControlName="currentPassword">
+                    <input matInput 
+                           type="password" 
+                           formControlName="currentPassword"
+                           [autocomplete]="'new-password'"
+                           (focus)="$event.target.autocomplete = 'current-password'">
                     <mat-icon matPrefix>lock</mat-icon>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
+                        La contraseña actual es requerida
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('incorrect')">
+                        La contraseña actual es incorrecta
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Nueva contraseña</mat-label>
-                    <input matInput type="password" formControlName="newPassword">
+                    <input matInput 
+                           type="password" 
+                           formControlName="newPassword"
+                           [autocomplete]="'new-password'">
                     <mat-icon matPrefix>lock_reset</mat-icon>
                     <mat-hint>Mínimo 8 caracteres. Debe incluir números, letras y caracteres especiales.</mat-hint>
+                    <mat-error *ngIf="passwordForm.get('newPassword').hasError('required')">
+                        La nueva contraseña es requerida
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.get('newPassword').hasError('minlength')">
+                        La contraseña debe tener al menos 8 caracteres
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Confirmar nueva contraseña</mat-label>
-                    <input matInput type="password" formControlName="confirmPassword">
+                    <input matInput 
+                           type="password" 
+                           formControlName="confirmPassword"
+                           [autocomplete]="'new-password'">
                     <mat-icon matPrefix>lock_reset</mat-icon>
+                    <mat-error *ngIf="passwordForm.hasError('mismatch')">
+                        Las contraseñas no coinciden
+                    </mat-error>
                 </mat-form-field>
 
                 <div class="flex justify-end">
                     <button type="button"
                             mat-flat-button
                             color="primary"
-                            [disabled]="passwordForm.invalid"
+                            [disabled]="!passwordForm.valid"
                             (click)="changePassword()">
                         Actualizar contraseña
                     </button>
@@ -151,10 +207,11 @@
                     (click)="cancelled.emit()">
                 Cancelar
             </button>
-            <button type="submit"
+            <button type="button"
                     mat-flat-button
                     color="primary"
-                    [disabled]="editAccountForm.invalid">
+                    [disabled]="!editAccountForm.valid"
+                    (click)="saveChanges()">
                 Guardar cambios
             </button>
         </div>
