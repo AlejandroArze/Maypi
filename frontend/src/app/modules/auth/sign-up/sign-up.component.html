@@ -68,6 +68,30 @@
                     El nombre de usuario es requerido
                 </mat-error>
             </mat-form-field>
+            <!-- Teléfono -->
+            <mat-form-field class="w-full">
+                <mat-label>Telefono Celular</mat-label>
+                <input
+                    id="phone"
+                    matInput
+                    [formControlName]="'phone'">
+                <mat-error *ngIf="signUpForm.get('phone').hasError('required')">
+                    El telefono es requerido
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Rol -->
+            <mat-form-field class="w-full">
+                <mat-label>Linea Telefonica</mat-label>
+                <mat-select [formControlName]="'role'">
+                    <mat-option *ngFor="let role of roles" [value]="role.id">
+                        {{role.name}}
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="signUpForm.get('role').hasError('required')">
+                    Es necesario asignar una linea telefonica al usuario
+                </mat-error>
+            </mat-form-field>
         
             <!-- Correo -->
             <mat-form-field class="w-full">
@@ -83,6 +107,8 @@
                     Por favor ingrese un correo válido
                 </mat-error>
             </mat-form-field>
+
+            
         
             <!-- Contraseña -->
             <mat-form-field class="w-full">
@@ -112,18 +138,7 @@
                 </mat-error>
             </mat-form-field>                       
         
-            <!-- Rol -->
-            <mat-form-field class="w-full">
-                <mat-label>Rol</mat-label>
-                <mat-select [formControlName]="'role'">
-                    <mat-option value="1">Técnico</mat-option>
-        <mat-option value="2">Admin</mat-option>
-        <mat-option value="3">Consultor</mat-option>
-                </mat-select>
-                <mat-error *ngIf="signUpForm.get('role').hasError('required')">
-                    Es necesario asignar un rol al usuario
-                </mat-error>
-            </mat-form-field>
+            
 
             <!-- Imagen -->
              <mat-label>Foto de perfil (opcional)</mat-label>
@@ -198,10 +213,10 @@
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
                 <div>Bienvenido</div>
-                <div>al Departamento de Soporte Técnico</div>
+                <div></div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-                Nuestro equipo de soporte está listo para ayudarte a resolver cualquier problema técnico, asegurando que tus sistemas funcionen perfectamente en todo momento.
+                Nuestro equipo de soporte está listo para ayudarte 
             </div>
         </div>
     </div>

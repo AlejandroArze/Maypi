@@ -47,11 +47,11 @@ export class AuthSignUpComponent implements OnInit
     signUpForm: UntypedFormGroup;
     showAlert: boolean = false;
 
-    // Lista de roles
+    // Lista de líneas telefónicas
     roles = [
-        { id: 1, name: 'Técnico' },
-        { id: 2, name: 'Admin' },
-        { id: 3, name: 'Consultor' }
+        { id: 1, name: 'Entel' },
+        { id: 2, name: 'Viva' },
+        { id: 3, name: 'Tigo' }
     ];
     image: File | null = null;
 
@@ -81,6 +81,7 @@ export class AuthSignUpComponent implements OnInit
             lastName  : ['', Validators.required],
             username  : ['', Validators.required],
             email     : ['', [Validators.required, Validators.email]],
+            phone     : ['', Validators.required],
             password  : ['', Validators.required],
             role      : ['', Validators.required],
             image     : [null],  // Campo de imagen ya no tiene validación

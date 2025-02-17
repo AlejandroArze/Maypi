@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +16,8 @@ export class SettingsService {
   // Observable para escuchar el ID de usuario seleccionado
   selectedUserId$ = this.selectedUserIdSubject.asObservable();
 
+  constructor(private _httpClient: HttpClient) {}
+
   // Cambiar el panel
   setSelectedPanel(panel: string): void {
     this.selectedPanelSubject.next(panel);
@@ -22,5 +26,15 @@ export class SettingsService {
   // Cambiar el ID del usuario seleccionado
   setSelectedUserId(userId: string): void {
     this.selectedUserIdSubject.next(userId);
+  }
+
+  // Método para obtener las configuraciones
+  getSettings(): Observable<any> {
+    return this._httpClient.get('/api/settings');
+  }
+
+  // Método para guardar las configuraciones
+  saveSettings(settings: any): Observable<any> {
+    return this._httpClient.put('/api/settings', settings);
   }
 }

@@ -1,10 +1,19 @@
 <div
-    class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0"
+    class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0 min-h-screen"
 >
     <div
-        class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
+        class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-screen md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
     >
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+            <!-- Back button -->
+            <button
+                mat-icon-button
+                class="text-primary-500 -ml-2"
+                [routerLink]="['/home/landing']"
+            >
+                <mat-icon [svgIcon]="'heroicons_solid:arrow-left'"></mat-icon>
+            </button>
+
             <!-- Logo -->
             <div class="w-35">
                 <img src="assets/images/logo/logo-text-on-dark.svg" />
@@ -14,7 +23,15 @@
             <div
                 class="mt-8 text-4xl font-extrabold tracking-tight leading-tight"
             >
-                Inicio de Sesión Soporte Técnico
+                Inicio de Sesión
+            </div>
+
+            <div class="flex items-baseline mt-0.5 font-medium">
+                <div>¿No tiene una cuenta?</div>
+                <a
+                    class="ml-1 text-primary-500 hover:underline"
+                    [routerLink]="['/sign-up']">Regístrese
+                </a>
             </div>
 
             <!-- Alert -->
@@ -103,12 +120,6 @@
                         [routerLink]="['/forgot-password']"
                         >¿Olvidó la contraseña?
                     </a>
-
-                    <a
-                        class="text-md font-medium text-primary-500 bg-pink-300 hover:underline"
-                        [routerLink]="['/home/landing']"
-                        >Landing
-                    </a>
                 </div>
 
                 <!-- Submit button -->
@@ -131,7 +142,7 @@
     </div>
     <div
         style="background-color: rgb(72, 39, 120)"
-        class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l"
+        class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-screen p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l"
     >
         <!-- Background - @formatter:off -->
         <!-- Rings -->
@@ -196,12 +207,11 @@
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
                 <div>Bienvenido</div>
-                <div>al Departamento de Soporte Técnico</div>
+                <div></div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
                 Nuestro equipo de soporte está listo para ayudarte a resolver
-                cualquier problema técnico, asegurando que tus sistemas
-                funcionen perfectamente en todo momento.
+                cualquier problema.
             </div>
         </div>
     </div>

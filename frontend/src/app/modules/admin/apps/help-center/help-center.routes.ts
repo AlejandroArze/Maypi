@@ -1,12 +1,18 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { HelpCenterFaqsComponent } from 'app/modules/admin/apps/help-center/faqs/faqs.component';
-import { HelpCenterGuidesCategoryComponent } from 'app/modules/admin/apps/help-center/guides/category/category.component';
-import { HelpCenterGuidesGuideComponent } from 'app/modules/admin/apps/help-center/guides/guide/guide.component';
-import { HelpCenterGuidesComponent } from 'app/modules/admin/apps/help-center/guides/guides.component';
-import { HelpCenterComponent } from 'app/modules/admin/apps/help-center/help-center.component';
-import { HelpCenterService } from 'app/modules/admin/apps/help-center/help-center.service';
-import { HelpCenterSupportComponent } from 'app/modules/admin/apps/help-center/support/support.component';
+import { HelpCenterFaqsComponent } from './faqs/faqs.component';
+import { HelpCenterGuidesCategoryComponent } from './guides/category/category.component';
+import { HelpCenterGuidesGuideComponent } from './guides/guide/guide.component';
+import { HelpCenterGuidesComponent } from './guides/guides.component';
+import { HelpCenterComponent } from './help-center.component';
+import { HelpCenterService } from './help-center.service';
+import { HelpCenterSupportComponent } from './support/support.component';
+import { HelpCenterChatIAComponent } from './chatia/chatia.component';
+import { HelpCenterEditFaqsComponent } from './editfaqs/editfaqs.component';
+import { HelpCenterEditGuidesComponent } from './editguides/editguides.component';
+import { HelpCenterRecSupportComponent } from './recsupport/recsupport.component';
+import { HelpCenterRecDesaparecidosComponent } from './recdesaparecidos/recdesaparecidos.component';
+import { HelpCenterRecInfoDesaparecidosComponent } from './recinfodesaparecidos/recinfodesaparecidos.component';
 
 export default [
     {
@@ -40,7 +46,7 @@ export default [
                         path     : '',
                         component: HelpCenterGuidesCategoryComponent,
                         resolve  : {
-                            guides: (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) =>
+                            guides: (route: ActivatedRouteSnapshot) =>
                                 inject(HelpCenterService).getGuidesByCategory(route.paramMap.get('categorySlug')),
                         },
                     },
@@ -48,7 +54,7 @@ export default [
                         path     : ':guideSlug',
                         component: HelpCenterGuidesGuideComponent,
                         resolve  : {
-                            guides: (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) =>
+                            guides: (route: ActivatedRouteSnapshot) =>
                                 inject(HelpCenterService).getGuide(route.parent.paramMap.get('categorySlug'), route.paramMap.get('guideSlug')),
                         },
                     },
@@ -60,4 +66,28 @@ export default [
         path     : 'support',
         component: HelpCenterSupportComponent,
     },
+    {
+        path     : 'chatia',
+        component: HelpCenterChatIAComponent,
+    },
+    {
+        path     : 'editfaqs',
+        component: HelpCenterEditFaqsComponent,
+    },
+    {
+        path     : 'editguides',
+        component: HelpCenterEditGuidesComponent,
+    },
+    {
+        path     : 'recsupport',
+        component: HelpCenterRecSupportComponent,
+    },
+    {
+        path     : 'recdesaparecidos',
+        component: HelpCenterRecDesaparecidosComponent,
+    },
+    {
+        path     : 'recinfodesaparecidos',
+        component: HelpCenterRecInfoDesaparecidosComponent,
+    }
 ] as Routes;

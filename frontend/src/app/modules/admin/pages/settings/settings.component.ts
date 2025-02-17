@@ -12,7 +12,7 @@ import { SettingsNotificationsComponent } from './notifications/notifications.co
 import { SettingsPlanBillingComponent } from './plan-billing/plan-billing.component';
 import { SettingsSecurityComponent } from './security/security.component';
 import { SettingsTeamComponent } from './team/team.component';
-import { SettingsService } from './Settings.Service';
+import { SettingsService } from './settings.service';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -34,6 +34,7 @@ export class SettingsComponent implements OnInit, OnDestroy
     panels3: any[] = [];
     selectedPanel: string = 'account';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    settings: any = {};
 
     /**
      * Constructor
@@ -41,7 +42,7 @@ export class SettingsComponent implements OnInit, OnDestroy
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseMediaWatcherService: FuseMediaWatcherService, 
-        private settingsService: SettingsService,
+        private _settingsService: SettingsService,
     )
     {
     }
@@ -107,6 +108,9 @@ export class SettingsComponent implements OnInit, OnDestroy
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
             });
+
+        // Cargar configuraciones
+        this.loadSettings();
     }
 
     private _getUserRoles(): number[] {
@@ -179,5 +183,13 @@ export class SettingsComponent implements OnInit, OnDestroy
     trackByFn(index: number, item: any): any
     {
         return item.id || index;
+    }
+
+    private loadSettings(): void {
+        // Implementar carga de configuraciones
+    }
+
+    saveSettings(): void {
+        // Implementar guardado de configuraciones
     }
 }

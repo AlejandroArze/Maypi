@@ -1,0 +1,80 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <div class="max-w-3xl">
+            <div class="text-3xl font-semibold tracking-tight leading-8">Recepción de Información de Desaparecidos</div>
+            <div class="mt-4">
+                <p class="text-lg">
+                    Gestiona la información recibida sobre personas desaparecidas
+                </p>
+            </div>
+
+            <!-- Information Reports -->
+            <div class="mt-8 bg-card rounded-2xl shadow overflow-hidden">
+                <div class="p-6">
+                    <!-- Filter and search -->
+                    <div class="flex items-center justify-between mb-6">
+                        <mat-form-field class="flex-1 max-w-xs">
+                            <mat-label>Buscar información</mat-label>
+                            <input matInput placeholder="Buscar por caso, ubicación...">
+                            <mat-icon matSuffix>search</mat-icon>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Information table -->
+                    <table mat-table class="w-full">
+                        <!-- Case ID Column -->
+                        <ng-container matColumnDef="caseId">
+                            <th mat-header-cell *matHeaderCellDef>ID Caso</th>
+                            <td mat-cell *matCellDef="let info">{{info.caseId}}</td>
+                        </ng-container>
+
+                        <!-- Location Column -->
+                        <ng-container matColumnDef="location">
+                            <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+                            <td mat-cell *matCellDef="let info">{{info.location}}</td>
+                        </ng-container>
+
+                        <!-- Date Column -->
+                        <ng-container matColumnDef="date">
+                            <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                            <td mat-cell *matCellDef="let info">{{info.date}}</td>
+                        </ng-container>
+
+                        <!-- Status Column -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef>Estado</th>
+                            <td mat-cell *matCellDef="let info">
+                                <span [matBadge]="''" 
+                                      [ngClass]="{
+                                          'bg-red-100 text-red-800': info.status === 'unverified',
+                                          'bg-yellow-100 text-yellow-800': info.status === 'pending',
+                                          'bg-green-100 text-green-800': info.status === 'verified'
+                                      }"
+                                      class="px-2.5 py-0.5 rounded-full text-sm font-medium">
+                                    {{info.status}}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                            <td mat-cell *matCellDef="let info">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon>visibility</mat-icon>
+                                </button>
+                                <button mat-icon-button color="accent">
+                                    <mat-icon>verified</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="['caseId', 'location', 'date', 'status', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['caseId', 'location', 'date', 'status', 'actions'];"></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

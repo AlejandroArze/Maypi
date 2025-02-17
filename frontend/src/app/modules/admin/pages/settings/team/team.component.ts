@@ -10,7 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../../../environments/environment';
 import { ChangeDetectorRef,  Output, EventEmitter } from '@angular/core';
-import { SettingsService } from '../Settings.Service';
+import { SettingsService } from '../settings.service';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FormsModule } from '@angular/forms';
 import { CreateAccountComponent } from '../create-account/create-account.component';
