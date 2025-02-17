@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 import { environment } from '../../../../../../environments/environment';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
     selector       : 'create-account', // Cambiado de 'settings-account' a 'create-account'
@@ -29,6 +30,7 @@ import { environment } from '../../../../../../environments/environment';
         MatOptionModule,
         MatButtonModule,
         CommonModule,
+        MatSnackBarModule,
     ],
 })
 export class CreateAccountComponent implements OnInit { // Nombre de la clase ajustado
@@ -46,6 +48,7 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
     constructor(private _formBuilder: UntypedFormBuilder,
       private cdr: ChangeDetectorRef,
       private _httpClient: HttpClient,
+      private _snackBar: MatSnackBar,
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -67,7 +70,56 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
             photo    : [null],
             roles    : ['', Validators.required],
             status   : ['1', Validators.required] // Valor por defecto '1' para ACTIVO
-        }, { validator: this.passwordMatchValidator });
+        });
+
+        // Asegurarse de que el autocompletado esté deshabilitado al inicio
+        setTimeout(() => {
+            const inputs = document.querySelectorAll('input[formControlName]');
+            inputs.forEach(input => {
+                input.setAttribute('readonly', '');
+                input.setAttribute('autocomplete', 'off');
+            });
+        });
+
+        // Suscribirse a los cambios de las contraseñas
+        this.createAccountForm.get('password').valueChanges.subscribe(() => {
+            if (this.createAccountForm.get('confirmPassword').value) {
+                this.createAccountForm.get('confirmPassword').updateValueAndValidity();
+            }
+        });
+
+        this.createAccountForm.get('confirmPassword').valueChanges.subscribe(() => {
+            if (this.createAccountForm.get('confirmPassword').value) {
+                const password = this.createAccountForm.get('password').value;
+                const confirmPassword = this.createAccountForm.get('confirmPassword').value;
+                
+                if (password !== confirmPassword) {
+                    this.createAccountForm.get('confirmPassword').setErrors({ 'passwordMismatch': true });
+                } else {
+                    this.createAccountForm.get('confirmPassword').setErrors(null);
+                }
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    /**
+     * Maneja el evento focus en los inputs
+     */
+    onFocusInput(event: FocusEvent): void {
+        const input = event.target as HTMLInputElement;
+        input.removeAttribute('readonly');
+        // Solo habilitar autocompletado después del focus
+        input.setAttribute('autocomplete', 'on');
+    }
+
+    /**
+     * Maneja el evento blur en los inputs
+     */
+    onBlurInput(event: FocusEvent): void {
+        const input = event.target as HTMLInputElement;
+        input.setAttribute('readonly', '');
+        input.setAttribute('autocomplete', 'off');
     }
 
     /**
@@ -174,25 +226,62 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
 
             // Enviar la solicitud al servidor
             this._httpClient.post(`${environment.baseUrl}/user`, formData)
-                .subscribe(
-                    (response) => {
+                .subscribe({
+                    next: (response) => {
                         console.log('Usuario creado exitosamente', response);
+                        this._snackBar.open(
+                            'Usuario creado correctamente',
+                            'Cerrar',
+                            {
+                                duration: 3000,
+                                horizontalPosition: 'right',
+                                verticalPosition: 'bottom',
+                                panelClass: ['success-snackbar']
+                            }
+                        );
                         this.createAccountForm.reset();
                         this.imagePreview = null;
                         this.imageName = null;
                         this.accountCreated.emit();
                     },
-                    (error) => {
+                    error: (error) => {
                         console.error('Error al crear usuario', error);
+                        
+                        // Manejar el error específico de username o email duplicado
+                        let errorMessage = 'Error al crear el usuario. Intente nuevamente.';
+                        
+                        if (error.status === 409 && error.error?.error?.length > 0) {
+                            const errorText = error.error.error[0];
+                            errorMessage = `Error al crear el usuario: ${errorText}`;
+                            
+                            if (errorText.includes('Username')) {
+                                const username = this.createAccountForm.get('username').value;
+                                errorMessage = `${username} ya está en uso`;
+                                this.createAccountForm.get('username').setErrors({'duplicate': true});
+                            } else if (errorText.includes('Email')) {
+                                const email = this.createAccountForm.get('email').value;
+                                errorMessage = `${email} ya está registrado`;
+                                this.createAccountForm.get('email').setErrors({'duplicate': true});
+                            }
+                            
+                            this.cdr.detectChanges();
+                        } else if (error.error?.message) {
+                            errorMessage = error.error.message;
+                        }
+                        
+                        this._snackBar.open(
+                            errorMessage,
+                            'Cerrar',
+                            {
+                                duration: 3000,
+                                horizontalPosition: 'right',
+                                verticalPosition: 'bottom',
+                                panelClass: ['error-snackbar']
+                            }
+                        );
                         this.accountError.emit(error);
                     }
-                );
+                });
         }
-    }
-
-    // Validador personalizado para confirmar contraseña
-    passwordMatchValidator(g: UntypedFormGroup) {
-        return g.get('password').value === g.get('confirmPassword').value
-            ? null : { 'passwordMismatch': true };
     }
 }

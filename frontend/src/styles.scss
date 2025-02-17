@@ -47,4 +47,31 @@
     .mat-flat-button {
         border-radius: 9999px !important;
     }
+}
+
+// Estilos para las notificaciones
+.success-snackbar {
+    .mdc-snackbar__surface {
+        background: #4caf50 !important;
+        color: #FFFFFF !important;
+    }
+
+    .mat-mdc-snack-bar-actions {
+        .mdc-button__label {
+            color: #FFFFFF !important;
+        }
+    }
+}
+
+.error-snackbar {
+    .mdc-snackbar__surface {
+        background: #f44336 !important;
+        color: #FFFFFF !important;
+    }
+
+    .mat-mdc-snack-bar-actions {
+        .mdc-button__label {
+            color: #FFFFFF !important;
+        }
+    }
 } 

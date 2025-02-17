@@ -6,7 +6,13 @@
     </div>
 
     <!-- Formulario Principal -->
-    <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    <form [formGroup]="createAccountForm" (ngSubmit)="onSubmit()" class="space-y-8" autocomplete="off">
+        <!-- Campos ocultos para engañar al autocompletado -->
+        <div style="display:none">
+            <input type="text" autocomplete="username" name="username" />
+            <input type="password" autocomplete="current-password" name="password" />
+        </div>
+
         <!-- Información Personal -->
         <div class="space-y-6">
             <!-- Foto de perfil -->
@@ -40,10 +46,18 @@
             </div>
 
             <!-- Campos de información -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" >
                 <mat-form-field appearance="outline">
                     <mat-label>Nombres</mat-label>
-                    <input matInput formControlName="name">
+                    <input matInput 
+                           formControlName="name"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>person</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('name').hasError('required')">
                         Este campo es requerido
@@ -52,7 +66,15 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Apellidos</mat-label>
-                    <input matInput formControlName="lastname">
+                    <input matInput 
+                           formControlName="lastname"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>person</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('lastname').hasError('required')">
                         Este campo es requerido
@@ -61,22 +83,46 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Usuario</mat-label>
-                    <input matInput formControlName="username">
+                    <input matInput 
+                           formControlName="username"
+                           [type]="'text'"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>account_circle</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('username').hasError('required')">
                         Este campo es requerido
+                    </mat-error>
+                    <mat-error *ngIf="createAccountForm.get('username').hasError('duplicate')">
+                        El nombre de usuario ya está en uso
                     </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Correo Electrónico</mat-label>
-                    <input matInput formControlName="email" type="email">
+                    <input matInput 
+                           formControlName="email" 
+                           type="email"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>email</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('email').hasError('required')">
                         Este campo es requerido
                     </mat-error>
                     <mat-error *ngIf="createAccountForm.get('email').hasError('email')">
                         Ingrese un correo electrónico válido
+                    </mat-error>
+                    <mat-error *ngIf="createAccountForm.get('email').hasError('duplicate')">
+                        Este correo electrónico ya está registrado
                     </mat-error>
                 </mat-form-field>
             </div>
@@ -119,7 +165,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <mat-form-field appearance="outline">
                     <mat-label>Contraseña</mat-label>
-                    <input matInput type="password" formControlName="password">
+                    <input matInput 
+                           [type]="'password'" 
+                           formControlName="password"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>lock</mat-icon>
                     <mat-hint>Mínimo 8 caracteres. Debe incluir números, letras y caracteres especiales.</mat-hint>
                     <mat-error *ngIf="createAccountForm.get('password').hasError('required')">
@@ -132,12 +187,21 @@
 
                 <mat-form-field appearance="outline">
                     <mat-label>Confirmar Contraseña</mat-label>
-                    <input matInput type="password" formControlName="confirmPassword">
+                    <input matInput 
+                           [type]="'password'" 
+                           formControlName="confirmPassword"
+                           autocomplete="off"
+                           [autocomplete]="'off'"
+                           readonly
+                           onfocus="this.removeAttribute('readonly');"
+                           onblur="this.setAttribute('readonly','');"
+                           (focus)="onFocusInput($event)"
+                           (blur)="onBlurInput($event)">
                     <mat-icon matPrefix>lock</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('confirmPassword').hasError('required')">
                         Este campo es requerido
                     </mat-error>
-                    <mat-error *ngIf="createAccountForm.hasError('passwordMismatch')">
+                    <mat-error *ngIf="createAccountForm.get('confirmPassword').hasError('passwordMismatch')">
                         Las contraseñas no coinciden
                     </mat-error>
                 </mat-form-field>
