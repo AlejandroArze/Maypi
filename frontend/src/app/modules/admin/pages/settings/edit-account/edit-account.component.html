@@ -18,7 +18,7 @@
     <form [formGroup]="editAccountForm" class="space-y-8">
         <!-- Información Personal -->
         <div class="space-y-6">
-            <!-- Foto de perfil -->
+            <!-- Foto de perfil (solo lectura) -->
             <div class="flex flex-col items-center space-y-4">
                 <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
                     <img *ngIf="imagePreview" 
@@ -34,65 +34,32 @@
                         <mat-icon *ngIf="!userInitials" class="text-4xl text-gray-400">person</mat-icon>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <button type="button"
-                            mat-flat-button
-                            color="primary"
-                            (click)="fileInput.click()">
-                        <mat-icon class="mr-2">photo_camera</mat-icon>
-                        Cambiar foto
-                    </button>
-                    <input #fileInput
-                           id="photo"
-                           type="file"
-                           accept="image/*"
-                           class="hidden"
-                           (change)="onFileSelected($event)">
-                </div>
-                <span *ngIf="imageName" class="text-sm text-gray-500">
-                    {{ imageName }}
-                </span>
             </div>
 
-            <!-- Campos de información -->
+            <!-- Campos de información (solo lectura) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <mat-form-field appearance="outline">
                     <mat-label>Nombres</mat-label>
-                    <input matInput formControlName="name">
+                    <input matInput formControlName="name" readonly>
                     <mat-icon matPrefix>person</mat-icon>
-                    <mat-error *ngIf="editAccountForm.get('name').hasError('required')">
-                        Este campo es requerido
-                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Apellidos</mat-label>
-                    <input matInput formControlName="lastname">
+                    <input matInput formControlName="lastname" readonly>
                     <mat-icon matPrefix>person</mat-icon>
-                    <mat-error *ngIf="editAccountForm.get('lastname').hasError('required')">
-                        Este campo es requerido
-                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Usuario</mat-label>
-                    <input matInput formControlName="username">
+                    <input matInput formControlName="username" readonly>
                     <mat-icon matPrefix>account_circle</mat-icon>
-                    <mat-error *ngIf="editAccountForm.get('username').hasError('required')">
-                        Este campo es requerido
-                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Correo Electrónico</mat-label>
-                    <input matInput formControlName="email" type="email">
+                    <input matInput formControlName="email" type="email" readonly>
                     <mat-icon matPrefix>email</mat-icon>
-                    <mat-error *ngIf="editAccountForm.get('email').hasError('required')">
-                        Este campo es requerido
-                    </mat-error>
-                    <mat-error *ngIf="editAccountForm.get('email').hasError('email')">
-                        Ingrese un correo electrónico válido
-                    </mat-error>
                 </mat-form-field>
             </div>
         </div>
@@ -103,10 +70,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <mat-form-field appearance="outline">
                     <mat-label>Rol</mat-label>
-                    <mat-select formControlName="roles">
-                        <mat-option value="1">Super Admin</mat-option>
-                        <mat-option value="2">Admin</mat-option>
-                        <mat-option value="3">Técnico</mat-option>
+                    <mat-select formControlName="roles" [disabled]="!canEditRole">
+                        <mat-option *ngIf="userRole === '1'" value="1">Super Admin</mat-option>
+                        <mat-option *ngIf="userRole === '1' || (userRole === '2' && editingUserRole !== '1')" value="2">Admin</mat-option>
+                        <mat-option *ngIf="userRole === '1' || userRole === '2'" value="3">Técnico</mat-option>
                     </mat-select>
                     <mat-icon matPrefix>admin_panel_settings</mat-icon>
                     <mat-error *ngIf="editAccountForm.get('roles').hasError('required')">
@@ -114,7 +81,7 @@
                     </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+                <mat-form-field appearance="outline" *ngIf="userRole === '1'">
                     <mat-label>Estado</mat-label>
                     <mat-select formControlName="status">
                         <mat-option value="1">ACTIVO</mat-option>
@@ -125,78 +92,6 @@
                         Este campo es requerido
                     </mat-error>
                 </mat-form-field>
-            </div>
-        </div>
-
-        <!-- Sección de Contraseña -->
-        <div class="border-t pt-8">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-xl font-semibold">Cambiar Contraseña</h3>
-                    <p class="text-secondary">¡Solo puedes cambiar tu contraseña dos veces en 24 horas!</p>
-                </div>
-                <button type="button"
-                        mat-flat-button
-                        color="primary"
-                        (click)="togglePasswordSection()">
-                    {{ showPasswordSection ? 'Cancelar' : 'Cambiar contraseña' }}
-                </button>
-            </div>
-
-            <div *ngIf="showPasswordSection" class="space-y-4" [formGroup]="passwordForm">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Contraseña actual</mat-label>
-                    <input matInput 
-                           type="password" 
-                           formControlName="currentPassword"
-                           [autocomplete]="'new-password'"
-                           (focus)="$event.target.autocomplete = 'current-password'">
-                    <mat-icon matPrefix>lock</mat-icon>
-                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
-                        La contraseña actual es requerida
-                    </mat-error>
-                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('incorrect')">
-                        La contraseña actual es incorrecta
-                    </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Nueva contraseña</mat-label>
-                    <input matInput 
-                           type="password" 
-                           formControlName="newPassword"
-                           [autocomplete]="'new-password'">
-                    <mat-icon matPrefix>lock_reset</mat-icon>
-                    <mat-hint>Mínimo 8 caracteres. Debe incluir números, letras y caracteres especiales.</mat-hint>
-                    <mat-error *ngIf="passwordForm.get('newPassword').hasError('required')">
-                        La nueva contraseña es requerida
-                    </mat-error>
-                    <mat-error *ngIf="passwordForm.get('newPassword').hasError('minlength')">
-                        La contraseña debe tener al menos 8 caracteres
-                    </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Confirmar nueva contraseña</mat-label>
-                    <input matInput 
-                           type="password" 
-                           formControlName="confirmPassword"
-                           [autocomplete]="'new-password'">
-                    <mat-icon matPrefix>lock_reset</mat-icon>
-                    <mat-error *ngIf="passwordForm.hasError('mismatch')">
-                        Las contraseñas no coinciden
-                    </mat-error>
-                </mat-form-field>
-
-                <div class="flex justify-end">
-                    <button type="button"
-                            mat-flat-button
-                            color="primary"
-                            [disabled]="!passwordForm.valid"
-                            (click)="changePassword()">
-                        Actualizar contraseña
-                    </button>
-                </div>
             </div>
         </div>
 
