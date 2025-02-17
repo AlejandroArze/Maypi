@@ -99,15 +99,8 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
      */
     onFocusInput(event: FocusEvent): void {
         const input = event.target as HTMLInputElement;
-        const fieldName = input.getAttribute('formcontrolname');
-        
-        // Si es el campo de usuario y está vacío, intentar usar el email
-        if (fieldName === 'username' && !input.value) {
-            const email = this.createAccountForm.get('email').value;
-            if (email) {
-                this.createAccountForm.get('username').setValue(email);
-            }
-        }
+        // No necesitamos hacer nada especial en el focus
+        // El navegador manejará las sugerencias de autocompletado
     }
 
     /**
