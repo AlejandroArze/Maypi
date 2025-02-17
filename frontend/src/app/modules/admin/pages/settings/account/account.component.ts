@@ -265,20 +265,36 @@ export class SettingsAccountComponent implements OnInit {
 
     changePassword(): void {
         if (this.passwordForm.valid) {
-            const passwordData = {
-                currentPassword: this.passwordForm.get('currentPassword').value,
-                newPassword: this.passwordForm.get('newPassword').value
-            };
+            const formData = new FormData();
+            
+            // Mantener los datos actuales del usuario
+            formData.append('email', this.accountForm.get('email').value);
+            formData.append('usuario', this.accountForm.get('username').value);
+            formData.append('nombres', this.accountForm.get('name').value);
+            formData.append('apellidos', this.accountForm.get('lastname').value);
+            formData.append('role', this.accountForm.get('role').value);
+            formData.append('estado', this.accountForm.get('estado').value);
+            
+            // Agregar la contraseña actual y la nueva
+            formData.append('password', this.passwordForm.get('currentPassword').value);
+            formData.append('newPassword', this.passwordForm.get('newPassword').value);
 
-            this._httpClient.post(`${environment.baseUrl}/user/${this.userId}/change-password`, passwordData)
+            this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
                 .subscribe(
-                    response => {
-                        console.log('Contraseña actualizada exitosamente');
+                    (response: any) => {
+                        console.log('✅ Contraseña actualizada exitosamente');
+                        // Actualizar el localStorage con los nuevos datos
+                        localStorage.setItem('user', JSON.stringify(response));
                         this.passwordForm.reset();
                         this.showPasswordSection = false;
                         this.cdr.detectChanges();
                     },
-                    error => console.error('Error al actualizar la contraseña:', error)
+                    error => {
+                        console.error('❌ Error al actualizar la contraseña:', error);
+                        if (error.status === 401) {
+                            this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+                        }
+                    }
                 );
         }
     }
