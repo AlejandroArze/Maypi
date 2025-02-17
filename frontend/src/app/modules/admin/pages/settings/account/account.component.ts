@@ -285,6 +285,9 @@ export class SettingsAccountComponent implements OnInit {
                         console.log('✅ Contraseña actualizada exitosamente');
                         // Actualizar el localStorage con los nuevos datos
                         localStorage.setItem('user', JSON.stringify(response));
+                        // Disparar evento de actualización
+                        window.dispatchEvent(new Event('userDataUpdated'));
+                        
                         this.passwordForm.reset();
                         this.showPasswordSection = false;
                         this.cdr.detectChanges();
@@ -378,6 +381,9 @@ export class SettingsAccountComponent implements OnInit {
                     }
                     // Actualizar el localStorage con los nuevos datos
                     localStorage.setItem('user', JSON.stringify(response));
+                    // Disparar evento de actualización
+                    window.dispatchEvent(new Event('userDataUpdated'));
+                    
                     this.showPasswordConfirmation = false;
                     this.pendingFormData = null;
                     this.passwordForm.reset();
@@ -385,7 +391,6 @@ export class SettingsAccountComponent implements OnInit {
                 },
                 error => {
                     console.error('❌ Error al actualizar el perfil:', error);
-                    // Mostrar mensaje de error si la contraseña es incorrecta
                     if (error.status === 401) {
                         this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
                     }

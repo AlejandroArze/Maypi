@@ -21,6 +21,8 @@ import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 import { environment } from 'environments/environment';
 import { SchemeComponent } from 'app/layout/common/scheme/scheme.component';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
     selector     : 'classy-layout',
@@ -52,6 +54,7 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     navigation: Navigation;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     user: any;
+    private tokenCheckInterval: Subscription;
 
     /**
      * Constructor
@@ -62,9 +65,11 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         private _navigationService: NavigationService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService,
+        private _httpClient: HttpClient,
     )
     {
         this.loadUserData();
+        this.initializeTokenCheck();
     }
 
     /**
@@ -99,11 +104,13 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
                     
                     const nombres = userData.data.nombres || '';
                     const apellidos = userData.data.apellidos || '';
-                    const iniciales = this.getInitials(nombres, apellidos);
+                    const primerNombre = nombres.split(' ')[0];
+                    const primerApellido = apellidos.split(' ')[0];
+                    const iniciales = this.getInitials(primerNombre, primerApellido);
                     
                     this.user = {
                         id: userData.data.usuarios_id,
-                        name: `${nombres} ${apellidos}`.trim(),
+                        name: `${primerNombre} ${primerApellido}`.trim(),
                         email: userData.data.email || '',
                         avatar: avatarUrl,
                         status: localStorage.getItem('userStatus') || 'online',
@@ -199,6 +206,12 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             this.loadUserData();
         });
 
+        // Suscribirse al evento específico de actualización de datos del usuario
+        window.addEventListener('userDataUpdated', () => {
+            console.log('Actualización de datos de usuario detectada');
+            this.loadUserData();
+        });
+
         // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -212,18 +225,27 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             .subscribe(({matchingAliases}) => {
                 this.isScreenSmall = !matchingAliases.includes('md');
             });
+
+        // Iniciar verificación de token
+        this.checkTokenAndUpdateUser();
     }
 
     /**
      * On destroy
      */
     ngOnDestroy(): void {
-        // Remover el listener de storage
+        // Remover los listeners
         window.removeEventListener('storage', () => this.loadUserData());
+        window.removeEventListener('userDataUpdated', () => this.loadUserData());
         
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+
+        // Cancelar la suscripción del intervalo
+        if (this.tokenCheckInterval) {
+            this.tokenCheckInterval.unsubscribe();
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -240,5 +262,103 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         if (navigation) {
             navigation.toggle();
         }
+    }
+
+    /**
+     * Inicializa la verificación periódica del token
+     */
+    private initializeTokenCheck(): void {
+        // Verificar cada 5 minutos (300000 ms)
+        this.tokenCheckInterval = interval(300000).subscribe(() => {
+            this.checkTokenAndUpdateUser();
+        });
+    }
+
+    /**
+     * Verifica el token y actualiza los datos del usuario
+     */
+    private checkTokenAndUpdateUser(): void {
+        const token = localStorage.getItem('accessToken');
+        
+        if (!token) {
+            this.handleInvalidToken();
+            return;
+        }
+
+        this._httpClient.get(`${environment.baseUrl}/api/users/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }).subscribe({
+            next: (response: any) => {
+                if (response?.data) {
+                    // Obtener datos actuales del localStorage
+                    const currentUserString = localStorage.getItem('user');
+                    const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
+
+                    // Verificar si hay cambios comparando los campos relevantes
+                    const hasChanges = this.checkForUserChanges(currentUser?.data, response.data);
+
+                    if (hasChanges) {
+                        console.log('Se detectaron cambios en los datos del usuario, actualizando...');
+                        localStorage.setItem('user', JSON.stringify(response));
+                        this.loadUserData();
+                    } else {
+                        console.log('No hay cambios en los datos del usuario');
+                    }
+                }
+            },
+            error: (error: HttpErrorResponse) => {
+                if (error.status === 401 || error.status === 403) {
+                    this.handleInvalidToken();
+                }
+            }
+        });
+    }
+
+    /**
+     * Compara los datos actuales del usuario con los nuevos para detectar cambios
+     */
+    private checkForUserChanges(currentData: any, newData: any): boolean {
+        if (!currentData || !newData) {
+            return true; // Si no hay datos actuales o nuevos, consideramos que hay cambios
+        }
+
+        // Lista de campos a comparar
+        const fieldsToCompare = [
+            'nombres',
+            'apellidos',
+            'email',
+            'imagen',
+            'image',
+            'photo',
+            'usuarios_id'
+        ];
+
+        // Comparar cada campo
+        return fieldsToCompare.some(field => {
+            const currentValue = currentData[field];
+            const newValue = newData[field];
+            
+            // Si los valores son diferentes, hay cambios
+            if (currentValue !== newValue) {
+                console.log(`Cambio detectado en ${field}:`, {
+                    anterior: currentValue,
+                    nuevo: newValue
+                });
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Maneja el caso de token inválido o expirado
+     */
+    private handleInvalidToken(): void {
+        // Limpiar datos de sesión
+        localStorage.clear();
+        // Redirigir a sign-out
+        this._router.navigate(['/sign-out']);
     }
 }
