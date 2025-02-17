@@ -40,7 +40,6 @@ export class EditAccountComponent implements OnInit {
   @Input() userId: string;
   editAccountForm: FormGroup;
   imagePreview: string | null = null;
-  imageName: string | null = null;
   message: string | null = null;
   userInitials: string | null = null;
   userRole: string = null;
@@ -68,19 +67,6 @@ export class EditAccountComponent implements OnInit {
     const firstInitial = name ? name.charAt(0) : '';
     const lastInitial = lastname ? lastname.charAt(0) : '';
     return (firstInitial + lastInitial).toUpperCase();
-  }
-
-  /**
-   * Maneja el error de carga de imagen
-   */
-  handleImageError(): void {
-    console.log('❌ Error al cargar la imagen de perfil');
-    this.imagePreview = null;
-    this.userInitials = this.generateInitials(
-      this.editAccountForm.get('name').value,
-      this.editAccountForm.get('lastname').value
-    );
-    this.cdr.detectChanges();
   }
 
   ngOnInit(): void {
@@ -159,12 +145,6 @@ export class EditAccountComponent implements OnInit {
           // Generar iniciales
           this.userInitials = this.generateInitials(userData.nombres, userData.apellidos);
 
-          // Manejar la imagen del perfil
-          if (userData.image) {
-            this.imagePreview = `${environment.baseUrl}${userData.image}`;
-            this.imageName = userData.image.split('/').pop();
-          }
-
           this.cdr.detectChanges();
         }
       },
@@ -184,33 +164,41 @@ export class EditAccountComponent implements OnInit {
         return;
       }
 
-      const formData = new FormData();
-      
-      // Solo enviar los campos editables según el rol
-      if (this.canEditRole) {
-        formData.append('role', this.editAccountForm.get('roles').value);
-      }
-      
-      if (this.userRole === '1') {
-        formData.append('estado', this.editAccountForm.get('status').value);
+      const promises: Promise<any>[] = [];
+
+      // Actualizar rol si ha cambiado y tiene permisos
+      if (this.canEditRole && this.editAccountForm.get('roles').value !== this.editingUserRole) {
+        const rolePromise = this._httpClient.patch(
+          `${environment.baseUrl}/user/${this.userId}/role`,
+          { role: this.editAccountForm.get('roles').value }
+        ).toPromise();
+        promises.push(rolePromise);
       }
 
-      this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
-        .subscribe({
-          next: (response: any) => {
-            console.log('✅ Usuario actualizado exitosamente:', response);
-            this.accountUpdated.emit();
-            this.message = 'Usuario actualizado exitosamente';
-            this.cdr.detectChanges();
-          },
-          error: (error) => {
-            console.error('❌ Error al actualizar usuario:', error);
-            this.message = 'Error al actualizar el usuario';
-            if (error.status === 401) {
-              this.message = 'No tiene permisos para realizar esta acción';
-            }
-            this.cdr.detectChanges();
+      // Actualizar estado si es rol 1 y el estado ha cambiado
+      if (this.userRole === '1' && this.editAccountForm.get('status').value) {
+        const statusPromise = this._httpClient.patch(
+          `${environment.baseUrl}/user/${this.userId}/status`,
+          { estado: this.editAccountForm.get('status').value }
+        ).toPromise();
+        promises.push(statusPromise);
+      }
+
+      // Ejecutar las actualizaciones en paralelo
+      Promise.all(promises)
+        .then(() => {
+          console.log('✅ Usuario actualizado exitosamente');
+          this.accountUpdated.emit();
+          this.message = 'Usuario actualizado exitosamente';
+          this.cdr.detectChanges();
+        })
+        .catch((error) => {
+          console.error('❌ Error al actualizar usuario:', error);
+          this.message = 'Error al actualizar el usuario';
+          if (error.status === 401) {
+            this.message = 'No tiene permisos para realizar esta acción';
           }
+          this.cdr.detectChanges();
         });
     }
   }

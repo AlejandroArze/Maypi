@@ -119,20 +119,22 @@
         <div class="space-y-6">
             <h3 class="text-xl font-semibold">Información del Sistema</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Rol -->
                 <mat-form-field appearance="outline">
                     <mat-label>Rol</mat-label>
                     <mat-select formControlName="roles">
-                        <mat-option value="1">Super Admin</mat-option>
-                        <mat-option value="2">Admin</mat-option>
-                        <mat-option value="3">Técnico</mat-option>
+                        <mat-option *ngIf="userRole === '1'" value="1">Super Admin</mat-option>
+                        <mat-option *ngIf="userRole === '1' || userRole === '2'" value="2">Admin</mat-option>
+                        <mat-option *ngIf="userRole === '1' || userRole === '2'" value="3">Técnico</mat-option>
                     </mat-select>
                     <mat-icon matPrefix>admin_panel_settings</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('roles').hasError('required')">
-                        Seleccione un rol
+                        Este campo es requerido
                     </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
+                <!-- Estado (solo visible para rol 1) -->
+                <mat-form-field appearance="outline" *ngIf="userRole === '1'">
                     <mat-label>Estado</mat-label>
                     <mat-select formControlName="status">
                         <mat-option value="1">ACTIVO</mat-option>
@@ -140,7 +142,7 @@
                     </mat-select>
                     <mat-icon matPrefix>how_to_reg</mat-icon>
                     <mat-error *ngIf="createAccountForm.get('status').hasError('required')">
-                        Seleccione un estado
+                        Este campo es requerido
                     </mat-error>
                 </mat-form-field>
             </div>

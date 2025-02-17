@@ -41,6 +41,7 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
     createAccountForm: UntypedFormGroup;
     imagePreview: string | null = null;
     imageName: string | null = null;
+    userRole: string = null;
 
     /**
      * Constructor
@@ -49,7 +50,14 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
       private cdr: ChangeDetectorRef,
       private _httpClient: HttpClient,
       private _snackBar: MatSnackBar,
-    ) {}
+    ) {
+        // Obtener el rol del usuario del token
+        const userString = localStorage.getItem('user');
+        if (userString) {
+            const userData = JSON.parse(userString);
+            this.userRole = userData.data?.role;
+        }
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -69,7 +77,7 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
             email    : ['', [Validators.required, Validators.email]],
             photo    : [null],
             roles    : ['', Validators.required],
-            status   : ['1', Validators.required] // Valor por defecto '1' para ACTIVO
+            status   : [this.userRole === '1' ? '' : '1', this.userRole === '1' ? [Validators.required] : []]
         });
 
         // Suscribirse a los cambios de las contraseñas
@@ -199,7 +207,10 @@ export class CreateAccountComponent implements OnInit { // Nombre de la clase aj
             formData.append('apellidos', this.createAccountForm.get('lastname').value);
             formData.append('password', this.createAccountForm.get('password').value);
             formData.append('role', this.createAccountForm.get('roles').value);
-            formData.append('estado', this.createAccountForm.get('status').value);
+            
+            // Si el usuario es rol 2, siempre enviar estado 1
+            formData.append('estado', this.userRole === '1' ? 
+                this.createAccountForm.get('status').value : '1');
 
             // Agregar la imagen si existe
             const photoFile = this.createAccountForm.get('photo').value;

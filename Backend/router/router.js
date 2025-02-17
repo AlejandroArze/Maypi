@@ -52,7 +52,9 @@ router.delete("/user/:usuarios_id", authMiddleware([1]), user.destroy); // Elimi
 // Ruta para actualizar solo el estado de un usuario por ID
 router.patch("/user/:usuarios_id/status", authMiddleware([1,2,3]), user.updateStatus);
 
-
+// Nuevas rutas para actualizar rol y estado
+router.patch("/user/:usuarios_id/role", authMiddleware([1,2]), user.updateRole);
+router.patch("/user/:usuarios_id/status", authMiddleware([1]), user.updateUserStatus);
 
 // Login de usuario
 router.post("/user/login", user.login);

@@ -388,48 +388,139 @@ static async getAll(req, res) {
         }
     }
 
-    // Controlador para actualizar el estado
-static async updateStatus(req, res) {
-    try {
-        const { estado } = req.body;
-        const estadoInt = parseInt(estado, 10);
-        const id = req.params.usuarios_id;
-
-        console.log("ID del usuario:", id);
-        console.log("Nuevo estado:", estadoInt);
-
-        // Validar el nuevo estado
-        const estadoSchema = Joi.object({
-            estado: Joi.number().integer().required()
-        });
-
+    // Método para actualizar el rol de un usuario
+    static async updateRole(req, res) {
         try {
-            await estadoSchema.validateAsync({ estado: estadoInt }, { abortEarly: false });
-        } catch (validationError) {
-            console.error("Errores de validación:", validationError);
-            return jsonResponse.validationResponse(
+            const id = req.params.usuarios_id;
+            const roleInt = parseInt(req.body.role, 10); // Convertimos el role a número
+            const requesterRole = parseInt(req.user.role, 10); // Aseguramos que el rol del solicitante sea número
+
+            // Validar que el rol sea un número válido
+            if (isNaN(roleInt)) {
+                return jsonResponse.errorResponse(
+                    res,
+                    400,
+                    "El rol debe ser un número válido"
+                );
+            }
+
+            // Validar permisos según el rol del solicitante
+            if (requesterRole === 2) {
+                // Si el solicitante tiene rol 2, solo puede asignar roles 2 o 3
+                if (![2, 3].includes(roleInt)) {
+                    return jsonResponse.errorResponse(
+                        res,
+                        403,
+                        "Con rol 2 solo puedes asignar roles 2 o 3"
+                    );
+                }
+            } else if (requesterRole !== 1) {
+                // Si no es rol 1 ni 2, no puede cambiar roles
+                return jsonResponse.errorResponse(
+                    res,
+                    403,
+                    "No tienes permisos para cambiar roles"
+                );
+            }
+
+            // Actualiza el rol del usuario
+            await userService.updateRole({
+                role: roleInt, // Enviamos el rol como número
+                requesterRole
+            }, id);
+
+            // Obtiene los datos actualizados del usuario
+            const updatedUser = await userService.show(id);
+
+            // Retorna una respuesta exitosa con los datos actualizados
+            return jsonResponse.successResponse(
                 res,
-                409,
-                "Validation error",
-                validationError.details.map(err => err.message)
+                200,
+                "El rol del usuario ha sido actualizado exitosamente",
+                {
+                    usuarios_id: updatedUser.usuarios_id,
+                    role: updatedUser.role,
+                    nombres: updatedUser.nombres,
+                    apellidos: updatedUser.apellidos
+                }
             );
+        } catch (error) {
+            console.error('Error al actualizar el rol del usuario:', error);
+            return Joi.isError(error)
+                ? jsonResponse.validationResponse(res, 409, "Error de validación", error.details.map(err => err.message))
+                : jsonResponse.errorResponse(res, 500, error.message);
         }
-
-        // Actualiza solo el estado del usuario en la base de datos
-        const updatedState = await userService.updateStatus({ estado: estadoInt }, id);
-
-        // Retorna una respuesta exitosa con el estado actualizado
-        return jsonResponse.successResponse(
-            res,
-            200,
-            "User status has been updated",
-            updatedState
-        );
-    } catch (error) {
-        console.error('Error al actualizar el estado del usuario:', error);
-        return jsonResponse.errorResponse(res, 500, error.message);
     }
-}
+
+    // Controlador para actualizar el estado
+    static async updateStatus(req, res) {
+        try {
+            const { estado } = req.body;
+            const estadoInt = parseInt(estado, 10);
+            const id = req.params.usuarios_id;
+            const requesterRole = parseInt(req.user.role, 10); // Convertimos el rol del solicitante a número
+
+            // Validar que el estado sea un número válido
+            if (isNaN(estadoInt)) {
+                return jsonResponse.errorResponse(
+                    res,
+                    400,
+                    "El estado debe ser un número válido"
+                );
+            }
+
+            // Solo el rol 1 (admin) puede cambiar el estado
+            if (requesterRole !== 1) {
+                return jsonResponse.errorResponse(
+                    res,
+                    403,
+                    "Solo el administrador puede cambiar el estado de los usuarios"
+                );
+            }
+
+            console.log("ID del usuario:", id);
+            console.log("Nuevo estado:", estadoInt);
+            console.log("Rol del solicitante:", requesterRole);
+
+            // Validar el nuevo estado
+            if (![0, 1].includes(estadoInt)) {
+                return jsonResponse.errorResponse(
+                    res,
+                    400,
+                    "El estado debe ser 0 o 1"
+                );
+            }
+
+            // Actualiza solo el estado del usuario en la base de datos
+            await userService.updateStatus({ 
+                estado: estadoInt,
+                requesterRole 
+            }, id);
+
+            // Obtiene los datos actualizados del usuario
+            const updatedUser = await userService.show(id);
+
+            // Retorna una respuesta exitosa con el estado actualizado y más información
+            return jsonResponse.successResponse(
+                res,
+                200,
+                "User status has been updated",
+                {
+                    usuarios_id: updatedUser.usuarios_id,
+                    estado: updatedUser.estado,
+                    nombres: updatedUser.nombres,
+                    apellidos: updatedUser.apellidos,
+                    usuario: updatedUser.usuario,
+                    email: updatedUser.email
+                }
+            );
+        } catch (error) {
+            console.error('Error al actualizar el estado del usuario:', error);
+            return Joi.isError(error)
+                ? jsonResponse.validationResponse(res, 409, "Error de validación", error.details.map(err => err.message))
+                : jsonResponse.errorResponse(res, 500, error.message);
+        }
+    }
 
     
 
@@ -478,6 +569,51 @@ static async paginate(req, res) {
                 500,
                 error.message
             );
+        }
+    }
+
+    // Método para actualizar el estado de un usuario
+    static async updateUserStatus(req, res) {
+        try {
+            const id = req.params.usuarios_id;
+            const { estado } = req.body;
+            const requesterRole = req.user.role;
+
+            // Solo el rol 1 (admin) puede cambiar el estado
+            if (requesterRole !== 1) {
+                return jsonResponse.errorResponse(
+                    res,
+                    403,
+                    "Solo el administrador puede cambiar el estado de los usuarios"
+                );
+            }
+
+            // Actualiza el estado del usuario
+            await userService.updateUserStatus({
+                estado,
+                requesterRole
+            }, id);
+
+            // Obtiene los datos actualizados del usuario
+            const updatedUser = await userService.show(id);
+
+            // Retorna una respuesta exitosa con los datos actualizados
+            return jsonResponse.successResponse(
+                res,
+                200,
+                "El estado del usuario ha sido actualizado exitosamente",
+                {
+                    usuarios_id: updatedUser.usuarios_id,
+                    estado: updatedUser.estado,
+                    nombres: updatedUser.nombres,
+                    apellidos: updatedUser.apellidos
+                }
+            );
+        } catch (error) {
+            console.error('Error al actualizar el estado del usuario:', error);
+            return Joi.isError(error)
+                ? jsonResponse.validationResponse(res, 409, "Error de validación", error.details.map(err => err.message))
+                : jsonResponse.errorResponse(res, 500, error.message);
         }
     }
 

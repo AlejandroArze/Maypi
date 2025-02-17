@@ -7,6 +7,8 @@ const storeDTO = require("../http/request/user/storeDTO") // DTO para validar lo
 const updateDTO = require("../http/request/user/updateDTO") // DTO para validar los datos del usuario en la operación de actualización
 const idDTO = require("../http/request/user/idDTO") // DTO para validar los identificadores de usuarios
 const loginDTO = require("../http/request/user/loginDTO"); // DTO para validar los datos del login
+const updateRoleDTO = require("../http/request/user/updateRoleDTO");
+const updateStatusDTO = require("../http/request/user/updateStatusDTO");
 
 
 class UserService {
@@ -265,6 +267,66 @@ class UserService {
                 }
             };
         } catch (error) {
+            throw error;
+        }
+    }
+
+    // Método para actualizar el rol de un usuario
+    static async updateRole(data, id) {
+        const DB = await sequelize.transaction();
+        try {
+            data.usuarios_id = id;
+
+            // Valida los datos usando updateRoleDTO
+            await updateRoleDTO.validateAsync(data, { abortEarly: false });
+
+            // Verifica las reglas de negocio para la actualización del rol
+            if (data.requesterRole === 2 && data.role === 1) {
+                throw new Error('Un usuario con rol 2 no puede asignar el rol 1');
+            }
+
+            // Actualiza solo el rol del usuario
+            const user = await User.update({
+                role: data.role
+            }, { 
+                where: { usuarios_id: id },
+                returning: true
+            });
+
+            await DB.commit();
+            return user;
+        } catch (error) {
+            await DB.rollback();
+            throw error;
+        }
+    }
+
+    // Método para actualizar el estado de un usuario
+    static async updateUserStatus(data, id) {
+        const DB = await sequelize.transaction();
+        try {
+            data.usuarios_id = id;
+
+            // Valida los datos usando updateStatusDTO
+            await updateStatusDTO.validateAsync(data, { abortEarly: false });
+
+            // Solo el rol 1 (admin) puede actualizar el estado de los usuarios
+            if (data.requesterRole !== 1) {
+                throw new Error('Solo el administrador puede cambiar el estado de los usuarios');
+            }
+
+            // Actualiza solo el estado del usuario
+            const user = await User.update({
+                estado: data.estado
+            }, { 
+                where: { usuarios_id: id },
+                returning: true
+            });
+
+            await DB.commit();
+            return user;
+        } catch (error) {
+            await DB.rollback();
             throw error;
         }
     }
