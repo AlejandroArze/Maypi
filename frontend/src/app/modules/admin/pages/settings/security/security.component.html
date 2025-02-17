@@ -22,7 +22,9 @@
                         [formControlName]="'currentPassword'"
                         type="password"
                         matInput
-                        #currentPassword>
+                        #currentPassword
+                        [autocomplete]="'new-password'"
+                        (focus)="$event.target.autocomplete = 'current-password'">
                     <mat-error *ngIf="securityForm.get('currentPassword').hasError('required')">
                         La contraseña actual es requerida
                     </mat-error>
