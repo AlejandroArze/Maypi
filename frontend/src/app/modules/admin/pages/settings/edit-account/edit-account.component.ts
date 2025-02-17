@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { SettingsService } from '../Settings.Service';
 import { environment } from '../../../../../../environments/environment';
@@ -31,6 +32,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatOptionModule,
     MatButtonModule,
     CommonModule,
+    MatSnackBarModule,
   ],
 })
 export class EditAccountComponent implements OnInit {
@@ -50,7 +52,8 @@ export class EditAccountComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private cdr: ChangeDetectorRef,
     private _httpClient: HttpClient,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private _snackBar: MatSnackBar
   ) {
     // Obtener el rol del usuario del token
     const userString = localStorage.getItem('user');
@@ -160,6 +163,7 @@ export class EditAccountComponent implements OnInit {
       // Validar permisos antes de guardar
       if (this.userRole === '2' && this.editingUserRole === '1') {
         this.message = 'No tiene permisos para editar un Super Admin';
+        this.showNotification('No tiene permisos para editar un Super Admin', 'error');
         this.cdr.detectChanges();
         return;
       }
@@ -188,8 +192,15 @@ export class EditAccountComponent implements OnInit {
       Promise.all(promises)
         .then(() => {
           console.log('✅ Usuario actualizado exitosamente');
-          this.accountUpdated.emit();
           this.message = 'Usuario actualizado exitosamente';
+          this.showNotification('Usuario actualizado exitosamente', 'success');
+          
+          // Disparar evento de actualización
+          window.dispatchEvent(new Event('userDataUpdated'));
+          
+          // Emitir evento para actualizar la lista y volver a la vista de equipo
+          this.accountUpdated.emit();
+          
           this.cdr.detectChanges();
         })
         .catch((error) => {
@@ -197,6 +208,9 @@ export class EditAccountComponent implements OnInit {
           this.message = 'Error al actualizar el usuario';
           if (error.status === 401) {
             this.message = 'No tiene permisos para realizar esta acción';
+            this.showNotification('No tiene permisos para realizar esta acción', 'error');
+          } else {
+            this.showNotification('Error al actualizar el usuario', 'error');
           }
           this.cdr.detectChanges();
         });
@@ -210,5 +224,19 @@ export class EditAccountComponent implements OnInit {
       this.message = 'Debe seleccionar un usuario antes de editar.';
       this.panelChanged.emit('team');
     }
+  }
+
+  // Método para mostrar notificaciones
+  private showNotification(message: string, type: 'success' | 'error'): void {
+    this._snackBar.open(
+      message,
+      'Cerrar',
+      {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom',
+        panelClass: type === 'success' ? ['bg-green-500'] : ['bg-red-500']
+      }
+    );
   }
 }

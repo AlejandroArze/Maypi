@@ -62,6 +62,8 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
     // Agregar propiedad para manejar las suscripciones
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     private imageUrls: Map<number, string> = new Map();
+    userRole: string = null;
+    private userDataUpdateListener: () => void;
 
     /**
      * Constructor
@@ -73,56 +75,64 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         private router: Router,
         private _snackBar: MatSnackBar,
         private _dialog: MatDialog
-    ) {}
+    ) {
+        // Obtener el rol del usuario del token
+        const userString = localStorage.getItem('user');
+        if (userString) {
+            const userData = JSON.parse(userString);
+            this.userRole = userData.data?.role;
+        }
+    }
     
 
 
     ngOnInit(): void {
+        this.loadUsers();
+        
+        // Configurar el listener para actualizaciones de datos
+        this.userDataUpdateListener = () => {
+            console.log('🔄 Actualizando lista de usuarios después de cambios');
+            this.loadUsers();
+        };
+        window.addEventListener('userDataUpdated', this.userDataUpdateListener);
+    }
 
-      this.http.get<any>(`${environment.baseUrl}/users`).subscribe(
-        (response) => {
-          
-          this.members = response.data.filter(user => user.estado === 1).map((user) => {
-            const avatarUrl = user.image ? `${environment.baseUrl}${user.image}` : null;
-            return {
-              id: user.usuarios_id.toString(),
-              avatar: avatarUrl && !avatarUrl.includes('default-profile.png') ? avatarUrl : null,
-              avatarError: false,
-              name: `${user.nombres} ${user.apellidos}`,
-              email: user.email,
-              role: this.getRoleLabel(user.role),
-            };
-          });
-          console.log('Miembros mapeados:', this.members); // Verifica que la lista se actualiza
-          this.cdr.detectChanges(); // Forza la actualización de la vista
-        },
-        (error) => {
-          console.error('Error al cargar los usuarios:', error);
-        }
-      );
+    loadUsers(): void {
+        this.http.get<any>(`${environment.baseUrl}/users`).subscribe(
+            (response) => {
+                // Filtrar usuarios según el rol del usuario logueado
+                this.members = response.data
+                    .filter(user => {
+                        // Si es rol 1, mostrar todos los usuarios
+                        if (this.userRole === '1') {
+                            return true;
+                        }
+                        // Si es rol 2, mostrar solo usuarios activos
+                        return user.estado === 1;
+                    })
+                    .map((user) => {
+                        const avatarUrl = user.image ? `${environment.baseUrl}${user.image}` : null;
+                        return {
+                            id: user.usuarios_id.toString(),
+                            avatar: avatarUrl && !avatarUrl.includes('default-profile.png') ? avatarUrl : null,
+                            avatarError: false,
+                            name: `${user.nombres} ${user.apellidos}`,
+                            email: user.email,
+                            role: this.getRoleLabel(user.role),
+                            estado: user.estado
+                        };
+                    });
+                console.log('Miembros filtrados:', this.members);
+                this.cdr.detectChanges();
+            },
+            (error) => {
+                console.error('Error al cargar los usuarios:', error);
+            }
+        );
     }
 
     reloadUsers(): void {
-      this.http.get<any>(`${environment.baseUrl}/users`).subscribe(
-        (response) => {
-          this.members = response.data.filter(user => user.estado === 1).map((user) => {
-            const avatarUrl = user.image ? `${environment.baseUrl}${user.image}` : null;
-            return {
-              id: user.usuarios_id.toString(),
-              avatar: avatarUrl && !avatarUrl.includes('default-profile.png') ? avatarUrl : null,
-              avatarError: false,
-              name: `${user.nombres} ${user.apellidos}`,
-              email: user.email,
-              role: this.getRoleLabel(user.role),
-            };
-          });
-          console.log('Lista de usuarios actualizada:', this.members);
-          this.cdr.detectChanges(); // Forza la actualización de la vista
-        },
-        (error) => {
-          console.error('Error al recargar los usuarios:', error);
-        }
-      );
+        this.loadUsers();
     }
 
     goToCreateAccount(): void {
@@ -268,6 +278,11 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
      * On destroy
      */
     ngOnDestroy(): void {
+        // Remover el listener cuando el componente se destruye
+        if (this.userDataUpdateListener) {
+            window.removeEventListener('userDataUpdated', this.userDataUpdateListener);
+        }
+        
         // Cancelar todas las suscripciones
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();

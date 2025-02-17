@@ -65,8 +65,15 @@
 
                         <!-- Rol y acciones -->
                         <div class="flex items-center mt-4 sm:mt-0 sm:ml-auto">
-                            <!-- Rol -->
-                            <div class="order-2 sm:order-1 ml-4 sm:ml-0">
+                            <!-- Rol y Estado -->
+                            <div class="order-2 sm:order-1 ml-4 sm:ml-0 flex items-center space-x-2">
+                                <div *ngIf="userRole === '1'" class="fuse-mat-dense px-3 py-1 rounded-lg" 
+                                     [ngClass]="{
+                                         'bg-green-100 text-green-800': member.estado === 1,
+                                         'bg-red-100 text-red-800': member.estado === 0
+                                     }">
+                                    {{ member.estado === 1 ? 'Activo' : 'Inactivo' }}
+                                </div>
                                 <div class="fuse-mat-dense w-32 px-4 py-2 rounded-lg border bg-gray-100 dark:bg-gray-700">
                                     <span class="text-sm">{{ member.role }}</span>
                                 </div>
