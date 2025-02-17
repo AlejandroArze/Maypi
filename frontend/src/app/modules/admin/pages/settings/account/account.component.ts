@@ -33,9 +33,12 @@ export class SettingsAccountComponent implements OnInit {
     accountForm: UntypedFormGroup;
     passwordForm: UntypedFormGroup;
     showPasswordSection: boolean = false;
+    showPasswordConfirmation: boolean = false;
     imagePreview: string | null = null;
     imageName: string | null = null;
     userId: string;
+    pendingFormData: FormData | null = null;
+    selectedFile: File | null = null;
 
     constructor(
         private _formBuilder: UntypedFormBuilder,
@@ -179,16 +182,77 @@ export class SettingsAccountComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
+    /**
+     * Convierte una imagen a formato PNG
+     */
+    private convertToPNG(file: File): Promise<File> {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                // Crear un canvas con las dimensiones de la imagen
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Dibujar la imagen en el canvas
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                // Convertir el canvas a Blob PNG
+                canvas.toBlob((blob) => {
+                    // Crear un nuevo archivo con el Blob PNG
+                    const newFile = new File([blob], 'imagen.png', {
+                        type: 'image/png',
+                        lastModified: new Date().getTime()
+                    });
+                    resolve(newFile);
+                }, 'image/png', 0.9); // 0.9 es la calidad de la imagen
+            };
+            img.onerror = (error) => reject(error);
+            
+            // Leer el archivo como URL de datos
+            const reader = new FileReader();
+            reader.onload = (e) => img.src = e.target.result as string;
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
     onFileSelected(event: any): void {
         const file: File = event.target.files[0];
         if (file) {
+            console.log('📸 Archivo seleccionado:', {
+                nombre: file.name,
+                tipo: file.type,
+                tamaño: file.size,
+            });
+
+            // Mostrar preview inmediato
             const reader = new FileReader();
             reader.onload = (e: any) => {
                 this.imagePreview = e.target.result;
-                this.imageName = file.name;
+                this.imageName = 'imagen.png'; // Nuevo nombre estandarizado
                 this.cdr.detectChanges();
             };
             reader.readAsDataURL(file);
+
+            // Convertir a PNG si no es PNG
+            if (file.type !== 'image/png') {
+                console.log('🔄 Convirtiendo imagen a PNG...');
+                this.convertToPNG(file)
+                    .then(pngFile => {
+                        console.log('✅ Imagen convertida exitosamente a PNG');
+                        this.selectedFile = pngFile;
+                    })
+                    .catch(error => {
+                        console.error('❌ Error al convertir la imagen:', error);
+                        // Si falla la conversión, usar el archivo original
+                        this.selectedFile = file;
+                    });
+            } else {
+                // Si ya es PNG, usar el archivo directamente
+                this.selectedFile = file;
+            }
         }
     }
 
@@ -219,7 +283,7 @@ export class SettingsAccountComponent implements OnInit {
         }
     }
 
-    onSubmit(): void {
+    confirmUpdate(): void {
         if (!this.userId) {
             console.error('No se encontró el ID del usuario');
             return;
@@ -229,56 +293,98 @@ export class SettingsAccountComponent implements OnInit {
             console.log('🔄 Iniciando actualización del usuario ID:', this.userId);
             
             const formData = new FormData();
-            const userString = localStorage.getItem('user');
             
-            if (userString) {
-                const userData = JSON.parse(userString).data;
-                
-                // Crear objeto para mostrar cambios
-                const updateData = {
-                    nombres: this.accountForm.get('name').value || userData.nombres,
-                    apellidos: this.accountForm.get('lastname').value || userData.apellidos,
-                    usuario: this.accountForm.get('username').value || userData.usuario,
-                    email: this.accountForm.get('email').value || userData.email,
-                    role: userData.role,
-                    estado: userData.estado
-                };
+            // Mapear los campos del formulario a los nombres esperados por el backend
+            formData.append('email', this.accountForm.get('email').value);
+            formData.append('usuario', this.accountForm.get('username').value);
+            formData.append('nombres', this.accountForm.get('name').value);
+            formData.append('apellidos', this.accountForm.get('lastname').value);
+            formData.append('role', this.accountForm.get('role').value);
+            formData.append('estado', this.accountForm.get('estado').value);
 
-                console.log('📝 Datos a actualizar:', updateData);
-
-                // Agregar datos al FormData
-                Object.keys(updateData).forEach(key => {
-                    formData.append(key, updateData[key]);
+            // Manejar la imagen usando el archivo guardado
+            if (this.selectedFile) {
+                console.log('🖼️ Enviando imagen:', {
+                    nombre: this.selectedFile.name,
+                    tipo: this.selectedFile.type,
+                    tamaño: this.selectedFile.size
                 });
-                formData.append('password', userData.password);
-
-                // Manejar la imagen
-                const fileInput = document.querySelector('#photo') as HTMLInputElement;
-                if (fileInput?.files?.length > 0) {
-                    console.log('🖼️ Actualizando imagen:', fileInput.files[0].name);
-                    formData.append('image', fileInput.files[0]);
-                } else if (userData.image) {
-                    formData.append('image', userData.image);
-                }
-
-                this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
-                    .subscribe(
-                        response => {
-                            console.log('✅ Perfil actualizado exitosamente:', response);
-                            this.loadUserDataFromBackend();
-                        },
-                        error => {
-                            console.error('❌ Error al actualizar el perfil:', error);
-                        }
-                    );
+                formData.append('image', this.selectedFile, 'imagen.png');
+            } else {
+                console.log('⚠️ No hay nueva imagen seleccionada');
             }
+
+            // Imprimir todo el contenido del FormData
+            console.log('📦 Contenido del FormData:');
+            formData.forEach((value, key) => {
+                console.log(`${key}:`, value);
+            });
+
+            // Guardar el FormData pendiente y mostrar el diálogo de contraseña
+            this.pendingFormData = formData;
+            this.showPasswordConfirmation = true;
         }
+    }
+
+    onSubmit(): void {
+        if (!this.pendingFormData || !this.passwordForm.get('currentPassword').value) {
+            return;
+        }
+
+        // Agregar la contraseña al FormData
+        this.pendingFormData.append('password', this.passwordForm.get('currentPassword').value);
+
+        console.log('📤 Enviando datos al servidor...');
+        this.pendingFormData.forEach((value, key) => {
+            if (key === 'image') {
+                const file = value as File;
+                console.log('image:', {
+                    nombre: file.name,
+                    tipo: file.type,
+                    tamaño: file.size
+                });
+            } else {
+                console.log(`${key}:`, value);
+            }
+        });
+
+        this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, this.pendingFormData)
+            .subscribe(
+                (response: any) => {
+                    console.log('✅ Perfil actualizado exitosamente:', response);
+                    if (response.data?.image) {
+                        this.imagePreview = `${environment.baseUrl}${response.data.image}`;
+                        this.imageName = response.data.image.split('/').pop();
+                        console.log('🖼️ Nueva imagen guardada:', this.imagePreview);
+                    }
+                    // Actualizar el localStorage con los nuevos datos
+                    localStorage.setItem('user', JSON.stringify(response));
+                    this.showPasswordConfirmation = false;
+                    this.pendingFormData = null;
+                    this.passwordForm.reset();
+                    this.cdr.detectChanges();
+                },
+                error => {
+                    console.error('❌ Error al actualizar el perfil:', error);
+                    // Mostrar mensaje de error si la contraseña es incorrecta
+                    if (error.status === 401) {
+                        this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+                    }
+                }
+            );
+    }
+
+    cancelPasswordConfirmation(): void {
+        this.showPasswordConfirmation = false;
+        this.pendingFormData = null;
+        this.passwordForm.reset();
     }
 
     resetForm(): void {
         this.loadUserData(); // Recargar los datos originales
         this.imagePreview = null;
         this.imageName = null;
+        this.selectedFile = null;
     }
 
     passwordMatchValidator(g: UntypedFormGroup) {

@@ -46,18 +46,16 @@
                     <div class="flex flex-col sm:flex-row sm:items-center py-6">
                         <!-- Avatar y datos básicos -->
                         <div class="flex items-center">
-                            <div class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
-                                <ng-container *ngIf="member.avatar">
-                                    <img
-                                        class="object-cover w-full h-full"
-                                        [src]="member.avatar"
-                                        alt="Contact avatar"/>
-                                </ng-container>
-                                <ng-container *ngIf="!member.avatar">
-                                    <div class="flex items-center justify-center w-full h-full rounded-full text-lg uppercase bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                                        {{member.name.charAt(0)}}
-                                    </div>
-                                </ng-container>
+                            <div class="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden">
+                                <img *ngIf="member.avatar && !member.avatarError"
+                                     [src]="member.avatar"
+                                     [alt]="member.name"
+                                     class="w-full h-full object-cover"
+                                     (error)="member.avatarError = true">
+                                <div *ngIf="!member.avatar || member.avatarError"
+                                     class="flex items-center justify-center w-full h-full bg-primary text-on-primary text-sm font-semibold">
+                                    {{getInitials(member.name)}}
+                                </div>
                             </div>
                             <div class="ml-4">
                                 <div class="font-medium">{{member.name}}</div>

@@ -352,8 +352,14 @@ static async getAll(req, res) {
 
             console.log("ID del usuario:", id);
 
-            // Verifica si se subió una nueva imagen; si no, conserva la imagen existente
-            let imagePath = req.file ? `/uploads/${req.file.filename}` : (req.body.image || "/uploads/default-profile.png");
+            // Obtener el usuario actual para mantener la imagen existente si no se sube una nueva
+            const currentUser = await User.findByPk(id);
+            if (!currentUser) {
+                return jsonResponse.errorResponse(res, 404, "Usuario no encontrado");
+            }
+
+            // Verifica si se subió una nueva imagen; si no, mantiene la imagen existente
+            let imagePath = req.file ? `/uploads/${req.file.filename}` : currentUser.image;
 
             console.log("Ruta de la imagen guardada:", imagePath);
 
@@ -370,7 +376,7 @@ static async getAll(req, res) {
             }, id);
 
             // Crea un DTO con los datos actualizados del usuario
-            const updatedUser = new UserDTO(id, email, usuario, nombres, apellidos, role, imagePath, estadoInt);
+            const updatedUser = new UserDTO(id, nombres, apellidos, usuario, email, estadoInt, role, imagePath);
 
             // Retorna una respuesta exitosa
             return jsonResponse.successResponse(res, 200, "User has been updated", updatedUser);

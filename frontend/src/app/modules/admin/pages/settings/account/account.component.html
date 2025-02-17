@@ -130,18 +130,65 @@
         </div>
 
         <!-- Botones de acción -->
-        <div class="flex justify-end space-x-3 border-t pt-6">
-            <button type="button"
-                    mat-stroked-button
-                    (click)="resetForm()">
+        <div class="flex justify-end space-x-3">
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="resetForm()">
                 Cancelar
             </button>
-            <button type="submit"
-                    mat-flat-button
-                    color="primary"
-                    [disabled]="accountForm.invalid">
-                Guardar cambios
+            <button
+                mat-flat-button
+                [color]="'primary'"
+                type="button"
+                [disabled]="accountForm.invalid"
+                (click)="confirmUpdate()">
+                Guardar
             </button>
         </div>
     </form>
+
+    <!-- Diálogo de confirmación de contraseña -->
+    <div *ngIf="showPasswordConfirmation"
+         class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="w-full max-w-3xl p-6 sm:p-8 bg-card shadow rounded-2xl">
+            <div class="w-full mb-8">
+                <h2 class="text-3xl font-bold tracking-tight leading-none">Confirmar Contraseña</h2>
+                <p class="mt-2 text-secondary">Por favor, ingresa tu contraseña actual para confirmar los cambios.</p>
+            </div>
+            
+            <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Contraseña actual</mat-label>
+                    <input matInput
+                           type="password"
+                           formControlName="currentPassword"
+                           required>
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
+                        La contraseña es requerida
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('incorrect')">
+                        La contraseña es incorrecta
+                    </mat-error>
+                </mat-form-field>
+
+                <div class="flex justify-end space-x-3">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        (click)="cancelPasswordConfirmation()">
+                        Cancelar
+                    </button>
+                    <button
+                        mat-flat-button
+                        [color]="'primary'"
+                        type="submit"
+                        [disabled]="!passwordForm.get('currentPassword').value">
+                        Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

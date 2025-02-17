@@ -43,6 +43,7 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
 
     // Agregar propiedad para manejar las suscripciones
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    private imageUrls: Map<number, string> = new Map();
 
     /**
      * Constructor
@@ -63,11 +64,11 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         (response) => {
           
           this.members = response.data.filter(user => user.estado === 1).map((user) => {
+            const avatarUrl = user.image ? `${environment.baseUrl}${user.image}` : null;
             return {
-              id: user.usuarios_id.toString(), // Asegurarse de que el ID sea string
-              avatar: user.image
-              ? `${environment.baseUrl}${user.image}` // Construye la URL completa si hay una imagen
-              : 'assets/images/avatars/default-profile.png', // Imagen por defecto
+              id: user.usuarios_id.toString(),
+              avatar: avatarUrl && !avatarUrl.includes('default-profile.png') ? avatarUrl : null,
+              avatarError: false,
               name: `${user.nombres} ${user.apellidos}`,
               email: user.email,
               role: this.getRoleLabel(user.role),
@@ -86,10 +87,11 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
       this.http.get<any>(`${environment.baseUrl}/users`).subscribe(
         (response) => {
           this.members = response.data.filter(user => user.estado === 1).map((user) => {
+            const avatarUrl = user.image ? `${environment.baseUrl}${user.image}` : null;
             return {
-              avatar: user.image
-                ? `${environment.baseUrl}${user.image}` // Construye la URL completa si hay una imagen
-                : 'assets/images/avatars/default-profile.png', // Imagen por defecto
+              id: user.usuarios_id.toString(),
+              avatar: avatarUrl && !avatarUrl.includes('default-profile.png') ? avatarUrl : null,
+              avatarError: false,
               name: `${user.nombres} ${user.apellidos}`,
               email: user.email,
               role: this.getRoleLabel(user.role),
@@ -234,6 +236,24 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
         // Cancelar todas las suscripciones
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+    }
+
+    /**
+     * Obtiene las iniciales del nombre completo
+     */
+    getInitials(name: string): string {
+        if (!name) return '';
+        
+        // Dividir el nombre en palabras
+        const words = name.split(' ');
+        
+        // Si solo hay una palabra, tomar las dos primeras letras
+        if (words.length === 1) {
+            return words[0].substring(0, 2).toUpperCase();
+        }
+        
+        // Si hay más de una palabra, tomar la primera letra de las dos primeras palabras
+        return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
     }
 }
 

@@ -162,12 +162,13 @@ export class EditAccountComponent implements OnInit {
       
       const formData = new FormData();
       
-      // Agregar todos los campos del formulario al FormData
-      Object.keys(this.editAccountForm.controls).forEach(key => {
-        if (key !== 'photo') {
-          formData.append(key, this.editAccountForm.get(key).value);
-        }
-      });
+      // Mapear los campos del formulario a los nombres esperados por el backend
+      formData.append('email', this.editAccountForm.get('email').value);
+      formData.append('usuario', this.editAccountForm.get('username').value);
+      formData.append('nombres', this.editAccountForm.get('name').value);
+      formData.append('apellidos', this.editAccountForm.get('lastname').value);
+      formData.append('role', this.editAccountForm.get('roles').value);
+      formData.append('estado', this.editAccountForm.get('status').value);
 
       // Agregar la imagen si existe
       const fileInput = document.querySelector('#photo') as HTMLInputElement;
@@ -177,8 +178,11 @@ export class EditAccountComponent implements OnInit {
 
       this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, formData)
         .subscribe(
-          response => {
+          (response: any) => {
             console.log('Usuario actualizado exitosamente:', response);
+            if (response.data?.image) {
+              this.imagePreview = response.data.image;
+            }
             this.accountUpdated.emit();
           },
           error => {
