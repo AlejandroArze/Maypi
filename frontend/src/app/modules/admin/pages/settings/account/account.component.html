@@ -20,7 +20,7 @@
                         <mat-icon class="text-4xl text-gray-400">person</mat-icon>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 relative z-0">
                     <button type="button"
                             mat-flat-button
                             color="primary"
@@ -163,7 +163,9 @@
                     <input matInput
                            type="password"
                            formControlName="currentPassword"
-                           required>
+                           required
+                           [autocomplete]="'new-password'"
+                           (focus)="$event.target.autocomplete = 'current-password'">
                     <mat-icon matPrefix>lock</mat-icon>
                     <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
                         La contraseña es requerida

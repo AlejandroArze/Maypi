@@ -322,7 +322,10 @@ export class SettingsAccountComponent implements OnInit {
 
             // Guardar el FormData pendiente y mostrar el diálogo de contraseña
             this.pendingFormData = formData;
+            // Resetear el campo de contraseña antes de mostrar el diálogo
+            this.passwordForm.get('currentPassword').reset();
             this.showPasswordConfirmation = true;
+            this.cdr.detectChanges();
         }
     }
 
@@ -377,7 +380,8 @@ export class SettingsAccountComponent implements OnInit {
     cancelPasswordConfirmation(): void {
         this.showPasswordConfirmation = false;
         this.pendingFormData = null;
-        this.passwordForm.reset();
+        this.passwordForm.get('currentPassword').reset();
+        this.cdr.detectChanges();
     }
 
     resetForm(): void {
