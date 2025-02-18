@@ -1,11 +1,131 @@
 <div class="flex flex-col flex-auto min-w-0">
     <!-- Main -->
     <div class="flex-auto p-6 sm:p-10">
-        <div class="h-full">
-            <!-- Title -->
-            <div class="text-4xl font-extrabold tracking-tight leading-none">Seguimiento de Desaparecido</div>
-            <div class="mt-2 text-lg text-secondary">
-                Sistema de seguimiento y actualización de casos de personas desaparecidas
+        <div class="max-w-full">
+            <!-- Título y descripción -->
+            <div class="text-3xl font-semibold tracking-tight leading-8">Seguimiento de Personas Desaparecidas</div>
+            <div class="mt-4">
+                <p class="text-lg text-secondary">
+                    Sistema de seguimiento y actualización de casos de personas desaparecidas. 
+                    Mantenga un registro actualizado y coordine esfuerzos de búsqueda.
+                </p>
+            </div>
+
+            <!-- Filtros y búsqueda -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <mat-form-field class="flex-auto">
+                    <mat-label>Buscar caso</mat-label>
+                    <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" 
+                           placeholder="Buscar por nombre, ID o ubicación">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field class="w-full sm:w-48">
+                    <mat-label>Estado</mat-label>
+                    <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyFilters()">
+                        <mat-option value="all">Todos</mat-option>
+                        <mat-option value="active">Activos</mat-option>
+                        <mat-option value="investigating">En Investigación</mat-option>
+                        <mat-option value="found">Encontrados</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <!-- Grid de casos -->
+            <div class="case-grid mt-6">
+                <mat-card class="case-card" *ngFor="let case of filteredCases">
+                    <mat-card-header>
+                        <img mat-card-avatar [src]="case.imageUrl" [alt]="case.name">
+                        <mat-card-title>{{case.name}}</mat-card-title>
+                        <mat-card-subtitle>ID: {{case.id}}</mat-card-subtitle>
+                    </mat-card-header>
+                    
+                    <img mat-card-image [src]="case.imageUrl" [alt]="case.name" class="h-48 object-cover">
+                    
+                    <mat-card-content class="p-6">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Estado:</span>
+                                <span [class]="'status-badge ' + getStatusClass(case.status)">
+                                    {{getStatusText(case.status)}}
+                                </span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="font-medium">Edad:</span>
+                                <span>{{case.age}} años</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="font-medium">Última vez visto:</span>
+                                <span>{{case.lastSeen | date}}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="font-medium">Ubicación:</span>
+                                <span>{{case.location}}</span>
+                            </div>
+                            
+                            <mat-divider class="my-4"></mat-divider>
+                            
+                            <p class="text-secondary">{{case.description}}</p>
+                            
+                            <div class="mt-2">
+                                <span class="font-medium">Contacto:</span>
+                                <span class="ml-2">{{case.contactInfo}}</span>
+                            </div>
+                        </div>
+                    </mat-card-content>
+
+                    <mat-divider></mat-divider>
+
+                    <mat-card-actions class="p-4 flex justify-between">
+                        <button mat-button color="primary" (click)="viewDetails(case.id)">
+                            <mat-icon class="mr-2">visibility</mat-icon>
+                            Ver Detalles
+                        </button>
+                        
+                        <button mat-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="updateStatus(case.id, 'active')"
+                                    [disabled]="case.status === 'active'">
+                                <mat-icon>radio_button_checked</mat-icon>
+                                <span>Marcar como Activo</span>
+                            </button>
+                            <button mat-menu-item (click)="updateStatus(case.id, 'investigating')"
+                                    [disabled]="case.status === 'investigating'">
+                                <mat-icon>search</mat-icon>
+                                <span>En Investigación</span>
+                            </button>
+                            <button mat-menu-item (click)="updateStatus(case.id, 'found')"
+                                    [disabled]="case.status === 'found'">
+                                <mat-icon>check_circle</mat-icon>
+                                <span>Marcar como Encontrado</span>
+                            </button>
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="addUpdate(case.id)">
+                                <mat-icon>add_comment</mat-icon>
+                                <span>Agregar Actualización</span>
+                            </button>
+                        </mat-menu>
+                    </mat-card-actions>
+
+                    <mat-card-footer>
+                        <div class="px-6 py-2 text-sm text-secondary">
+                            Última actualización: {{case.lastUpdate | date}}
+                        </div>
+                    </mat-card-footer>
+                </mat-card>
+            </div>
+
+            <!-- Mensaje cuando no hay resultados -->
+            <div *ngIf="filteredCases.length === 0" class="mt-8 p-8 text-center bg-gray-50 rounded-lg">
+                <mat-icon class="text-6xl text-gray-400">search_off</mat-icon>
+                <p class="mt-4 text-xl font-medium text-gray-500">
+                    No se encontraron casos que coincidan con los criterios de búsqueda
+                </p>
             </div>
         </div>
     </div>

@@ -1,11 +1,133 @@
 <div class="flex flex-col flex-auto min-w-0">
     <!-- Main -->
     <div class="flex-auto p-6 sm:p-10">
-        <div class="h-full">
-            <!-- Title -->
-            <div class="text-4xl font-extrabold tracking-tight leading-none">Control de Rostros Terminal Aeropuerto</div>
-            <div class="mt-2 text-lg text-secondary">
-                Sistema de reconocimiento facial para control en terminales aeroportuarias
+        <div class="max-w-3xl">
+            <div class="text-3xl font-semibold tracking-tight leading-8">Control de Rostros en Terminal</div>
+            <div class="mt-4">
+                <p class="text-lg">
+                    Sistema de reconocimiento facial para identificación de personas desaparecidas en terminales
+                </p>
+            </div>
+
+            <!-- Panel de Control -->
+            <div class="mt-8 bg-card rounded-2xl shadow overflow-hidden">
+                <div class="p-6">
+                    <!-- Estado del Sistema -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                                Sistema Activo
+                            </span>
+                        </div>
+                        <button mat-flat-button color="primary">
+                            <mat-icon class="mr-2">camera_alt</mat-icon>
+                            Iniciar Nueva Captura
+                        </button>
+                    </div>
+
+                    <!-- Estadísticas Rápidas -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm text-gray-500">Capturas Hoy</div>
+                            <div class="text-2xl font-semibold mt-1">1,234</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm text-gray-500">Coincidencias</div>
+                            <div class="text-2xl font-semibold mt-1">3</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="text-sm text-gray-500">Precisión</div>
+                            <div class="text-2xl font-semibold mt-1">98.5%</div>
+                        </div>
+                    </div>
+
+                    <!-- Últimas Alertas -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Últimas Alertas</h3>
+                        <table mat-table [dataSource]="alerts" class="w-full">
+                            <!-- Timestamp Column -->
+                            <ng-container matColumnDef="timestamp">
+                                <th mat-header-cell *matHeaderCellDef>Hora</th>
+                                <td mat-cell *matCellDef="let alert">{{alert.timestamp}}</td>
+                            </ng-container>
+
+                            <!-- Location Column -->
+                            <ng-container matColumnDef="location">
+                                <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+                                <td mat-cell *matCellDef="let alert">{{alert.location}}</td>
+                            </ng-container>
+
+                            <!-- Match Column -->
+                            <ng-container matColumnDef="matchPercentage">
+                                <th mat-header-cell *matHeaderCellDef>% Coincidencia</th>
+                                <td mat-cell *matCellDef="let alert">{{alert.matchPercentage}}%</td>
+                            </ng-container>
+
+                            <!-- Status Column -->
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                                <td mat-cell *matCellDef="let alert">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
+                                          [ngClass]="{
+                                              'bg-red-100 text-red-800': alert.status === 'urgent',
+                                              'bg-yellow-100 text-yellow-800': alert.status === 'pending',
+                                              'bg-green-100 text-green-800': alert.status === 'verified'
+                                          }">
+                                        {{alert.status}}
+                                    </span>
+                                </td>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                                <td mat-cell *matCellDef="let alert">
+                                    <button mat-icon-button [matMenuTriggerFor]="menu">
+                                        <mat-icon>more_vert</mat-icon>
+                                    </button>
+                                    <mat-menu #menu="matMenu">
+                                        <button mat-menu-item>
+                                            <mat-icon>visibility</mat-icon>
+                                            <span>Ver Detalles</span>
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon>verified</mat-icon>
+                                            <span>Verificar</span>
+                                        </button>
+                                        <button mat-menu-item>
+                                            <mat-icon>report</mat-icon>
+                                            <span>Reportar Falso Positivo</span>
+                                        </button>
+                                    </mat-menu>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+                    </div>
+
+                    <!-- Configuración del Sistema -->
+                    <div>
+                        <h3 class="text-lg font-medium mb-4">Configuración</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <mat-form-field>
+                                <mat-label>Umbral de Coincidencia</mat-label>
+                                <input matInput type="number" min="0" max="100" value="90">
+                                <mat-hint>Porcentaje mínimo para generar una alerta</mat-hint>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>Cámaras Activas</mat-label>
+                                <mat-select multiple>
+                                    <mat-option value="cam1">Entrada Principal</mat-option>
+                                    <mat-option value="cam2">Sala de Espera</mat-option>
+                                    <mat-option value="cam3">Zona de Embarque</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
