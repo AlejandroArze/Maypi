@@ -54,7 +54,7 @@ services:
       TZ: America/La_Paz
     volumes:
       - postgres_data:/var/lib/postgresql/data/pgdata
-      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d laboratorio_bd"]
       interval: 10s
