@@ -673,7 +673,7 @@ export class TasksService
         const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
         const body = `cod_bienes=${encodeURIComponent(codBienes)}`;
 
-        return this._httpClient.post<any>('http://localhost:3001/api/proxy', body, { headers }).pipe(
+        return this._httpClient.post<any>(`${this.baseUrlAlt}/api/proxy`, body, { headers }).pipe(
             tap((response) => {
                 if (response && response.data) {
                     console.log('Bienes encontrados:', response.data);
