@@ -238,7 +238,7 @@ export class SettingsTeamComponent implements OnInit, OnDestroy
       case '2':
         return 'Admin';
       case '3':
-        return 'Tecnico';
+        return 'Técnico';
       default:
         return 'Rol desconocido';
     }
