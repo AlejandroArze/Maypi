@@ -6,7 +6,7 @@
     </div>
 
     <!-- Formulario Principal -->
-    <form [formGroup]="accountForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    <form [formGroup]="accountForm" class="space-y-8">
         <!-- Información Personal -->
         <div class="space-y-6">
             <!-- Foto de perfil -->
@@ -97,19 +97,26 @@
                 </button>
             </div>
 
-            <div *ngIf="showPasswordSection" class="space-y-4" [formGroup]="passwordForm">
+            <!-- Formulario independiente para cambio de contraseña -->
+            <form *ngIf="showPasswordSection" [formGroup]="passwordForm" class="space-y-4">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Contraseña actual</mat-label>
                     <input matInput type="password" formControlName="currentPassword">
                     <mat-icon matPrefix>lock</mat-icon>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
+                        La contraseña actual es requerida
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.get('currentPassword').hasError('incorrect')">
+                        La contraseña actual es incorrecta
+                    </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Nueva contraseña</mat-label>
                     <input matInput type="password" formControlName="newPassword">
                     <mat-icon matPrefix>lock_reset</mat-icon>
-                   
                 </mat-form-field>
+
                 <!-- Mensajes dinámicos de validación -->
                 <div class="mt-1">
                     <div class="flex flex-wrap gap-4">
@@ -136,31 +143,21 @@
                     <mat-label>Confirmar nueva contraseña</mat-label>
                     <input matInput type="password" formControlName="confirmPassword">
                     <mat-icon matPrefix>lock_reset</mat-icon>
+                    <mat-error *ngIf="passwordForm.hasError('passwordMismatch')">
+                        Las contraseñas no coinciden
+                    </mat-error>
                 </mat-form-field>
-                <!-- Mensajes de validación para confirmación -->
-                <div class="mt-1">
-                    <div class="flex flex-wrap gap-4">
-                        <div class="text-sm" [class.text-green-600]="!passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword').value" 
-                             [class.text-red-600]="passwordForm.hasError('mismatch') || !passwordForm.get('confirmPassword').value">
-                            <mat-icon class="icon-size-4 align-middle" 
-                                     [svgIcon]="!passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword').value ? 'heroicons_solid:check-circle' : 'heroicons_solid:x-circle'">
-                            </mat-icon>
-                            Contraseñas coinciden
-                        </div>
-                       
-                    </div>
-                </div>
 
                 <div class="flex justify-end">
                     <button type="button"
                             mat-flat-button
                             color="primary"
-                            [disabled]="passwordForm.invalid"
+                            [disabled]="passwordForm.invalid || passwordForm.hasError('passwordMismatch')"
                             (click)="changePassword()">
                         Actualizar contraseña
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Botones de acción -->
@@ -176,7 +173,7 @@
                 [color]="'primary'"
                 type="button"
                 [disabled]="accountForm.invalid"
-                (click)="confirmUpdate()">
+                (click)="onSubmit()">
                 Guardar
             </button>
         </div>
@@ -191,15 +188,13 @@
                 <p class="mt-2 text-secondary">Por favor, ingresa tu contraseña actual para confirmar los cambios.</p>
             </div>
             
-            <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <form [formGroup]="passwordForm" class="space-y-6">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Contraseña actual</mat-label>
                     <input matInput
                            type="password"
                            formControlName="currentPassword"
-                           required
-                           [autocomplete]="'new-password'"
-                           (focus)="$event.target.autocomplete = 'current-password'">
+                           required>
                     <mat-icon matPrefix>lock</mat-icon>
                     <mat-error *ngIf="passwordForm.get('currentPassword').hasError('required')">
                         La contraseña es requerida
@@ -219,7 +214,8 @@
                     <button
                         mat-flat-button
                         [color]="'primary'"
-                        type="submit"
+                        type="button"
+                        (click)="confirmUpdate()"
                         [disabled]="!passwordForm.get('currentPassword').value">
                         Confirmar
                     </button>

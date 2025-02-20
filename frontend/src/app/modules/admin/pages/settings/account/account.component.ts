@@ -58,36 +58,34 @@ export class SettingsAccountComponent implements OnInit {
     ngOnInit(): void {
         this.initializeForms();
         this.loadUserData();
-
-        // Suscribirse a los cambios de la nueva contraseña
-        this.passwordForm.get('newPassword').valueChanges.subscribe(value => {
-            this.updatePasswordValidation(value);
-        });
     }
 
     initializeForms(): void {
-        // Formulario principal
+        // Formulario principal de la cuenta
         this.accountForm = this._formBuilder.group({
             name: ['', Validators.required],
             lastname: ['', Validators.required],
             username: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
-            photo: [null],
-            password: [''],
             role: [''],
             estado: ['']
         });
 
-        // Formulario de contraseña
+        // Formulario independiente para cambio de contraseña
         this.passwordForm = this._formBuilder.group({
             currentPassword: ['', Validators.required],
             newPassword: ['', [
-                Validators.required, 
+                Validators.required,
                 Validators.minLength(8),
                 this.createPasswordValidator()
             ]],
             confirmPassword: ['', Validators.required]
         }, { validator: this.passwordMatchValidator });
+
+        // Suscribirse a los cambios de la nueva contraseña
+        this.passwordForm.get('newPassword').valueChanges.subscribe(value => {
+            this.updatePasswordValidation(value);
+        });
     }
 
     loadUserData(): void {
@@ -293,9 +291,6 @@ export class SettingsAccountComponent implements OnInit {
                     next: (response: any) => {
                         console.log('✅ Contraseña actualizada exitosamente');
                         this.showNotification('Contraseña actualizada exitosamente', 'success');
-                        // Disparar evento de actualización
-                        window.dispatchEvent(new Event('userDataUpdated'));
-                        
                         this.passwordForm.reset();
                         this.showPasswordSection = false;
                         this.cdr.detectChanges();
@@ -330,6 +325,8 @@ export class SettingsAccountComponent implements OnInit {
 
     onSubmit(): void {
         if (this.accountForm.valid) {
+            console.log('Iniciando proceso de submit...');
+            
             const formData = new FormData();
             
             // Agregar los campos del formulario al FormData
@@ -344,6 +341,7 @@ export class SettingsAccountComponent implements OnInit {
                 formData.append('image', this.selectedFile);
             }
 
+            // Guardar el FormData y mostrar el diálogo de confirmación
             this.pendingFormData = formData;
             this.showPasswordConfirmation = true;
             this.cdr.detectChanges();
@@ -351,50 +349,53 @@ export class SettingsAccountComponent implements OnInit {
     }
 
     confirmUpdate(): void {
-        if (!this.userId) {
-            console.error('❌ No se encontró el ID del usuario');
+        if (!this.userId || !this.pendingFormData) {
+            console.error('❌ No se encontró el ID del usuario o no hay datos pendientes');
             return;
         }
 
-        if (this.accountForm.valid) {
-            console.log('🔄 Iniciando actualización del usuario ID:', this.userId);
-
-            if (!this.pendingFormData) {
-                console.error('❌ No hay datos pendientes para actualizar');
-                return;
-            }
-
-            // Agregar la contraseña al FormData
-            this.pendingFormData.append('password', this.passwordForm.get('currentPassword').value);
-
-            this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, this.pendingFormData)
-                .subscribe({
-                    next: (response: any) => {
-                        console.log('✅ Perfil actualizado exitosamente:', response);
-                        if (response.data?.image) {
-                            this.imagePreview = `${environment.baseUrl}${response.data.image}`;
-                            this.imageName = response.data.image.split('/').pop();
-                            console.log('🖼️ Nueva imagen guardada:', this.imagePreview);
-                        }
-                        // Actualizar el localStorage con los nuevos datos
-                        localStorage.setItem('user', JSON.stringify(response));
-                        // Disparar evento de actualización
-                        window.dispatchEvent(new Event('userDataUpdated'));
-                        
-                        this.showPasswordConfirmation = false;
-                        this.pendingFormData = null;
-                        this.passwordForm.reset();
-                        this.cdr.detectChanges();
-                    },
-                    error: (error) => {
-                        console.error('❌ Error al actualizar el perfil:', error);
-                        if (error.status === 401) {
-                            this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
-                        }
-                        this.cdr.detectChanges();
-                    }
-                });
+        const currentPassword = this.passwordForm.get('currentPassword').value;
+        if (!currentPassword) {
+            console.error('❌ No se proporcionó contraseña de confirmación');
+            this.showNotification('Por favor ingrese su contraseña actual', 'error');
+            return;
         }
+
+        // Agregar la contraseña al FormData existente
+        this.pendingFormData.append('password', currentPassword);
+
+        console.log('🔄 Iniciando actualización del usuario ID:', this.userId);
+        console.log('Datos a enviar:', {
+            url: `${environment.baseUrl}/user/${this.userId}`,
+            formData: Array.from((this.pendingFormData as any).entries())
+        });
+
+        this._httpClient.put(`${environment.baseUrl}/user/${this.userId}`, this.pendingFormData)
+            .subscribe({
+                next: (response: any) => {
+                    console.log('✅ Perfil actualizado exitosamente:', response);
+                    if (response.data?.image) {
+                        this.imagePreview = `${environment.baseUrl}${response.data.image}`;
+                        this.imageName = response.data.image.split('/').pop();
+                    }
+                    localStorage.setItem('user', JSON.stringify(response));
+                    window.dispatchEvent(new Event('userDataUpdated'));
+                    
+                    this.showPasswordConfirmation = false;
+                    this.pendingFormData = null;
+                    this.passwordForm.reset();
+                    this.showNotification('Perfil actualizado exitosamente', 'success');
+                    this.cdr.detectChanges();
+                },
+                error: (error) => {
+                    console.error('❌ Error al actualizar el perfil:', error);
+                    if (error.status === 401) {
+                        this.passwordForm.get('currentPassword').setErrors({ 'incorrect': true });
+                        this.showNotification('La contraseña actual es incorrecta', 'error');
+                    }
+                    this.cdr.detectChanges();
+                }
+            });
     }
 
     cancelPasswordConfirmation(): void {
