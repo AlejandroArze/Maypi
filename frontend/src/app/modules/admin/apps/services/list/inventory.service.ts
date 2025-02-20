@@ -41,6 +41,7 @@ export class InventoryService
 
 
     private baseUrl = environment.baseUrl;//llamamos a los enviment de la url
+    private baseUrlAlt = environment.baseUrlAlt;//llamamos al environment alternativo
 
     /**
      * Constructor
@@ -633,9 +634,8 @@ buscarEquipos(page: number, limit: number, search: string): Observable<{ equipos
         // Creamos el cuerpo de la solicitud, codificando el parámetro nombre_completo para asegurar que sea adecuado para la URL
         const body = `nombre_completo=${encodeURIComponent(nombreCompleto)}`;
         console.log("body",body);
-        // Realizamos la solicitud POST al servidor en el endpoint 'http://localhost:3001/api/empleados'
-        // Enviamos el cuerpo de la solicitud y las cabeceras configuradas
-        return this._httpClient.post<{ status: boolean; data: Empleado[] }>('http://localhost:3001/api/empleados', body, { headers })
+        
+        return this._httpClient.post<{ status: boolean; data: Empleado[] }>(`${this.baseUrlAlt}/api/empleados`, body, { headers })
         .pipe(
             // Usamos el operador 'map' para extraer solo el array de empleados desde el campo 'data'
             map(response => {
@@ -668,8 +668,7 @@ buscarEquipos(page: number, limit: number, search: string): Observable<{ equipos
         const body = `nombre_completo=${encodeURIComponent(nombreCompleto)}`;
         console.log("body:", body);
     
-        // Realizamos la solicitud POST
-        return this._httpClient.post<{ status: boolean; data: Empleado[] }>('http://localhost:3001/api/empleados', body, { headers })
+        return this._httpClient.post<{ status: boolean; data: Empleado[] }>(`${this.baseUrlAlt}/api/empleados`, body, { headers })
             .pipe(
                 map(response => {
                     if (response && response.status) {

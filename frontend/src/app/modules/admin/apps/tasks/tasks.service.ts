@@ -35,6 +35,7 @@ export class TasksService
     private _equipments: BehaviorSubject<any[]> = new BehaviorSubject(null);
     private baseUrl = environment.baseUrl;//llamamos a los enviment de la url
     private _pagination: BehaviorSubject<InventoryPagination | null> = new BehaviorSubject(null);
+    private baseUrlAlt = environment.baseUrlAlt;//llamamos al environment alternativo
     
     // Constante para el estado
     private readonly ESTADO_SIN_ASIGNAR = 'SIN ASIGNAR';
@@ -786,7 +787,7 @@ export class TasksService
         console.log('Buscando empleados con término:', nombreCompleto);
 
         return this._httpClient.post<{ status: boolean; data: Empleado[] }>(
-            'http://localhost:3001/api/empleados', 
+            `${this.baseUrlAlt}/api/empleados`, 
             body, 
             { headers }
         ).pipe(

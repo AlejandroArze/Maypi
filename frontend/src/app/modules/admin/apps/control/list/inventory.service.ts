@@ -26,7 +26,7 @@ export class InventoryService
     //private _products: BehaviorSubject<InventoryProduct[] | null> = new BehaviorSubject(null);
     private _equipment: BehaviorSubject<InventoryEquipment | null> = new BehaviorSubject(null);
     // `BehaviorSubject` para almacenar el producto actual seleccionado (`InventoryProduct`). Se inicializa como `null`.
-
+    private baseUrlAlt = environment.baseUrlAlt;//llamamos al environment alternativo
     private _equipments: BehaviorSubject<InventoryEquipment[] | null> = new BehaviorSubject(null);
        // `BehaviorSubject` para almacenar la lista de productos (`InventoryProduct[]`). Se inicializa como `null`.
 
@@ -1649,7 +1649,7 @@ updateEquipment434(equipos_id: number, equipment: InventoryEquipment): Observabl
 
     const body = `cod_bienes=${encodeURIComponent(codBienes)}`;
 
-    return this._httpClient.post('http://localhost:3001/api/proxy', body, { headers }).pipe(
+    return this._httpClient.post(`${this.baseUrlAlt}/api/proxy`, body, { headers }).pipe(
         tap((response) => {
           if (response.status) {
             this._bienes.next(response.data);
@@ -1662,7 +1662,7 @@ updateEquipment434(equipos_id: number, equipment: InventoryEquipment): Observabl
 
     const body = `cod_bienes=${encodeURIComponent(codBienes)}`;
 
-    return this._httpClient.post<BienesResponse>('http://localhost:3001/api/proxy', body, { headers }).pipe(
+    return this._httpClient.post<BienesResponse>(`${this.baseUrlAlt}/api/proxy`, body, { headers }).pipe(
       tap((response) => {
         if (response && response.data) {
           console.log('Bienes encontrados:', response.data);
@@ -1686,7 +1686,7 @@ updateEquipment434(equipos_id: number, equipment: InventoryEquipment): Observabl
   
     // Realizamos una solicitud POST al servidor en el endpoint 'http://localhost:3001/api/empleados'
     // Enviamos los datos (body) y las cabeceras configuradas
-    return this._httpClient.post<{ status: boolean; data: Empleado[] }>('http://localhost:3001/api/empleados', body.toString(), { headers })
+    return this._httpClient.post<{ status: boolean; data: Empleado[] }>(`${this.baseUrlAlt}/api/empleados`, body.toString(), { headers })
       
       // Usamos el operador 'map' de RxJS para extraer solo el campo 'data' de la respuesta
       .pipe(
@@ -1711,7 +1711,7 @@ updateEquipment434(equipos_id: number, equipment: InventoryEquipment): Observabl
     
         // Realizamos la solicitud POST al servidor en el endpoint 'http://localhost:3001/api/empleados'
         // Enviamos el cuerpo de la solicitud y las cabeceras configuradas
-        return this._httpClient.post<{ status: boolean; data: Empleado[] }>('http://localhost:3001/api/empleados', body, { headers })
+        return this._httpClient.post<{ status: boolean; data: Empleado[] }>(`${this.baseUrlAlt}/api/empleados`, body, { headers })
         .pipe(
             // Usamos el operador 'map' para extraer solo el array de empleados desde el campo 'data'
             map(response => {
@@ -1787,7 +1787,7 @@ updateEquipment434(equipos_id: number, equipment: InventoryEquipment): Observabl
 
 
         
-        return this._httpClient.post<{ status: boolean; data: Empleado[] }>('http://localhost:3001/api/empleados', body, { headers })
+        return this._httpClient.post<{ status: boolean; data: Empleado[] }>(`${this.baseUrlAlt}/api/empleados`, body, { headers })
         .pipe(
             // Usamos el operador 'map' para extraer solo el array de empleados desde el campo 'data'
             map(response => {
