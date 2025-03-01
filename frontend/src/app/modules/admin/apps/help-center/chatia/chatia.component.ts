@@ -43,6 +43,7 @@ export class HelpCenterChatIAComponent implements OnInit, OnDestroy {
         '¿Cuáles son los horarios de atención?',
         'Necesito información sobre soporte técnico'
     ];
+    greeting: string = '';
 
     private _unsubscribeAll = new Subject<void>();
 
@@ -70,6 +71,8 @@ export class HelpCenterChatIAComponent implements OnInit, OnDestroy {
                 // Aplicar la clase de modo oscuro al documento
                 document.documentElement.classList.toggle('dark', this.isDarkMode);
             });
+
+        this.updateGreeting();
     }
 
     ngOnDestroy(): void {
@@ -92,14 +95,14 @@ export class HelpCenterChatIAComponent implements OnInit, OnDestroy {
 
     generateInitialPrompt(type: string): string {
         switch(type) {
-            case 'Yoga':
-                return 'Dame 5 posturas de yoga fáciles para principiantes que pueda hacer en casa';
-            case 'Tender mano':
-                return 'Quiero saber cómo tender la mano a un amigo que está pasando por un momento difícil. Dame consejos sensibles y respetuosos';
-            case 'Comprar coche':
-                return 'Estoy pensando en comprar un coche nuevo. Dame 10 consejos importantes para elegir el mejor vehículo para mis necesidades';
+            case 'Guía de búsqueda':
+                return 'Necesito orientación sobre los primeros pasos para buscar a una persona desaparecida';
+            case 'Apoyo emocional':
+                return 'Estoy pasando por un momento muy difícil y necesito ayuda para manejar mi dolor y angustia';
+            case 'Asesoría legal':
+                return 'Quiero conocer mis derechos y los procedimientos legales para la búsqueda de mi ser querido';
             default:
-                return '¿En qué puedo ayudarte hoy?';
+                return '¿Cómo puedo obtener ayuda para encontrar a mi familiar desaparecido?';
         }
     }
 
@@ -129,72 +132,188 @@ export class HelpCenterChatIAComponent implements OnInit, OnDestroy {
             sender: 'user'
         });
 
+        // Desplazar dejando espacio en blanco en la parte inferior
+        // Restar la altura del contenedor para dejar espacio
+        this.scrollToBottom();
+
         // Simular respuesta del bot (en un escenario real, esto sería una llamada a un servicio de IA)
         const botResponse = this.generateBotResponse(this.userInput);
-        this.messages.push({
-            text: botResponse,
-            sender: 'bot'
-        });
+        
+        // Agregar respuesta del bot con generación gradual
+        this.addBotResponseGradually(botResponse);
 
         // Limpiar input
         this.userInput = '';
+    }
 
-        // Desplazar al final del chat
-        this.scrollToBottom();
+    private scrollToBottom() {
+        // Variable para controlar el último desplazamiento
+        if (!this.lastScrollTime) {
+            this.lastScrollTime = 0;
+        }
+
+        const currentTime = Date.now();
+        
+        // Agregar un intervalo mínimo entre desplazamientos
+        if (currentTime - this.lastScrollTime < 500) {
+            return;
+        }
+
+        // Actualizar el tiempo del último desplazamiento
+        this.lastScrollTime = currentTime;
+
+        // Usar setTimeout con un retraso para suavizar el desplazamiento
+        setTimeout(() => {
+            const chatContainer = document.querySelector('.overflow-y-auto');
+            
+            if (chatContainer) {
+                // Agregar un marcador invisible al final para forzar el scroll
+                const marker = document.createElement('div');
+                marker.style.height = '1px';
+                marker.style.visibility = 'hidden';
+                marker.id = 'scroll-marker';
+                chatContainer.appendChild(marker);
+
+                // Encontrar todos los mensajes de usuario
+                const userMessages = Array.from(chatContainer.querySelectorAll('.user-message'));
+                
+                // Obtener el último mensaje de usuario
+                const lastUserMessage = userMessages[userMessages.length - 1] as HTMLElement;
+                
+                if (lastUserMessage) {
+                    // Método 1: Scroll forzado
+                    lastUserMessage.scrollIntoView({
+                        behavior: 'smooth', 
+                        block: 'start'
+                    });
+
+                    // Método 2: Ajuste manual de scroll
+                    const containerRect = chatContainer.getBoundingClientRect();
+                    const messageRect = lastUserMessage.getBoundingClientRect();
+                    
+                    // Calcular el desplazamiento
+                    const scrollPosition = messageRect.top - containerRect.top + chatContainer.scrollTop - 20; // Margen un poco más grande
+                    
+                    // Establecer la posición de desplazamiento
+                    chatContainer.scrollTop = scrollPosition;
+                }
+
+                // Limpiar el marcador
+                setTimeout(() => {
+                    const existingMarker = document.getElementById('scroll-marker');
+                    if (existingMarker) {
+                        existingMarker.remove();
+                    }
+                }, 200);
+            }
+        }, 100); // Retraso inicial
+    }
+
+    // Agregar propiedad para controlar el último tiempo de desplazamiento
+    private lastScrollTime: number = 0;
+
+    private addBotResponseGradually(fullResponse: string) {
+        // Agregar mensaje inicial vacío
+        const botMessageIndex = this.messages.push({
+            text: '',
+            sender: 'bot'
+        }) - 1;
+
+        // Función para generar texto gradualmente
+        const generateTextGradually = (currentIndex: number) => {
+            if (currentIndex <= fullResponse.length) {
+                // Actualizar el mensaje con el texto parcial
+                this.messages[botMessageIndex].text = fullResponse.slice(0, currentIndex);
+                
+                // Desplazar al final del chat
+                this.scrollToBottom();
+
+                // Programar la siguiente iteración
+                setTimeout(() => {
+                    generateTextGradually(currentIndex + 5); // Ajusta este valor para controlar la velocidad
+                }, 50); // Ajusta este valor para controlar la velocidad de generación
+            }
+        };
+
+        // Iniciar generación gradual
+        generateTextGradually(1);
     }
 
     generateBotResponse(userMessage: string): string {
         const lowercaseMessage = userMessage.toLowerCase();
         
-        if (lowercaseMessage.includes('yoga')) {
-            return `Aquí tienes 5 posturas de yoga fáciles para principiantes:
-1. Postura del Árbol (Vrksasana): Mejora el equilibrio y la concentración.
-2. Postura del Perro Boca Abajo (Adho Mukha Svanasana): Estira la espalda y fortalece los brazos.
-3. Postura del Guerrero I (Virabhadrasana I): Fortalece piernas y mejora la estabilidad.
-4. Postura del Niño (Balasana): Relaja la espalda y reduce el estrés.
-5. Postura de la Cobra (Bhujangasana): Fortalece la espalda y abre el pecho.
+        if (lowercaseMessage.includes('guía de búsqueda') || lowercaseMessage.includes('primeros pasos')) {
+            return `Pasos iniciales para buscar a una persona desaparecida:
+1. Reporta la desaparición inmediatamente a las autoridades
+2. Reúne y prepara información detallada:
+   - Descripción física
+   - Última ubicación conocida
+   - Ropa que vestía
+   - Fotografías recientes
+3. Contacta a la policía y fiscalía
+4. Realiza una denuncia formal
+5. Comparte información en redes sociales y medios locales
+6. Mantén un registro de todas tus acciones y comunicaciones
 
-Recuerda respirar profundamente y no forzar ninguna posición.`;
-        } else if (lowercaseMessage.includes('tender la mano')) {
-            return `Consejos para tender la mano a un amigo que está pasando por un momento difícil:
-1. Escucha sin juzgar: Ofrece tu atención completa.
-2. Valida sus sentimientos: Reconoce su dolor sin minimizarlo.
-3. Ofrece apoyo concreto: "Estoy aquí para lo que necesites".
-4. No intentes "arreglar" todo: A veces solo necesitan ser escuchados.
-5. Mantén el contacto: Mensajes ocasionales pueden significar mucho.
-6. Respeta su espacio: No presiones si no quieren hablar.
-7. Muestra empatía: Ponte en su lugar sin comparar experiencias.`;
-        } else if (lowercaseMessage.includes('comprar coche')) {
-            return `10 consejos para comprar un coche nuevo:
-1. Establece un presupuesto realista
-2. Investiga diferentes modelos y marcas
-3. Compara precios en varios concesionarios
-4. Verifica el consumo de combustible
-5. Considera los costos de mantenimiento
-6. Realiza una prueba de manejo
-7. Revisa la garantía del vehículo
-8. Investiga la reputación de la marca
-9. Considera el valor de reventa
-10. No te apresures, toma tu tiempo para decidir
+Recuerda: Actúa rápido, mantén la calma y no dudes en buscar ayuda profesional.`;
+        } else if (lowercaseMessage.includes('apoyo emocional') || lowercaseMessage.includes('dolor') || lowercaseMessage.includes('angustia')) {
+            return `Recursos de apoyo emocional para familiares de personas desaparecidas:
+1. Grupos de apoyo:
+   - Conexión con personas que han pasado por situaciones similares
+   - Espacios seguros para compartir emociones
+2. Estrategias de manejo emocional:
+   - Practica técnicas de respiración y meditación
+   - Mantén una rutina de autocuidado
+   - No te culpes
+3. Apoyo psicológico:
+   - Busca terapia especializada
+   - Líneas de ayuda gratuitas
+4. Consejos para manejar la incertidumbre:
+   - Mantén la esperanza
+   - Enfócate en acciones concretas
+   - Busca apoyo de familia y amigos
 
-¿Necesitas más detalles sobre alguno de estos puntos?`;
+Nunca estás solo en este proceso.`;
+        } else if (lowercaseMessage.includes('asesoría legal') || lowercaseMessage.includes('derechos') || lowercaseMessage.includes('procedimientos')) {
+            return `Orientación legal para casos de personas desaparecidas:
+1. Derechos fundamentales:
+   - Derecho a la búsqueda y localización
+   - Acceso a información
+   - Protección y atención integral
+2. Documentos importantes:
+   - Denuncia formal
+   - Solicitud de búsqueda urgente
+   - Registro de desaparecidos
+3. Instituciones de apoyo:
+   - Fiscalía especializada
+   - Comisión de búsqueda
+   - Organizaciones de derechos humanos
+4. Pasos legales:
+   - Presentar denuncia
+   - Solicitar investigación
+   - Exigir actualizaciones periódicas
+5. Recomendaciones:
+   - Documenta todo
+   - Mantén comunicación constante
+   - Busca asesoría legal especializada
+
+Tu persistencia es fundamental.`;
         } else {
-            return 'Gracias por tu mensaje. ¿En qué más puedo ayudarte?';
+            return `Estamos aquí para apoyarte en la búsqueda de tu ser querido. 
+
+Nuestro objetivo es brindarte:
+- Orientación profesional
+- Recursos de búsqueda
+- Apoyo emocional
+- Asesoría legal
+
+¿En qué área específica necesitas ayuda hoy?`;
         }
     }
 
     selectSuggestedQuestion(question: string) {
         this.userInput = question;
         this.sendMessage();
-    }
-
-    private scrollToBottom() {
-        setTimeout(() => {
-            const chatContainer = document.querySelector('.overflow-y-auto');
-            if (chatContainer) {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        }, 0);
     }
 
     toggleFullscreen() {
@@ -226,5 +345,16 @@ Recuerda respirar profundamente y no forzar ninguna posición.`;
         this._fuseConfigService.config = {
             scheme: 'light'
         };
+    }
+
+    updateGreeting() {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 5 && currentHour < 12) {
+            this.greeting = 'Buenos días';
+        } else if (currentHour >= 12 && currentHour < 19) {
+            this.greeting = 'Buenas tardes';
+        } else {
+            this.greeting = 'Buenas noches';
+        }
     }
 } 
