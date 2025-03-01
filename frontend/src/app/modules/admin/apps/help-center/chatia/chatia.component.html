@@ -1,30 +1,165 @@
-<div class="flex flex-col flex-auto min-w-0">
-    <!-- Main -->
-    <div class="flex-auto p-6 sm:p-10">
-        <div class="max-w-3xl">
-            <div class="text-3xl font-semibold tracking-tight leading-8">Chat IA</div>
-            <div class="mt-4">
-                <p class="text-lg">
-                    Asistente virtual para ayuda y soporte
-                </p>
+<div class="w-full h-full flex flex-col bg-white dark:bg-[#0E1525] text-black dark:text-white">
+    <!-- Header -->
+    <div class="px-4 py-3 bg-gray-100 dark:bg-[#0E1525]">
+        <div class="flex items-center justify-between max-w-4xl mx-auto">
+            <div>
+                <div class="text-2xl font-bold text-black dark:text-white">Buenos días</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden p-4 bg-white dark:bg-[#0E1525]">
+        <!-- Initial Screen -->
+        <div *ngIf="!isConversationStarted" class="flex-1 flex flex-col justify-center items-center">
+            <div class="w-full max-w-2xl space-y-6">
+                <!-- First Section: Quick Actions -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div 
+                        class="bg-gray-200 dark:bg-[#1E2841] rounded-2xl p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#2C3A57] transition"
+                        (click)="startConversation('Yoga')"
+                    >
+                        <div class="w-16 h-16 bg-blue-500 dark:bg-[#2563EB] rounded-lg flex items-center justify-center">
+                            <img src="assets/yoga-icon.png" alt="Yoga" class="w-10 h-10">
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Aprende posturas de yoga</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">fáciles</div>
+                        </div>
+                    </div>
+                    <div 
+                        class="bg-gray-200 dark:bg-[#1E2841] rounded-2xl p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#2C3A57] transition"
+                        (click)="startConversation('Tender mano')"
+                    >
+                        <div class="w-16 h-16 bg-blue-500 dark:bg-[#2563EB] rounded-lg flex items-center justify-center">
+                            <img src="assets/mailbox-icon.png" alt="Mailbox" class="w-10 h-10">
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">¿Cómo tender la mano</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">a un amigo?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Section: More Topics -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div 
+                        class="bg-gray-200 dark:bg-[#1E2841] rounded-2xl p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#2C3A57] transition"
+                        (click)="startConversation('Comprar coche')"
+                    >
+                        <div class="w-16 h-16 bg-blue-500 dark:bg-[#2563EB] rounded-lg flex items-center justify-center">
+                            <img src="assets/car-icon.png" alt="Car" class="w-10 h-10">
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Recibe consejos</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">a la hora de comprar un coche nuevo</div>
+                        </div>
+                    </div>
+                    <!-- Placeholder for additional topics -->
+                    <div class="bg-gray-200 dark:bg-[#1E2841] rounded-2xl p-4 opacity-50">
+                        <div class="text-center text-gray-600 dark:text-gray-500">Más temas próximamente</div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="bg-gray-200 dark:bg-[#1E2841] rounded-2xl p-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="flex space-x-2">
+                            <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                <mat-icon>add</mat-icon>
+                            </button>
+                            <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                <mat-icon>language</mat-icon>
+                            </button>
+                            <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                <mat-icon>psychology</mat-icon>
+                            </button>
+                        </div>
+                        <input 
+                            type="text" 
+                            [(ngModel)]="userInput"
+                            (keyup.enter)="sendMessage()"
+                            placeholder="Enviar un mensaje a Copilot" 
+                            class="flex-1 bg-transparent border-none text-black dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:outline-none"
+                        >
+                        <button 
+                            *ngIf="!userInput"
+                            mat-icon-button 
+                            class="text-blue-700 dark:text-blue-500 hover:bg-blue-200/20 dark:hover:bg-blue-900/20"
+                        >
+                            <mat-icon>keyboard_voice</mat-icon>
+                        </button>
+                        <button 
+                            *ngIf="userInput"
+                            mat-icon-button 
+                            class="text-blue-700 dark:text-blue-500 hover:bg-blue-200/20 dark:hover:bg-blue-900/20"
+                            (click)="sendMessage()"
+                        >
+                            <mat-icon>send</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversation Screen -->
+        <div *ngIf="isConversationStarted" class="flex-1 flex flex-col overflow-hidden bg-white dark:bg-[#0E1525]">
+            <!-- Chat messages area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4 max-w-4xl mx-auto w-full">
+                <div *ngFor="let message of messages" 
+                     class="flex"
+                     [ngClass]="{
+                        'justify-end': message.sender === 'user',
+                        'justify-start': message.sender === 'bot'
+                     }">
+                    <div 
+                        class="max-w-[70%] p-3 rounded-lg shadow-sm"
+                        [ngClass]="{
+                            'bg-blue-600 text-white': message.sender === 'user',
+                            'bg-gray-200 dark:bg-[#1E2841] text-black dark:text-white': message.sender === 'bot'
+                        }"
+                    >
+                        {{ message.text }}
+                    </div>
+                </div>
             </div>
 
-            <!-- Chat interface -->
-            <div class="mt-8 bg-card rounded-2xl shadow overflow-hidden">
-                <div class="flex flex-col h-[600px]">
-                    <!-- Chat messages area -->
-                    <div class="flex-1 overflow-y-auto p-6">
-                        <!-- Messages will be displayed here -->
-                    </div>
-
-                    <!-- Input area -->
-                    <div class="border-t p-4">
-                        <div class="flex items-center">
-                            <mat-form-field class="flex-1">
-                                <mat-label>Escribe tu mensaje</mat-label>
-                                <input matInput placeholder="¿En qué puedo ayudarte?">
-                            </mat-form-field>
-                            <button mat-icon-button color="primary" class="ml-2">
+            <!-- Input area -->
+            <div class="flex justify-center items-center p-4 bg-gray-100 dark:bg-[#1E2841]">
+                <div class="w-full max-w-2xl">
+                    <div class="bg-gray-300 dark:bg-[#2C3A57] rounded-2xl p-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="flex space-x-2">
+                                <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                    <mat-icon>add</mat-icon>
+                                </button>
+                                <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                    <mat-icon>language</mat-icon>
+                                </button>
+                                <button class="text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded-full">
+                                    <mat-icon>psychology</mat-icon>
+                                </button>
+                            </div>
+                            <input 
+                                type="text"
+                                [(ngModel)]="userInput" 
+                                (keyup.enter)="sendMessage()"
+                                placeholder="Enviar un mensaje a Copilot" 
+                                class="flex-1 bg-transparent border-none text-black dark:text-white placeholder-gray-600 dark:placeholder-gray-400 focus:outline-none"
+                            >
+                            <button 
+                                *ngIf="!userInput"
+                                mat-icon-button 
+                                class="text-blue-700 dark:text-blue-500 hover:bg-blue-200/20 dark:hover:bg-blue-900/20"
+                            >
+                                <mat-icon>keyboard_voice</mat-icon>
+                            </button>
+                            <button 
+                                *ngIf="userInput"
+                                mat-icon-button 
+                                class="text-blue-700 dark:text-blue-500 hover:bg-blue-200/20 dark:hover:bg-blue-900/20"
+                                (click)="sendMessage()"
+                            >
                                 <mat-icon>send</mat-icon>
                             </button>
                         </div>
