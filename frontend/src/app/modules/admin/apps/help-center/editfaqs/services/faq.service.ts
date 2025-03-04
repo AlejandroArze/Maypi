@@ -94,4 +94,29 @@ export class FaqService {
             this._updateFaqsAndPagination(0, this._pagination.value.size);
         }
     }
+
+    createFaq(): Observable<Faq> {
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+
+        const newFaq: Faq = {
+            id: uuidv4(),
+            category_id: this._categories.value[0].id, // Default to first category
+            category: this._categories.value[0],
+            slug: `new-faq-${Date.now()}`,
+            title: 'Nueva Pregunta Frecuente',
+            question: '',
+            answer: '',
+            author_id: user ? `admin_${user.data.usuarios_id}` : 'admin_unknown'
+        };
+
+        // Add the new FAQ to the beginning of the list
+        this._allFaqs.unshift(newFaq);
+        
+        // Update pagination and visible FAQs
+        this._updateFaqsAndPagination(0, this._pagination.value.size);
+
+        // Return the new FAQ as an Observable
+        return of(newFaq);
+    }
 } 

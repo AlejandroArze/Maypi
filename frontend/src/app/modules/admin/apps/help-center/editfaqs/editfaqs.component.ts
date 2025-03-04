@@ -172,9 +172,23 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
     }
 
     createFaq(): void {
-        this.selectedFaq = null;
-        this.isEditMode = false;
-        this.faqForm.reset();
+        this._faqService.createFaq().subscribe((newFaq) => {
+            // Primero cerramos cualquier detalle abierto
+            this.closeDetails();
+
+            // Establecer el nuevo FAQ como seleccionado
+            this.selectedFaq = newFaq;
+            this.isEditMode = true;
+
+            // Rellenar el formulario con los datos del nuevo FAQ
+            this.faqForm.patchValue(newFaq);
+
+            // Esperamos otro momento y volvemos a abrir para asegurar que los datos se muestren correctamente
+            setTimeout(() => {
+                this.closeDetails();
+                this.toggleDetails(newFaq);
+            }, 200);
+        });
     }
 
     editFaq(faq: Faq): void {
