@@ -160,7 +160,7 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
 
         // Configurar auto-guardado con debounce
         updateSubject.pipe(
-            debounceTime(1000), // Esperar 1 segundo después de la última escritura
+            debounceTime(300), // Reducir tiempo de debounce para mayor responsividad
             takeUntil(this._unsubscribeAll)
         ).subscribe(() => {
             this.updateSelectedFaq();
@@ -172,6 +172,22 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
                 takeUntil(this._unsubscribeAll)
             )
             .subscribe(() => {
+                // Actualizar la lista en tiempo real
+                if (this.selectedFaq) {
+                    const faqData = this.faqForm.getRawValue();
+                    
+                    // Actualizar directamente en la lista local sin guardar
+                    const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
+                    if (index !== -1) {
+                        this.faqs[index] = {
+                            ...this.faqs[index],
+                            title: faqData.title,
+                            category_id: faqData.category_id,
+                            author_id: faqData.author_id
+                        };
+                    }
+                }
+
                 // Solo activar actualización si estamos en modo de edición
                 if (this.isEditMode) {
                     updateSubject.next();
