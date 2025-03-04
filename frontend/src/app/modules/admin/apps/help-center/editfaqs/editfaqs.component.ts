@@ -176,6 +176,9 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
                 if (this.selectedFaq) {
                     const faqData = this.faqForm.getRawValue();
                     
+                    // Encontrar la categoría seleccionada
+                    const selectedCategory = this.categories.find(cat => cat.id === faqData.category_id);
+
                     // Actualizar directamente en la lista local sin guardar
                     const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
                     if (index !== -1) {
@@ -183,6 +186,7 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
                             ...this.faqs[index],
                             title: faqData.title,
                             category_id: faqData.category_id,
+                            category: selectedCategory,
                             author_id: faqData.author_id
                         };
                     }
