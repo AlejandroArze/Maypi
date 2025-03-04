@@ -14,6 +14,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UntypedFormControl } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
+import { distinctUntilChanged } from 'rxjs/operators';
 
 import { FaqService } from './services/faq.service';
 import { Faq, FaqCategory, FaqPagination } from './models/faq.model';
@@ -96,6 +97,7 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
         this._loadCategories();
         this._loadFaqs();
         this._setupSearchListener();
+        this._setupFormChangeListener();
     }
 
     ngOnDestroy(): void {
@@ -152,6 +154,65 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
             });
     }
 
+    private _setupFormChangeListener(): void {
+        // Configurar un Subject para manejar actualizaciones
+        const updateSubject = new Subject<void>();
+
+        // Configurar auto-guardado con debounce
+        updateSubject.pipe(
+            debounceTime(1000), // Esperar 1 segundo después de la última escritura
+            takeUntil(this._unsubscribeAll)
+        ).subscribe(() => {
+            this.updateSelectedFaq();
+        });
+
+        // Suscribirse a cambios en el formulario
+        this.faqForm.valueChanges
+            .pipe(
+                takeUntil(this._unsubscribeAll)
+            )
+            .subscribe(() => {
+                // Solo activar actualización si estamos en modo de edición
+                if (this.isEditMode) {
+                    updateSubject.next();
+                }
+            });
+    }
+
+    private updateSelectedFaq(): void {
+        if (this.faqForm.valid && this.selectedFaq) {
+            const faqData = this.faqForm.getRawValue();
+            
+            // Encontrar la categoría seleccionada
+            const selectedCategory = this.categories.find(cat => cat.id === faqData.category_id);
+
+            // Crear un objeto FAQ completo
+            const completesFaqData: Faq = {
+                ...this.selectedFaq,
+                title: faqData.title,
+                question: faqData.question,
+                answer: faqData.answer,
+                category_id: faqData.category_id,
+                category: selectedCategory,
+                // Actualizar el autor si se ha modificado
+                author_id: faqData.author_id || this.selectedFaq.author_id
+            };
+
+            // Actualizar FAQ en el servicio
+            this._faqService.updateFaq(completesFaqData);
+
+            // Actualizar el FAQ en la lista local
+            const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
+            if (index !== -1) {
+                // Actualizar directamente en la lista
+                this.faqs[index] = { ...completesFaqData };
+            }
+
+            // Actualizar selectedFaq para mantener consistencia
+            this.selectedFaq = { ...completesFaqData };
+        }
+    }
+
     // Pagination handler
     onPageChange(event: PageEvent): void {
         this.pagination.page = event.pageIndex;
@@ -163,7 +224,27 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
         if (this.selectedFaq?.id === faq.id) {
             this.selectedFaq = null;
         } else {
-            this.selectedFaq = faq;
+            // Encontrar el FAQ exacto en la lista completa para garantizar datos consistentes
+            const exactFaq = this.faqs.find(f => f.id === faq.id);
+            
+            if (exactFaq) {
+                // Clonar el FAQ para evitar referencias
+                this.selectedFaq = { ...exactFaq };
+                
+                // Rellenar el formulario con los datos EXACTOS del FAQ
+                this.faqForm.patchValue({
+                    id: exactFaq.id,
+                    category_id: exactFaq.category_id,
+                    title: exactFaq.title,
+                    question: exactFaq.question,
+                    answer: exactFaq.answer,
+                    author_id: exactFaq.author_id
+                }, { emitEvent: false }); // Prevenir emisión de evento para evitar bucle de cambios
+            } else {
+                // Fallback si no se encuentra el FAQ
+                this.selectedFaq = faq;
+                this.faqForm.patchValue(faq, { emitEvent: false });
+            }
         }
     }
 
@@ -192,25 +273,89 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
     }
 
     editFaq(faq: Faq): void {
-        this.selectedFaq = faq;
-        this.isEditMode = true;
-        this.faqForm.patchValue(faq);
+        // Encontrar el FAQ exacto en la lista completa para garantizar datos consistentes
+        const exactFaq = this.faqs.find(f => f.id === faq.id);
+        
+        if (exactFaq) {
+            // Clonar el FAQ para evitar referencias
+            this.selectedFaq = { ...exactFaq };
+            this.isEditMode = true;
+            
+            // Rellenar el formulario con los datos EXACTOS del FAQ
+            this.faqForm.patchValue({
+                id: exactFaq.id,
+                category_id: exactFaq.category_id,
+                title: exactFaq.title,
+                question: exactFaq.question,
+                answer: exactFaq.answer,
+                author_id: exactFaq.author_id
+            }, { emitEvent: false }); // Prevenir emisión de evento para evitar bucle de cambios
+        } else {
+            // Fallback si no se encuentra el FAQ
+            this.selectedFaq = faq;
+            this.isEditMode = true;
+            this.faqForm.patchValue(faq, { emitEvent: false });
+        }
     }
 
     saveFaq(): void {
-        if (this.faqForm.valid) {
-            const faqData = this.faqForm.value;
+        if (this.faqForm.valid && this.selectedFaq) {
+            const faqData = this.faqForm.getRawValue();
             
-            if (this.isEditMode) {
-                this._faqService.updateFaq(faqData);
-            } else {
-                this._faqService.addFaq(faqData);
+            // Encontrar la categoría seleccionada
+            const selectedCategory = this.categories.find(cat => cat.id === faqData.category_id);
+
+            // Crear un objeto FAQ completo
+            const completesFaqData: Faq = {
+                ...this.selectedFaq,
+                title: faqData.title,
+                question: faqData.question,
+                answer: faqData.answer,
+                category_id: faqData.category_id,
+                category: selectedCategory,
+                // Actualizar el autor si se ha modificado
+                author_id: faqData.author_id || this.selectedFaq.author_id
+            };
+
+            // Actualizar FAQ en el servicio
+            this._faqService.updateFaq(completesFaqData);
+
+            // Actualizar el FAQ en la lista local
+            const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
+            if (index !== -1) {
+                // Actualizar directamente en la lista
+                this.faqs[index] = { ...completesFaqData };
             }
 
-            this.faqForm.reset();
-            this.selectedFaq = null;
+            // Mantener los datos en los detalles
+            this.selectedFaq = { ...completesFaqData };
             this.isEditMode = false;
+
+            // Opcional: mostrar mensaje de éxito
+            this.showFlashMessage('success');
         }
+    }
+
+    // Método para mostrar mensaje flash
+    private showFlashMessage(type: 'success' | 'error'): void {
+        // Implementación similar a inventory component
+        const flashMessageElement = document.createElement('div');
+        flashMessageElement.className = 'toast-notification';
+        flashMessageElement.innerHTML = `
+            <div class="flex items-center">
+                <span class="material-icons ${type === 'success' ? 'text-green-500' : 'text-red-500'} mr-2">
+                    ${type === 'success' ? 'check_circle' : 'error'}
+                </span>
+                <span>${type === 'success' ? 'FAQ Actualizado Exitosamente' : 'Error al Actualizar FAQ'}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(flashMessageElement);
+
+        // Eliminar el mensaje después de 3 segundos
+        setTimeout(() => {
+            document.body.removeChild(flashMessageElement);
+        }, 3000);
     }
 
     deleteFaq(faqId: string): void {
@@ -218,9 +363,19 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
     }
 
     cancelEdit(): void {
-        this.selectedFaq = null;
+        // Restaurar los datos originales del FAQ seleccionado
+        if (this.selectedFaq) {
+            this.faqForm.patchValue({
+                title: this.selectedFaq.title,
+                question: this.selectedFaq.question,
+                answer: this.selectedFaq.answer,
+                category_id: this.selectedFaq.category_id,
+                author_id: this.selectedFaq.author_id
+            }, { emitEvent: false });
+        }
+
+        // Salir del modo de edición
         this.isEditMode = false;
-        this.faqForm.reset();
     }
 
     trackByFn(index: number, item: Faq): string {

@@ -82,7 +82,21 @@ export class FaqService {
     updateFaq(updatedFaq: Faq): void {
         const index = this._allFaqs.findIndex(faq => faq.id === updatedFaq.id);
         if (index !== -1) {
-            this._allFaqs[index] = updatedFaq;
+            // Actualizar EXACTAMENTE todos los campos del FAQ
+            this._allFaqs[index] = {
+                ...this._allFaqs[index],  // Mantener campos originales
+                title: updatedFaq.title,
+                question: updatedFaq.question,
+                answer: updatedFaq.answer,
+                category_id: updatedFaq.category_id,
+                category: updatedFaq.category,
+                // Actualizar el autor si es diferente
+                author_id: updatedFaq.author_id || this._allFaqs[index].author_id,
+                // Mantener el slug original
+                slug: this._allFaqs[index].slug
+            };
+
+            // Actualizar la paginación para reflejar los cambios
             this._updateFaqsAndPagination(this._pagination.value.page, this._pagination.value.size);
         }
     }
