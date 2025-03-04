@@ -104,6 +104,12 @@
                                                         <mat-label>Pregunta</mat-label>
                                                         <textarea matInput formControlName="question" rows="3"></textarea>
                                                     </mat-form-field>
+
+                                                    <!-- Author -->
+                                                    <mat-form-field class="w-full">
+                                                        <mat-label>Autor</mat-label>
+                                                        <input matInput formControlName="author_id">
+                                                    </mat-form-field>
                                                 </div>
 
                                                 <!-- Answer and Additional Details -->
@@ -112,6 +118,7 @@
                                                         <label class="block mb-2">Respuesta</label>
                                                         <quill-editor 
                                                             formControlName="answer"
+                                                            [style.height.px]="400"
                                                             [modules]="{
                                                                 toolbar: [
                                                                     ['bold', 'italic', 'underline'],
@@ -123,12 +130,6 @@
                                                             placeholder="Escribe la respuesta detallada"
                                                         ></quill-editor>
                                                     </div>
-
-                                                    <!-- Author ID -->
-                                                    <mat-form-field class="w-full mt-4">
-                                                        <mat-label>ID de Autor</mat-label>
-                                                        <input matInput formControlName="author_id">
-                                                    </mat-form-field>
                                                 </div>
                                             </div>
                                         </div>
