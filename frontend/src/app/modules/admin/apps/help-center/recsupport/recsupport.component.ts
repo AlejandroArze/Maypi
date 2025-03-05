@@ -35,7 +35,16 @@ import { SupportRequest, SupportRequestCategory, SupportRequestPagination } from
         MatSelectModule,
         QuillModule,
         MatCardModule
-    ]
+    ],
+    styles: [`
+        .inventory-grid {
+            grid-template-columns: 1fr 1fr 1fr 100px;
+            display: grid;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+    `]
 })
 export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
     @ViewChild(MatPaginator) paginator: MatPaginator;
