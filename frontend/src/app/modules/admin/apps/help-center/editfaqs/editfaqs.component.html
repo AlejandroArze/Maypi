@@ -144,6 +144,19 @@
                                                 Eliminar
                                             </button>
                                             <div class="flex items-center">
+                                                <!-- Notificación de estado -->
+                                                <div 
+                                                    *ngIf="updateStatus"
+                                                    class="mr-2 flex items-center px-3 py-1 rounded-md text-sm font-medium"
+                                                    [ngClass]="{
+                                                        'bg-green-100 text-green-700': updateStatus === 'success', 
+                                                        'bg-red-100 text-red-700': updateStatus === 'error'
+                                                    }">
+                                                    <mat-icon class="mr-1 text-base" *ngIf="updateStatus === 'success'">check_circle</mat-icon>
+                                                    <mat-icon class="mr-1 text-base" *ngIf="updateStatus === 'error'">error</mat-icon>
+                                                    <span>{{ updateMessage }}</span>
+                                                </div>
+
                                                 <button
                                                     mat-stroked-button
                                                     class="mr-2"
@@ -155,7 +168,7 @@
                                                     [color]="'primary'"
                                                     (click)="saveFaq()"
                                                     [disabled]="faqForm.invalid">
-                                                    {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+                                                    Actualizar
                                                 </button>
                                             </div>
                                         </div>

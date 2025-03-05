@@ -67,6 +67,9 @@ export class HelpCenterEditGuidesComponent implements OnInit, OnDestroy {
 
     private _unsubscribeAll: Subject<void> = new Subject<void>();
 
+    updateStatus: 'success' | 'error' | null = null;
+    updateMessage: string = '';
+
     constructor(
         private _guideService: GuideService,
         private _formBuilder: FormBuilder
@@ -242,52 +245,53 @@ export class HelpCenterEditGuidesComponent implements OnInit, OnDestroy {
     }
 
     saveGuide(): void {
-        if (this.guideForm.valid && this.selectedGuide) {
-            const guideData = this.guideForm.getRawValue();
-            
-            const selectedCategory = this.categories.find(cat => cat.id === guideData.category_id);
+        try {
+            if (this.guideForm.valid && this.selectedGuide) {
+                const guideData = this.guideForm.getRawValue();
+                
+                const selectedCategory = this.categories.find(cat => cat.id === guideData.category_id);
 
-            const completesGuideData: Guide = {
-                ...this.selectedGuide,
-                title: guideData.title,
-                subtitle: guideData.subtitle,
-                content: guideData.content,
-                category_id: guideData.category_id,
-                category: selectedCategory,
-                author_id: guideData.author_id || this.selectedGuide.author_id
-            };
+                const completesGuideData: Guide = {
+                    ...this.selectedGuide,
+                    title: guideData.title,
+                    subtitle: guideData.subtitle,
+                    content: guideData.content,
+                    category_id: guideData.category_id,
+                    category: selectedCategory,
+                    author_id: guideData.author_id || this.selectedGuide.author_id
+                };
 
-            this._guideService.updateGuide(completesGuideData);
+                this._guideService.updateGuide(completesGuideData);
 
-            const index = this.guides.findIndex(f => f.id === this.selectedGuide.id);
-            if (index !== -1) {
-                this.guides[index] = { ...completesGuideData };
+                const index = this.guides.findIndex(f => f.id === this.selectedGuide.id);
+                if (index !== -1) {
+                    this.guides[index] = { ...completesGuideData };
+                }
+
+                this.selectedGuide = { ...completesGuideData };
+                this.isEditMode = false;
+
+                // Mostrar notificación de éxito
+                this.updateStatus = 'success';
+                this.updateMessage = 'Guía actualizada correctamente';
+
+                // Ocultar notificación después de 3 segundos
+                setTimeout(() => {
+                    this.updateStatus = null;
+                    this.updateMessage = '';
+                }, 3000);
             }
+        } catch (error) {
+            // Mostrar notificación de error
+            this.updateStatus = 'error';
+            this.updateMessage = 'Ocurrió un error, ¡inténtalo de nuevo!';
 
-            this.selectedGuide = { ...completesGuideData };
-            this.isEditMode = false;
-
-            this.showFlashMessage('success');
+            // Ocultar notificación después de 3 segundos
+            setTimeout(() => {
+                this.updateStatus = null;
+                this.updateMessage = '';
+            }, 3000);
         }
-    }
-
-    private showFlashMessage(type: 'success' | 'error'): void {
-        const flashMessageElement = document.createElement('div');
-        flashMessageElement.className = 'toast-notification';
-        flashMessageElement.innerHTML = `
-            <div class="flex items-center">
-                <span class="material-icons ${type === 'success' ? 'text-green-500' : 'text-red-500'} mr-2">
-                    ${type === 'success' ? 'check_circle' : 'error'}
-                </span>
-                <span>${type === 'success' ? 'Guía Actualizada Exitosamente' : 'Error al Actualizar Guía'}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(flashMessageElement);
-
-        setTimeout(() => {
-            document.body.removeChild(flashMessageElement);
-        }, 3000);
     }
 
     deleteGuide(guideId: string): void {

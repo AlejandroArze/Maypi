@@ -87,6 +87,10 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
 
     private _unsubscribeAll: Subject<void> = new Subject<void>();
 
+    // Agregar estas propiedades en la clase
+    updateStatus: 'success' | 'error' | null = null;
+    updateMessage: string = '';
+
     constructor(
         private _faqService: FaqService,
         private _formBuilder: FormBuilder
@@ -319,63 +323,60 @@ export class HelpCenterEditFaqsComponent implements OnInit, OnDestroy {
     }
 
     saveFaq(): void {
-        if (this.faqForm.valid && this.selectedFaq) {
-            const faqData = this.faqForm.getRawValue();
-            
-            // Encontrar la categoría seleccionada
-            const selectedCategory = this.categories.find(cat => cat.id === faqData.category_id);
+        try {
+            if (this.faqForm.valid && this.selectedFaq) {
+                const faqData = this.faqForm.getRawValue();
+                
+                // Encontrar la categoría seleccionada
+                const selectedCategory = this.categories.find(cat => cat.id === faqData.category_id);
 
-            // Crear un objeto FAQ completo
-            const completesFaqData: Faq = {
-                ...this.selectedFaq,
-                title: faqData.title,
-                question: faqData.question,
-                answer: faqData.answer,
-                category_id: faqData.category_id,
-                category: selectedCategory,
-                // Actualizar el autor si se ha modificado
-                author_id: faqData.author_id || this.selectedFaq.author_id
-            };
+                // Crear un objeto FAQ completo
+                const completesFaqData: Faq = {
+                    ...this.selectedFaq,
+                    title: faqData.title,
+                    question: faqData.question,
+                    answer: faqData.answer,
+                    category_id: faqData.category_id,
+                    category: selectedCategory,
+                    // Actualizar el autor si se ha modificado
+                    author_id: faqData.author_id || this.selectedFaq.author_id
+                };
 
-            // Actualizar FAQ en el servicio
-            this._faqService.updateFaq(completesFaqData);
+                // Actualizar FAQ en el servicio
+                this._faqService.updateFaq(completesFaqData);
 
-            // Actualizar el FAQ en la lista local
-            const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
-            if (index !== -1) {
-                // Actualizar directamente en la lista
-                this.faqs[index] = { ...completesFaqData };
+                // Actualizar el FAQ en la lista local
+                const index = this.faqs.findIndex(f => f.id === this.selectedFaq.id);
+                if (index !== -1) {
+                    // Actualizar directamente en la lista
+                    this.faqs[index] = { ...completesFaqData };
+                }
+
+                // Mantener los datos en los detalles
+                this.selectedFaq = { ...completesFaqData };
+                this.isEditMode = false;
+
+                // Mostrar notificación de éxito
+                this.updateStatus = 'success';
+                this.updateMessage = 'FAQ actualizada correctamente';
+
+                // Ocultar notificación después de 3 segundos
+                setTimeout(() => {
+                    this.updateStatus = null;
+                    this.updateMessage = '';
+                }, 3000);
             }
+        } catch (error) {
+            // Mostrar notificación de error
+            this.updateStatus = 'error';
+            this.updateMessage = 'Ocurrió un error, ¡inténtalo de nuevo!';
 
-            // Mantener los datos en los detalles
-            this.selectedFaq = { ...completesFaqData };
-            this.isEditMode = false;
-
-            // Opcional: mostrar mensaje de éxito
-            this.showFlashMessage('success');
+            // Ocultar notificación después de 3 segundos
+            setTimeout(() => {
+                this.updateStatus = null;
+                this.updateMessage = '';
+            }, 3000);
         }
-    }
-
-    // Método para mostrar mensaje flash
-    private showFlashMessage(type: 'success' | 'error'): void {
-        // Implementación similar a inventory component
-        const flashMessageElement = document.createElement('div');
-        flashMessageElement.className = 'toast-notification';
-        flashMessageElement.innerHTML = `
-            <div class="flex items-center">
-                <span class="material-icons ${type === 'success' ? 'text-green-500' : 'text-red-500'} mr-2">
-                    ${type === 'success' ? 'check_circle' : 'error'}
-                </span>
-                <span>${type === 'success' ? 'FAQ Actualizado Exitosamente' : 'Error al Actualizar FAQ'}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(flashMessageElement);
-
-        // Eliminar el mensaje después de 3 segundos
-        setTimeout(() => {
-            document.body.removeChild(flashMessageElement);
-        }, 3000);
     }
 
     deleteFaq(faqId: string): void {
