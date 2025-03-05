@@ -114,10 +114,11 @@
 
                                                 <!-- Content -->
                                                 <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
-                                                    <div class="mt-4">
+                                                    <div class="mt-4 w-full">
                                                         <label class="block mb-2">Contenido</label>
                                                         <quill-editor 
                                                             formControlName="content"
+                                                            class="w-full"
                                                             [style.height.px]="400"
                                                             [modules]="{
                                                                 toolbar: [
