@@ -88,10 +88,10 @@ export class HelpCenterEditGuidesComponent implements OnInit, OnDestroy {
     private _initForm(): void {
         this.guideForm = this._formBuilder.group({
             id: [''],
-            category_id: ['', Validators.required],
-            title: ['', [Validators.required, Validators.maxLength(255)]],
+            category_id: [''],
+            title: [''],
             subtitle: [''],
-            content: ['', [Validators.required]],
+            content: [''],
             author_id: ['']
         });
     }
