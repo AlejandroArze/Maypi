@@ -95,6 +95,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
             user_id: [''],
             name: [''],
             email: ['', [Validators.email]],
+            phone: ['', [Validators.pattern(/^(\+?56)?(\s?)(0?)[9|8](\s?)[0-9]{4}(\s?)[0-9]{4}$/)]],
             subject: [''],
             message: [''],
             status: ['']
@@ -162,6 +163,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
                         this.supportRequests[index] = {
                             ...this.supportRequests[index],
                             subject: supportRequestData.subject,
+                            phone: supportRequestData.phone,
                             category_id: supportRequestData.category_id,
                             category: selectedCategory,
                             status: supportRequestData.status
@@ -184,6 +186,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
             const completeSupportRequestData: SupportRequest = {
                 ...this.selectedSupportRequest,
                 subject: supportRequestData.subject,
+                phone: supportRequestData.phone,
                 message: supportRequestData.message,
                 category_id: supportRequestData.category_id,
                 category: selectedCategory,
@@ -222,6 +225,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
                     user_id: exactSupportRequest.user_id,
                     name: exactSupportRequest.name,
                     email: exactSupportRequest.email,
+                    phone: exactSupportRequest.phone,
                     subject: exactSupportRequest.subject,
                     message: exactSupportRequest.message,
                     status: exactSupportRequest.status
@@ -261,6 +265,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
                 const completeSupportRequestData: SupportRequest = {
                     ...this.selectedSupportRequest,
                     subject: supportRequestData.subject,
+                    phone: supportRequestData.phone,
                     message: supportRequestData.message,
                     category_id: supportRequestData.category_id,
                     category: selectedCategory,

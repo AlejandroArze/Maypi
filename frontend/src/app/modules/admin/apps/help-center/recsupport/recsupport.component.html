@@ -50,6 +50,7 @@
                         class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5">
                         <div>Asunto</div>
                         <div>Categoría</div>
+                        <div>Teléfono</div>
                         <div>Estado</div>
                         <div>Detalles</div>
                     </div>
@@ -59,6 +60,7 @@
                         <div class="inventory-grid grid items-center gap-4 py-5 px-6 md:px-8 border-b">
                             <div class="truncate">{{supportRequest.subject}}</div>
                             <div class="truncate">{{supportRequest.category?.title}}</div>
+                            <div class="truncate">{{supportRequest.phone || 'Sin teléfono'}}</div>
                             <div class="truncate">
                                 <span 
                                     class="px-2.5 py-0.5 rounded-full text-sm font-medium"
@@ -119,6 +121,13 @@
                                                     <mat-form-field class="w-full">
                                                         <mat-label>Correo Electrónico</mat-label>
                                                         <input matInput formControlName="email" type="email">
+                                                    </mat-form-field>
+
+                                                    <!-- Phone -->
+                                                    <mat-form-field class="w-full">
+                                                        <mat-label>Teléfono</mat-label>
+                                                        <input matInput formControlName="phone" type="tel" placeholder="Ej: +56912345678">
+                                                        <mat-hint>Formato: +56912345678</mat-hint>
                                                     </mat-form-field>
 
                                                     <!-- Status -->
@@ -217,4 +226,14 @@
         [pageSizeOptions]="[5, 10, 25, 100]"
         [showFirstLastButtons]="true"
         (page)="onPageChange($event)"></mat-paginator>
-</div> 
+</div>
+
+<style>
+    .inventory-grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr 100px;
+        display: grid;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+</style> 
