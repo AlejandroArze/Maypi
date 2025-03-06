@@ -95,7 +95,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
             user_id: [''],
             name: [''],
             email: ['', [Validators.email]],
-            phone: ['', [Validators.pattern(/^(\+?56)?(\s?)(0?)[9|8](\s?)[0-9]{4}(\s?)[0-9]{4}$/)]],
+            phone: [''],
             subject: [''],
             message: [''],
             status: ['']
@@ -257,7 +257,7 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
 
     saveSupportRequest(): void {
         try {
-            if (this.supportRequestForm.valid && this.selectedSupportRequest) {
+            if (this.selectedSupportRequest) {
                 const supportRequestData = this.supportRequestForm.getRawValue();
                 
                 const selectedCategory = this.categories.find(cat => cat.id === supportRequestData.category_id);
@@ -269,7 +269,9 @@ export class HelpCenterRecSupportComponent implements OnInit, OnDestroy {
                     message: supportRequestData.message,
                     category_id: supportRequestData.category_id,
                     category: selectedCategory,
-                    status: supportRequestData.status || this.selectedSupportRequest.status
+                    status: supportRequestData.status || this.selectedSupportRequest.status,
+                    name: supportRequestData.name,
+                    email: supportRequestData.email
                 };
 
                 this._supportRequestService.updateSupportRequest(completeSupportRequestData);
