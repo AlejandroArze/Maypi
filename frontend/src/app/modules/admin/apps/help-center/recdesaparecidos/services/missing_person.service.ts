@@ -105,30 +105,37 @@ export class MissingPersonService {
         return this._pagination.asObservable();
     }
 
-    createMissingPerson(): Observable<MissingPerson> {
-        const userStr = localStorage.getItem('user');
-        const user = userStr ? JSON.parse(userStr) : null;
-
-        const newMissingPerson: MissingPerson = {
-            id: uuidv4(),
-            category_id: this._categories.value[0].id,
-            category: this._categories.value[0],
-            name: 'Nuevo Reporte',
-            email: '',
-            phone: '',
+    createMissingPerson(missingPersonData?: Partial<MissingPerson>): MissingPerson {
+        // Si no se proporciona data, crea un reporte vacío
+        const defaultData: MissingPerson = {
+            id: this.generateUniqueId(),
+            name: '',
             location: '',
-            date: new Date(),
+            phone: '',
+            email: '',
+            status: 'pending',
+            date: missingPersonData?.date || new Date(),
             description: '',
-            consent: false,
-            profile_image: '',
-            event_image: '',
-            status: 'pending'
+            consent: false
         };
 
-        this._allMissingPersons.unshift(newMissingPerson);
-        this._updateMissingPersonsAndPagination(0, this._pagination.value.size);
+        const newMissingPerson = missingPersonData 
+            ? { ...defaultData, ...missingPersonData } 
+            : defaultData;
 
-        return of(newMissingPerson);
+        // Asegúrate de que la fecha sea consistente
+        if (typeof newMissingPerson.date === 'string') {
+            newMissingPerson.date = new Date(newMissingPerson.date);
+        }
+
+        // Simula una llamada al backend para crear el reporte
+        this._missingPersons.next([...this._missingPersons.value, newMissingPerson]);
+
+        return newMissingPerson;
+    }
+
+    private generateUniqueId(): string {
+        return Math.random().toString(36).substr(2, 9);
     }
 
     // Método para actualizar coordenadas al actualizar una persona

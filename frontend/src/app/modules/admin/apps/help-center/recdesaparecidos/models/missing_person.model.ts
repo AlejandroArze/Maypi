@@ -5,21 +5,21 @@ export interface MissingPersonCategory {
 }
 
 export interface MissingPerson {
-    id: string;
-    category_id: string;
+    id?: string;
+    category_id?: string;
     category?: MissingPersonCategory;
-    name: string;
+    name?: string;
     email?: string;
     phone?: string;
-    location: string;
+    location?: string;
     latitude?: number;
     longitude?: number;
-    date: Date;
-    description: string;
-    consent: boolean;
+    date?: string | Date;
+    description?: string;
+    consent?: boolean;
     profile_image?: string;
     event_image?: string;
-    status: 'pending' | 'found' | 'urgent';
+    status?: 'pending' | 'found' | 'urgent';
 }
 
 export interface MissingPersonPagination {

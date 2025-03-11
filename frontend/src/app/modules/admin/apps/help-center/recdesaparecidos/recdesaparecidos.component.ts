@@ -15,12 +15,16 @@ import { takeUntil } from 'rxjs/operators';
 import { UntypedFormControl } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { filter } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 
 // Importaciones para Google Maps
 import { GoogleMapsModule } from '@angular/google-maps';
 
 import { MissingPersonService } from './services/missing_person.service';
 import { MissingPerson, MissingPersonCategory, MissingPersonPagination } from './models/missing_person.model';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MissingPersonDetailsDialogComponent } from './missing-person-details-dialog/missing-person-details-dialog.component';
 
 @Component({
     selector: 'help-center-recdesaparecidos',
@@ -39,7 +43,8 @@ import { MissingPerson, MissingPersonCategory, MissingPersonPagination } from '.
         MatSelectModule,
         QuillModule,
         MatCardModule,
-        GoogleMapsModule  // Añadir Google Maps
+        GoogleMapsModule,  // Añadir Google Maps
+        MatDialogModule
     ],
     styles: [`
         .inventory-grid {
@@ -84,7 +89,9 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
 
     constructor(
         private _missingPersonService: MissingPersonService,
-        private _formBuilder: FormBuilder
+        private _formBuilder: FormBuilder,
+        private _dialog: MatDialog,
+        private sanitizer: DomSanitizer
     ) {}
 
     ngOnInit(): void {
@@ -108,7 +115,7 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
             email: ['', [Validators.email]],
             phone: [''],
             location: [''],
-            date: [''],
+            date: [new Date(), Validators.required],
             description: [''],
             consent: [false],
             profile_image: [''],
@@ -186,7 +193,9 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
                 name: missingPersonData.name,
                 phone: missingPersonData.phone,
                 location: missingPersonData.location,
-                date: missingPersonData.date,
+                date: missingPersonData.date instanceof Date 
+                    ? missingPersonData.date 
+                    : new Date(missingPersonData.date),
                 description: missingPersonData.description,
                 category_id: missingPersonData.category_id,
                 category: selectedCategory,
@@ -218,6 +227,7 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
         if (this.selectedMissingPerson?.id === missingPerson.id) {
             this.selectedMissingPerson = null;
             this.mapMarker = null;
+            this.isEditMode = false;
         } else {
             const exactMissingPerson = this.missingPersons.find(f => f.id === missingPerson.id);
             
@@ -230,22 +240,8 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
             // Actualizar mapa con coordenadas
             this.updateMapLocation(completePersonData.latitude, completePersonData.longitude);
             
-            this.missingPersonForm.patchValue({
-                id: completePersonData.id,
-                category_id: completePersonData.category_id,
-                name: completePersonData.name || '',
-                email: completePersonData.email || '',
-                phone: completePersonData.phone || '',
-                location: completePersonData.location || '',
-                date: completePersonData.date || '',
-                description: completePersonData.description || '',
-                consent: completePersonData.consent || false,
-                profile_image: completePersonData.profile_image || '',
-                event_image: completePersonData.event_image || '',
-                status: completePersonData.status || ''
-            }, { emitEvent: false });
-
-            this.isEditMode = false;
+            // Usar los datos del objeto completo para el formulario
+            this.missingPersonForm.patchValue(completePersonData, { emitEvent: false });
         }
     }
 
@@ -253,65 +249,94 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
         this.selectedMissingPerson = null;
     }
 
-    createMissingPerson(): void {
-        this._missingPersonService.createMissingPerson().subscribe((newMissingPerson) => {
-            this.closeDetails();
-            this.selectedMissingPerson = newMissingPerson;
-            this.isEditMode = true;
-            this.missingPersonForm.patchValue(newMissingPerson);
+    viewMissingPersonDetails(missingPerson: MissingPerson): void {
+        this._dialog.open(MissingPersonDetailsDialogComponent, {
+            width: '800px',
+            data: missingPerson
+        });
+    }
 
-            setTimeout(() => {
-                this.closeDetails();
-                this.toggleDetails(newMissingPerson);
-            }, 200);
+    createMissingPerson(): void {
+        const dialogRef = this._dialog.open(MissingPersonDetailsDialogComponent, {
+            width: '800px',
+            data: { isNewReport: true }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                // Lógica para manejar el nuevo reporte
+                const newMissingPerson = this._missingPersonService.createMissingPerson(result);
+                
+                // Usar subscribe si es un Observable
+                if (newMissingPerson instanceof Observable) {
+                    newMissingPerson.subscribe(person => {
+                        this.missingPersons.push(person);
+                    });
+                } else {
+                    // Si no es un Observable, asumir que es directamente el objeto
+                    this.missingPersons.push(newMissingPerson);
+                }
+            }
         });
     }
 
     saveMissingPerson(): void {
         try {
-            if (this.selectedMissingPerson) {
+            // Activar modo de edición
+            this.isEditMode = true;
+
+            if (this.missingPersonForm.valid && this.selectedMissingPerson) {
                 const missingPersonData = this.missingPersonForm.getRawValue();
                 
                 const selectedCategory = this.categories.find(cat => cat.id === missingPersonData.category_id);
 
+                // Crear una copia profunda de los datos actuales
                 const completeMissingPersonData: MissingPerson = {
                     ...this.selectedMissingPerson,
-                    name: missingPersonData.name,
-                    phone: missingPersonData.phone,
-                    location: missingPersonData.location,
-                    date: missingPersonData.date,
-                    description: missingPersonData.description,
-                    category_id: missingPersonData.category_id,
+                    ...missingPersonData,
                     category: selectedCategory,
-                    status: missingPersonData.status || this.selectedMissingPerson.status,
-                    email: missingPersonData.email,
-                    consent: missingPersonData.consent,
-                    profile_image: missingPersonData.profile_image,
-                    event_image: missingPersonData.event_image
+                    date: missingPersonData.date instanceof Date 
+                        ? missingPersonData.date 
+                        : new Date(missingPersonData.date)
                 };
 
+                // Llamar al servicio para actualizar
                 this._missingPersonService.updateMissingPerson(completeMissingPersonData);
 
+                // Actualizar en la lista de personas desaparecidas
                 const index = this.missingPersons.findIndex(f => f.id === this.selectedMissingPerson.id);
                 if (index !== -1) {
                     this.missingPersons[index] = { ...completeMissingPersonData };
                 }
 
+                // Actualizar el reporte seleccionado
                 this.selectedMissingPerson = { ...completeMissingPersonData };
+                
+                // Actualizar el formulario con los datos más recientes
+                this.missingPersonForm.patchValue(completeMissingPersonData, { emitEvent: false });
+                
+                // Desactivar modo de edición
                 this.isEditMode = false;
 
+                // Mostrar notificación de éxito
                 this.updateStatus = 'success';
-                this.updateMessage = 'Reporte actualizado correctamente';
+                this.updateMessage = 'Reporte de desaparecido actualizado correctamente';
 
+                // Ocultar notificación después de 3 segundos
                 setTimeout(() => {
                     this.updateStatus = null;
                     this.updateMessage = '';
                 }, 3000);
             }
         } catch (error) {
-            this.updateStatus = 'error';
-            this.updateMessage = 'Ocurrió un error, ¡inténtalo de nuevo!';
+            // Desactivar modo de edición en caso de error
+            this.isEditMode = false;
 
+            // Mostrar notificación de error
+            this.updateStatus = 'error';
+            this.updateMessage = 'Ocurrió un error al actualizar el reporte, ¡inténtalo de nuevo!';
+
+            // Ocultar notificación después de 3 segundos
             setTimeout(() => {
                 this.updateStatus = null;
                 this.updateMessage = '';
@@ -325,17 +350,34 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
 
     cancelEdit(): void {
         if (this.selectedMissingPerson) {
-            this.missingPersonForm.patchValue({
-                name: this.selectedMissingPerson.name,
-                location: this.selectedMissingPerson.location,
-                date: this.selectedMissingPerson.date,
-                description: this.selectedMissingPerson.description,
-                category_id: this.selectedMissingPerson.category_id,
-                status: this.selectedMissingPerson.status
-            }, { emitEvent: false });
-        }
+            // Crear una copia profunda de los valores actuales antes de cancelar
+            const currentFormValues = this.missingPersonForm.getRawValue();
 
-        this.isEditMode = false;
+            // Restaurar los valores originales del reporte seleccionado
+            this.missingPersonForm.patchValue({
+                name: this.selectedMissingPerson.name || currentFormValues.name,
+                email: this.selectedMissingPerson.email || currentFormValues.email,
+                phone: this.selectedMissingPerson.phone || currentFormValues.phone,
+                location: this.selectedMissingPerson.location || currentFormValues.location,
+                date: this.selectedMissingPerson.date || currentFormValues.date,
+                description: this.selectedMissingPerson.description || currentFormValues.description,
+                consent: this.selectedMissingPerson.consent || currentFormValues.consent,
+                profile_image: this.selectedMissingPerson.profile_image || currentFormValues.profile_image,
+                status: this.selectedMissingPerson.status || currentFormValues.status
+            }, { emitEvent: false });
+
+            // Desactivar modo edición
+            this.isEditMode = false;
+
+            // Mostrar mensaje de cancelación
+            this.updateStatus = 'success';
+            this.updateMessage = 'Edición cancelada';
+
+            setTimeout(() => {
+                this.updateStatus = null;
+                this.updateMessage = '';
+            }, 3000);
+        }
     }
 
     trackByFn(index: number, item: MissingPerson): string {
@@ -353,5 +395,79 @@ export class HelpCenterRecDesaparecidosComponent implements OnInit, OnDestroy {
                 position: { lat: latitude, lng: longitude }
             };
         }
+    }
+
+    // Método para manejar la subida de imagen de perfil
+    onProfileImageUpload(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            // Validar tipo y tamaño de archivo
+            const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+            if (!allowedTypes.includes(file.type)) {
+                this.showErrorNotification('Solo se permiten imágenes JPG, PNG o GIF');
+                return;
+            }
+
+            if (file.size > maxSizeInBytes) {
+                this.showErrorNotification('La imagen no debe superar los 5MB');
+                return;
+            }
+
+            // Leer archivo
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                // Sanitize the image URL to prevent XSS
+                const imageUrl = this.sanitizer.bypassSecurityTrustUrl(e.target.result);
+                
+                // Actualizar la imagen de perfil del reporte actual
+                if (this.selectedMissingPerson) {
+                    this.selectedMissingPerson.profile_image = e.target.result;
+                }
+
+                // Previsualización de imagen
+                this.previewProfileImage(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Método para mostrar vista previa de imagen
+    previewProfileImage(imageData: string): void {
+        const previewContainer = document.getElementById('profile-image-preview');
+        if (previewContainer) {
+            previewContainer.innerHTML = `
+                <img src="${imageData}" 
+                     class="w-full h-auto max-h-64 object-cover rounded-md mt-4" 
+                     alt="Vista previa de imagen de perfil">
+            `;
+        }
+    }
+
+    // Método para mostrar notificaciones de error
+    showErrorNotification(message: string): void {
+        this.updateStatus = 'error';
+        this.updateMessage = message;
+
+        setTimeout(() => {
+            this.updateStatus = null;
+            this.updateMessage = '';
+        }, 3000);
+    }
+
+    // Método para guardar la imagen en el backend (implementación simulada)
+    uploadProfileImage(imageData: string): void {
+        // Aquí iría la lógica de subida al backend
+        // Por ejemplo, usando HttpClient para enviar la imagen
+        // this._missingPersonService.uploadImage(imageData)
+        //     .subscribe(
+        //         response => {
+        //             // Manejar respuesta exitosa
+        //         },
+        //         error => {
+        //             // Manejar error de subida
+        //         }
+        //     );
     }
 } 
