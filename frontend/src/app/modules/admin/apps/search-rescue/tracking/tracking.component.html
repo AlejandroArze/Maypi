@@ -1,0 +1,144 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <div class="max-w-full">
+            <!-- Título y descripción -->
+            <div class="text-3xl font-semibold tracking-tight leading-8">Seguimiento de Operaciones de Búsqueda</div>
+            <div class="mt-4">
+                <p class="text-lg text-secondary">
+                    Centro de control y monitoreo de operaciones de búsqueda y rescate en tiempo real.
+                    Coordine equipos, recursos y reciba actualizaciones instantáneas.
+                </p>
+            </div>
+
+            <!-- Grid de operaciones activas -->
+            <div class="operation-grid mt-8">
+                <mat-card *ngFor="let operation of activeOperations" class="mb-4">
+                    <!-- Encabezado -->
+                    <mat-card-header class="pb-6">
+                        <mat-card-title class="text-xl">
+                            Búsqueda: {{operation.missingPersonName}}
+                        </mat-card-title>
+                        <mat-card-subtitle>
+                            ID: {{operation.id}} | Inicio: {{formatDate(operation.startDate)}}
+                        </mat-card-subtitle>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                        <!-- Estado y Ubicación -->
+                        <div class="flex justify-between items-center mb-6">
+                            <span [class]="'status-badge ' + getStatusClass(operation.status)">
+                                {{getStatusText(operation.status)}}
+                            </span>
+                            <span class="text-secondary">
+                                <mat-icon class="mr-1 align-middle">location_on</mat-icon>
+                                {{operation.location.name}}
+                            </span>
+                        </div>
+
+                        <!-- Condiciones Climáticas -->
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6 flex items-center justify-between">
+                            <mat-icon class="weather-icon text-blue-500">
+                                {{getWeatherIcon(operation.weatherConditions.conditions)}}
+                            </mat-icon>
+                            <div class="text-right">
+                                <div class="font-medium">{{operation.weatherConditions.conditions}}</div>
+                                <div class="text-sm text-secondary">
+                                    {{operation.weatherConditions.temperature}}°C | 
+                                    Visibilidad: {{operation.weatherConditions.visibility}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equipo Desplegado -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium mb-3">Equipo Desplegado</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div *ngFor="let member of operation.teamMembers" 
+                                     class="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                                    <div>
+                                        <div class="font-medium">{{member.name}}</div>
+                                        <div class="text-sm text-secondary">{{member.role}}</div>
+                                    </div>
+                                    <span [class]="'px-2 py-1 rounded-full text-xs font-medium ' + 
+                                                  getTeamMemberStatusColor(member.status)">
+                                        {{member.status}}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recursos -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium mb-3">Recursos</h3>
+                            <mat-chip-listbox>
+                                <mat-chip *ngFor="let resource of operation.resources"
+                                         [matTooltip]="'Estado: ' + resource.status">
+                                    {{resource.type}}: {{resource.quantity}}
+                                </mat-chip>
+                            </mat-chip-listbox>
+                        </div>
+
+                        <!-- Últimas Actualizaciones -->
+                        <div>
+                            <h3 class="text-lg font-medium mb-3">Últimas Actualizaciones</h3>
+                            <div class="space-y-3">
+                                <div *ngFor="let update of operation.updates"
+                                     [class]="'update-card p-3 bg-gray-50 rounded-lg ' + 
+                                             getUpdateTypeClass(update.type)">
+                                    <div class="flex justify-between items-start">
+                                        <span class="font-medium">{{update.author}}</span>
+                                        <span class="text-sm text-secondary">
+                                            {{formatDate(update.timestamp)}}
+                                        </span>
+                                    </div>
+                                    <p class="mt-1 text-secondary">{{update.message}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+
+                    <mat-divider class="my-4"></mat-divider>
+
+                    <!-- Acciones -->
+                    <mat-card-actions class="p-4 flex justify-between">
+                        <button mat-button color="primary" (click)="addUpdate(operation.id)">
+                            <mat-icon class="mr-2">add_comment</mat-icon>
+                            Agregar Actualización
+                        </button>
+                        
+                        <button mat-button [matMenuTriggerFor]="menu">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="updateOperationStatus(operation.id, 'active')"
+                                    [disabled]="operation.status === 'active'">
+                                <mat-icon>play_arrow</mat-icon>
+                                <span>Activar Operación</span>
+                            </button>
+                            <button mat-menu-item (click)="updateOperationStatus(operation.id, 'paused')"
+                                    [disabled]="operation.status === 'paused'">
+                                <mat-icon>pause</mat-icon>
+                                <span>Pausar Operación</span>
+                            </button>
+                            <button mat-menu-item (click)="updateOperationStatus(operation.id, 'completed')"
+                                    [disabled]="operation.status === 'completed'">
+                                <mat-icon>check_circle</mat-icon>
+                                <span>Completar Operación</span>
+                            </button>
+                        </mat-menu>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+
+            <!-- Mensaje cuando no hay operaciones activas -->
+            <div *ngIf="activeOperations.length === 0" 
+                 class="mt-8 p-8 text-center bg-gray-50 rounded-lg">
+                <mat-icon class="text-6xl text-gray-400">search_off</mat-icon>
+                <p class="mt-4 text-xl font-medium text-gray-500">
+                    No hay operaciones de búsqueda activas en este momento
+                </p>
+            </div>
+        </div>
+    </div>
+</div> 
