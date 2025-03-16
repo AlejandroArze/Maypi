@@ -24,6 +24,15 @@
     gap: 15px;
     align-items: center;
     margin-bottom: 20px;
+    @apply w-full;
+
+    .mat-mdc-form-field {
+        @apply w-full;
+    }
+
+    .mat-mdc-raised-button {
+        @apply w-full;
+    }
 }
 
 .locations-list {

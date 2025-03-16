@@ -13,29 +13,31 @@
 
 <div class="tracking-container">
     <!-- Sección de Búsqueda -->
-    <div class="search-section">
-        <mat-form-field>
+    <div class="search-section grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+        <mat-form-field class="w-full col-span-1">
             <mat-label>Código de Seguimiento</mat-label>
-            <input matInput [(ngModel)]="trackingCode" placeholder="Ingrese código">
+            <input matInput [(ngModel)]="trackingCode" placeholder="Ingrese código" class="w-full">
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field class="w-full col-span-1">
             <mat-label>Fecha Inicio</mat-label>
-            <input matInput [matDatepicker]="startPicker" [(ngModel)]="dateStart">
+            <input matInput [matDatepicker]="startPicker" [(ngModel)]="dateStart" class="w-full">
             <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
             <mat-datepicker #startPicker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field class="w-full col-span-1">
             <mat-label>Fecha Fin</mat-label>
-            <input matInput [matDatepicker]="endPicker" [(ngModel)]="dateEnd">
+            <input matInput [matDatepicker]="endPicker" [(ngModel)]="dateEnd" class="w-full">
             <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
             <mat-datepicker #endPicker></mat-datepicker>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" (click)="searchTracking()">
-            Buscar
-        </button>
+        <div class="flex items-center justify-end col-span-1">
+            <button mat-raised-button color="primary" (click)="searchTracking()" class="w-full">
+                Buscar
+            </button>
+        </div>
     </div>
 
     <!-- Contenedor del Mapa con dimensiones específicas -->
