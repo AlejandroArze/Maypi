@@ -19,8 +19,22 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-// Importar librería de mapas (por ejemplo, Leaflet)
-import * as L from 'leaflet';
+// Importar OpenLayers
+import { Map, View } from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { fromLonLat } from 'ol/proj';
+import Style from 'ol/style/Style';
+import Icon from 'ol/style/Icon';
+import { boundingExtent } from 'ol/extent';
+import CircleStyle from 'ol/style/Circle';
+import Fill from 'ol/style/Fill';
+import Stroke from 'ol/style/Stroke';
+import { Geometry, Point as OLPoint } from 'ol/geom';
 
 @Component({
     selector: 'app-tracking',
@@ -49,7 +63,9 @@ import * as L from 'leaflet';
 export class TrackingComponent implements OnInit, AfterViewInit {
     @ViewChild('map', { static: false }) mapContainer: ElementRef;
     
-    map: L.Map;
+    map: Map;
+    vectorSource: VectorSource;
+    vectorLayer: VectorLayer<VectorSource>;
     trackingCode: string = '';
     dateStart: Date | null = null;
     dateEnd: Date | null = null;
@@ -81,23 +97,29 @@ export class TrackingComponent implements OnInit, AfterViewInit {
     initMap(): void {
         // Destruir mapa existente si lo hay
         if (this.map) {
-            this.map.remove();
+            this.map.dispose();
         }
 
-        // Inicializar mapa con Leaflet
-        this.map = L.map(this.mapContainer.nativeElement, {
-            center: [-34.6037, -58.3816],
-            zoom: 10,
-            attributionControl: true
+        // Crear fuente de vectores para marcadores
+        this.vectorSource = new VectorSource();
+        this.vectorLayer = new VectorLayer({
+            source: this.vectorSource
         });
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(this.map);
 
-        // Forzar recalculo del tamaño del mapa
-        this.map.invalidateSize();
+        // Inicializar mapa con OpenLayers
+        this.map = new Map({
+            target: this.mapContainer.nativeElement,
+            layers: [
+                new TileLayer({
+                    source: new OSM()
+                }),
+                this.vectorLayer
+            ],
+            view: new View({
+                center: fromLonLat([-58.3816, -34.6037]), // Buenos Aires
+                zoom: 10
+            })
+        });
     }
 
     loadMockLocations(): void {
@@ -139,53 +161,67 @@ export class TrackingComponent implements OnInit, AfterViewInit {
         );
     }
 
-    updateMapMarkers(): void {
-        // Limpiar marcadores anteriores
-        this.map.eachLayer((layer) => {
-            if (layer instanceof L.Marker) {
-                this.map.removeLayer(layer);
+    createCustomPinStyle(color: string = '#2196F3'): Style {
+        return new Style({
+            image: new CircleStyle({
+                radius: 10,
+                fill: new Fill({
+                    color: color
+                }),
+                stroke: new Stroke({
+                    color: 'white',
+                    width: 3
+                })
+            }),
+            // Añadir un pin triangular
+            geometry: (feature) => {
+                const geometry = feature.getGeometry();
+                
+                // Verificar si es una instancia de Point
+                if (geometry instanceof OLPoint) {
+                    const coordinates = geometry.getCoordinates();
+                    const pinHeight = 20;
+                    return new OLPoint([
+                        coordinates[0], 
+                        coordinates[1] - pinHeight / 111111 // Convertir píxeles a grados
+                    ]);
+                }
+                
+                // Si no es un punto, devolver la geometría original
+                return geometry;
             }
         });
+    }
 
-        // Añadir nuevos marcadores con iconos personalizados y más información
+    updateMapMarkers(): void {
+        // Limpiar marcadores anteriores
+        this.vectorSource.clear();
+
+        // Añadir nuevos marcadores con estilos personalizados
         this.locations.forEach((location, index) => {
-            // Crear un ícono personalizado
-            const markerIcon = L.divIcon({
-                className: 'custom-marker',
-                html: `
-                    <div class="marker-pin bg-blue-500 text-white">
-                        <span>${index + 1}</span>
-                    </div>
-                `,
-                iconSize: [30, 30],
-                iconAnchor: [15, 30]
+            // Crear nuevo marcador
+            const marker = new Feature({
+                geometry: new Point(fromLonLat([location.longitude, location.latitude]))
             });
 
-            // Crear marcador con información detallada
-            const marker = L.marker(
-                [location.latitude, location.longitude], 
-                { icon: markerIcon }
-            ).addTo(this.map);
+            // Estilo del marcador personalizado
+            marker.setStyle(this.createCustomPinStyle());
 
-            // Popup con información detallada
-            marker.bindPopup(`
-                <div class="popup-content">
-                    <strong>Ubicación ${index + 1}</strong><br>
-                    <p>Código: ${location.trackingCode}</p>
-                    <p>Hora: ${location.timestamp.toLocaleString()}</p>
-                    <p>Coordenadas: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}</p>
-                    <p>${location.description || 'Sin descripción adicional'}</p>
-                </div>
-            `);
+            // Añadir marcador
+            this.vectorSource.addFeature(marker);
         });
 
         // Ajustar vista del mapa
         if (this.locations.length > 0) {
-            const bounds = L.latLngBounds(
-                this.locations.map(loc => [loc.latitude, loc.longitude])
+            const coordinates = this.locations.map(loc => 
+                fromLonLat([loc.longitude, loc.latitude])
             );
-            this.map.fitBounds(bounds, {
-                padding: [50, 50] // Añadir un poco de padding
+
+            const extent = boundingExtent(coordinates);
+
+            this.map.getView().fit(extent, {
+                padding: [50, 50, 50, 50],
+                duration: 1000
             });
         }
     }
@@ -197,8 +233,26 @@ export class TrackingComponent implements OnInit, AfterViewInit {
     }
 
     selectLocation(location: TrackingLocation): void {
-        // Centrar mapa en la ubicación seleccionada
-        this.map.setView([location.latitude, location.longitude], 15);
+        // Limpiar marcadores anteriores
+        this.vectorSource.clear();
+
+        // Crear nuevo marcador
+        const marker = new Feature({
+            geometry: new Point(fromLonLat([location.longitude, location.latitude]))
+        });
+
+        // Estilo del marcador con color destacado
+        marker.setStyle(this.createCustomPinStyle('#FF5722')); // Color más llamativo
+
+        // Añadir marcador
+        this.vectorSource.addFeature(marker);
+
+        // Centrar mapa en la ubicación
+        this.map.getView().animate({
+            center: fromLonLat([location.longitude, location.latitude]),
+            zoom: 15,
+            duration: 1000
+        });
     }
 
     loadActiveOperations(): void {
