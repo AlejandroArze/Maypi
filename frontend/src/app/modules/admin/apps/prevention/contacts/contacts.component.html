@@ -52,7 +52,12 @@
     <!-- Main -->
     <div class="flex-auto p-6 sm:p-10">
         <div class="bg-card shadow rounded-lg overflow-hidden">
-            <table mat-table [dataSource]="getPaginatedContacts()" class="w-full">
+            <table 
+                mat-table 
+                [dataSource]="paginatedContacts$ | async" 
+                class="w-full"
+                [trackBy]="trackByContactId"
+            >
                 <!-- Name Column -->
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef> Nombre </th>
@@ -87,7 +92,7 @@
                             <button mat-icon-button (click)="editContact(contact)">
                                 <mat-icon>edit</mat-icon>
                             </button>
-                            <button mat-icon-button>
+                            <button mat-icon-button (click)="deleteContact(contact.id)">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
@@ -100,7 +105,7 @@
 
             <!-- Paginación -->
             <mat-paginator 
-                [length]="contacts.length"
+                [length]="(contacts$ | async)?.length"
                 [pageSize]="pageSize"
                 [pageSizeOptions]="[10, 15, 20]"
                 (page)="onPageChange($event)"
@@ -108,7 +113,7 @@
             </mat-paginator>
 
             <!-- Empty state -->
-            <div *ngIf="contacts.length === 0" class="p-8 text-center">
+            <div *ngIf="(contacts$ | async)?.length === 0" class="p-8 text-center">
                 <p class="text-secondary text-lg">
                     No hay contactos registrados.
                     <br>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContactsService } from './contacts.service';
 import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'app-contacts',
@@ -87,7 +89,8 @@ import { MatSelectModule } from '@angular/material/select';
     ]
 })
 export class ContactsComponent implements OnInit {
-    contacts: any[] = [
+    // Usar BehaviorSubject para manejar la lista de contactos
+    private _contactsSubject = new BehaviorSubject<any[]>([
         {
             id: '528461STNT',
             name: 'Morgan Page',
@@ -168,96 +171,141 @@ export class ContactsComponent implements OnInit {
             teleLine: 'Viva',
             edit: true
         }
-    ];
+    ]);
+
+    // Observable para acceder a los contactos
+    contacts$: Observable<any[]> = this._contactsSubject.asObservable();
+
+    // Observable para contactos paginados
+    paginatedContacts$: Observable<any[]>;
+
     displayedColumns: string[] = ['name', 'phone', 'teleLine', 'date', 'actions'];
     pageSize = 10;
     pageIndex = 0;
 
     constructor(
         private _contactsService: ContactsService, 
-        private dialog: MatDialog
-    ) {}
+        private dialog: MatDialog,
+        private cdr: ChangeDetectorRef
+    ) {
+        // Configurar paginación reactiva
+        this.paginatedContacts$ = this.contacts$.pipe(
+            map(contacts => {
+                const startIndex = this.pageIndex * this.pageSize;
+                return contacts.slice(startIndex, startIndex + this.pageSize);
+            })
+        );
+    }
 
     ngOnInit(): void {
         // Comentamos la carga de contactos desde el servicio
         // this.loadContacts();
     }
 
-    // Métodos de paginación
-    getPaginatedContacts() {
-        const startIndex = this.pageIndex * this.pageSize;
-        return this.contacts.slice(startIndex, startIndex + this.pageSize);
-    }
-
-    onPageChange(event: any) {
+    // Método para cambiar página
+    onPageChange(event: any): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        
+        // Trigger change detection
+        this._contactsSubject.next(this._contactsSubject.value);
     }
 
     // Métodos CRUD existentes
     loadContacts(): void {
         this._contactsService.getContacts()
             .subscribe(contacts => {
-                this.contacts = contacts;
+                this._contactsSubject.next(contacts);
             });
     }
 
+    // Método para agregar contacto
     addContact(contact: any): void {
-        this._contactsService.addContact(contact)
-            .subscribe(() => {
-                this.loadContacts();
-            });
+        const currentContacts = this._contactsSubject.value;
+        const newContact = {
+            ...contact,
+            id: this.generateUniqueId(),
+            date: this.formatCurrentDate(),
+            edit: true
+        };
+
+        // Agregar al inicio de la lista
+        const updatedContacts = [newContact, ...currentContacts];
+        this._contactsSubject.next(updatedContacts);
     }
 
-    updateContact(id: string, contact: any): void {
-        this._contactsService.updateContact(id, contact)
-            .subscribe(() => {
-                this.loadContacts();
-            });
+    // Método para actualizar contacto
+    updateContact(updatedContact: any): void {
+        const currentContacts = this._contactsSubject.value;
+        const updatedContacts = currentContacts.map(contact => 
+            contact.id === updatedContact.id 
+                ? { ...contact, ...updatedContact } 
+                : contact
+        );
+        
+        this._contactsSubject.next(updatedContacts);
     }
 
-    deleteContact(id: string): void {
-        this._contactsService.deleteContact(id)
-            .subscribe(() => {
-                this.loadContacts();
-            });
+    // Método para eliminar contacto
+    deleteContact(contactId: string): void {
+        const currentContacts = this._contactsSubject.value;
+        const updatedContacts = currentContacts.filter(contact => contact.id !== contactId);
+        
+        this._contactsSubject.next(updatedContacts);
     }
 
+    // Método para generar ID único
+    private generateUniqueId(): string {
+        return Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+
+    // Método para formatear fecha
+    private formatCurrentDate(): string {
+        return new Date().toLocaleDateString('es-ES', { 
+            month: 'short', 
+            day: '2-digit', 
+            year: 'numeric' 
+        });
+    }
+
+    // Método para abrir modal de agregar contacto
     openAddContactModal(): void {
         const dialogRef = this.dialog.open(AddContactModalComponent, {
             width: '600px',
             height: 'auto',
             disableClose: false,
-            data: {}
+            data: { mode: 'add' }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                // Simulamos agregar el contacto sin llamada al backend
-                this.contacts.push(result);
-                console.log('Contacto agregado:', result);
+                this.addContact(result);
             }
         });
     }
 
+    // Método para editar contacto
     editContact(contact: any): void {
         const dialogRef = this.dialog.open(AddContactModalComponent, {
             width: '600px',
             height: 'auto',
             disableClose: false,
-            data: { contact: {...contact} }
+            data: { 
+                mode: 'edit',
+                contact: {...contact} 
+            }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                // Encontrar y actualizar el contacto en la lista
-                const index = this.contacts.findIndex(c => c.id === result.id);
-                if (index !== -1) {
-                    this.contacts[index] = result;
-                    console.log('Contacto actualizado:', result);
-                }
+                this.updateContact(result);
             }
         });
+    }
+
+    // Método para trackBy
+    trackByContactId(index: number, contact: any): string {
+        return contact.id;
     }
 }
 
@@ -273,7 +321,7 @@ export class ContactsComponent implements OnInit {
                 SE LE ENVIARÁ TU CODIGO DE PERSONA, Y SI SOLO ESTA LA PERSONA EN TU LISTA DE CONTACTOS CON TU CODIGO 
                 AL REPORTAR LA DENUNCIA A LAS AUTORIDADES PODRÁ UBICARTE
             </p>
-            <form>
+            <form #contactForm="ngForm">
                 <div class="grid grid-cols-1 gap-4">
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-label>Nombre</mat-label>
@@ -283,7 +331,11 @@ export class ContactsComponent implements OnInit {
                             name="name" 
                             placeholder="Ingrese nombre"
                             required
+                            #nameInput="ngModel"
                         >
+                        <mat-error *ngIf="nameInput.invalid && (nameInput.dirty || nameInput.touched)">
+                            El nombre es requerido
+                        </mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-label>Teléfono</mat-label>
@@ -293,7 +345,12 @@ export class ContactsComponent implements OnInit {
                             name="phone" 
                             placeholder="Ingrese teléfono"
                             required
+                            #phoneInput="ngModel"
+                            pattern="^\+591\s?[6-7][0-9]{7}$"
                         >
+                        <mat-error *ngIf="phoneInput.invalid && (phoneInput.dirty || phoneInput.touched)">
+                            Ingrese un teléfono válido (+591 seguido de 8 dígitos)
+                        </mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-label>Línea Telefónica</mat-label>
@@ -302,11 +359,15 @@ export class ContactsComponent implements OnInit {
                             name="teleLine" 
                             placeholder="Seleccione línea"
                             required
+                            #teleLineSelect="ngModel"
                         >
                             <mat-option value="Viva">Viva</mat-option>
                             <mat-option value="Tigo">Tigo</mat-option>
                             <mat-option value="Entel">Entel</mat-option>
                         </mat-select>
+                        <mat-error *ngIf="teleLineSelect.invalid && (teleLineSelect.dirty || teleLineSelect.touched)">
+                            Seleccione una línea telefónica
+                        </mat-error>
                     </mat-form-field>
                 </div>
             </form>
@@ -317,7 +378,7 @@ export class ContactsComponent implements OnInit {
                 color="primary" 
                 (click)="onSave()"
                 class="w-full rounded-none"
-                [disabled]="!isFormValid()">
+                [disabled]="!contactForm.form.valid">
                 {{ isEditing ? 'Actualizar Contacto' : 'Enviar codigo de Persona Maypi al Contacto y Guardarlo' }}
             </button>
         </mat-dialog-actions>
@@ -355,28 +416,16 @@ export class AddContactModalComponent {
         public dialogRef: MatDialogRef<AddContactModalComponent>,
         @Inject(MAT_DIALOG_DATA) public data: any
     ) {
-        if (data && data.contact) {
+        // Configurar el modo (agregar o editar)
+        if (data && data.mode === 'edit' && data.contact) {
             this.contact = {...data.contact};
             this.isEditing = true;
         }
     }
 
-    isFormValid(): boolean {
-        return !!(this.contact.name && this.contact.phone && this.contact.teleLine);
-    }
-
     onSave(): void {
-        if (this.isFormValid()) {
-            if (!this.isEditing) {
-                // Simulamos un ID único para nuevos contactos
-                this.contact.id = Math.random().toString(36).substr(2, 9).toUpperCase();
-                this.contact.date = new Date().toLocaleDateString('es-ES', { 
-                    month: 'short', 
-                    day: '2-digit', 
-                    year: 'numeric' 
-                });
-            }
-            
+        // Validación adicional
+        if (this.contact.name && this.contact.phone && this.contact.teleLine) {
             this.dialogRef.close(this.contact);
         }
     }
