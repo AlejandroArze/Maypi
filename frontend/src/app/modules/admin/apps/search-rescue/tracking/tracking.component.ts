@@ -116,8 +116,9 @@ export class TrackingComponent implements OnInit, AfterViewInit {
                 this.vectorLayer
             ],
             view: new View({
-                center: fromLonLat([-58.3816, -34.6037]), // Buenos Aires
-                zoom: 10
+                // Coordenadas de ejemplo: -17.375751, -66.1580363
+                center: fromLonLat([-66.1580363, -17.375751]), // Nota: longitud primero, latitud después
+                zoom: 18 // Zoom alto para ver detalles
             })
         });
     }

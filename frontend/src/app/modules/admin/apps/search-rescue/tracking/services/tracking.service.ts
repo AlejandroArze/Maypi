@@ -14,7 +14,15 @@ export class TrackingService {
     getMockLocations(): Observable<TrackingLocation[]> {
         const mockLocations: TrackingLocation[] = [
             {
-                id: '1',
+                id: '1', 
+                trackingCode: 'SR-001',
+                latitude: -17.375751,
+                longitude: -66.1580363,
+                timestamp: new Date(),
+                description: 'Ubicación de búsqueda en zona montañosa'
+            },
+            {
+                id: '2',
                 timestamp: new Date('2024-02-15T10:30:00'),
                 latitude: -34.6037,
                 longitude: -58.3816,
@@ -22,7 +30,7 @@ export class TrackingService {
                 description: 'Punto de inicio de búsqueda'
             },
             {
-                id: '2',
+                id: '3',
                 timestamp: new Date('2024-02-15T10:45:00'),
                 latitude: -34.6050,
                 longitude: -58.3830,
@@ -30,7 +38,7 @@ export class TrackingService {
                 description: 'Movimiento hacia el área de búsqueda'
             },
             {
-                id: '3',
+                id: '4',
                 timestamp: new Date('2024-02-15T11:00:00'),
                 latitude: -34.6075,
                 longitude: -58.3850,
@@ -38,7 +46,7 @@ export class TrackingService {
                 description: 'Exploración inicial del terreno'
             },
             {
-                id: '4',
+                id: '5',
                 timestamp: new Date('2024-02-15T11:15:00'),
                 latitude: -34.6100,
                 longitude: -58.3875,
@@ -46,14 +54,29 @@ export class TrackingService {
                 description: 'Equipo secundario en posición'
             },
             {
-                id: '5',
+                id: '6',
                 timestamp: new Date('2024-02-15T11:30:00'),
                 latitude: -34.6125,
                 longitude: -58.3900,
                 trackingCode: 'RES-002',
                 description: 'Rastreo de zona específica'
+            },
+            {
+                id: '7',
+                trackingCode: 'SR-002',
+                latitude: -34.6037,
+                longitude: -58.3816,
+                timestamp: new Date(),
+                description: 'Operación en Buenos Aires'
+            },
+            {   
+                id: '8',
+                trackingCode: 'SR-003',
+                latitude: -33.4489,
+                longitude: -70.6693,
+                timestamp: new Date(),
+                description: 'Seguimiento en Santiago de Chile'
             }
-            // Más ubicaciones...
         ];
 
         return of(mockLocations);
