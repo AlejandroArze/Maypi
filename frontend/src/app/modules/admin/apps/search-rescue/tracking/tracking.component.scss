@@ -29,4 +29,43 @@
 .locations-list {
     width: 100%;
     margin-top: 20px;
+}
+
+.custom-marker {
+    .marker-pin {
+        width: 30px;
+        height: 30px;
+        border-radius: 50% 50% 50% 0;
+        background: #2196F3;
+        position: absolute;
+        transform: rotate(-45deg);
+        left: 50%;
+        top: 50%;
+        margin: -15px 0 0 -15px;
+        
+        span {
+            transform: rotate(45deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: white;
+            font-weight: bold;
+        }
+    }
+}
+
+.popup-content {
+    max-width: 250px;
+    
+    strong {
+        color: #2196F3;
+        display: block;
+        margin-bottom: 10px;
+    }
+    
+    p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
 } 

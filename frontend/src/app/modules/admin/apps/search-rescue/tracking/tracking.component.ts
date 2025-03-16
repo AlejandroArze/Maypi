@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { TrackingService, SearchOperation } from './tracking.service';
+import { TrackingService } from './services/tracking.service';
+import { TrackingLocation } from './models/tracking-location.model';
+import { SearchOperation } from './models/search-operation.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,14 +21,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Importar librería de mapas (por ejemplo, Leaflet)
 import * as L from 'leaflet';
-
-interface TrackingLocation {
-    id: string;
-    timestamp: Date;
-    latitude: number;
-    longitude: number;
-    trackingCode: string;
-}
 
 @Component({
     selector: 'app-tracking',
@@ -68,9 +62,10 @@ export class TrackingComponent implements OnInit, AfterViewInit {
 
     activeOperations: SearchOperation[] = [];
 
-    constructor(private _trackingService: TrackingService) {}
+    constructor(private trackingService: TrackingService) {}
 
     ngOnInit(): void {
+        this.loadMockLocations();
         this.loadActiveOperations();
     }
 
@@ -105,12 +100,35 @@ export class TrackingComponent implements OnInit, AfterViewInit {
         this.map.invalidateSize();
     }
 
+    loadMockLocations(): void {
+        this.trackingService.getMockLocations().subscribe(
+            (locations) => {
+                this.locations = locations;
+                this.updateDisplayedLocations();
+                this.updateMapMarkers();
+            },
+            (error) => {
+                console.error('Error al cargar ubicaciones:', error);
+            }
+        );
+    }
+
     searchTracking(): void {
-        // Lógica para buscar ubicaciones por código de seguimiento y rango de fechas
-        // Esta es una implementación simulada, deberías reemplazarla con tu servicio real
-        this.locations = this.getMockLocations();
-        this.updateDisplayedLocations();
-        this.updateMapMarkers();
+        // En el futuro, usará los parámetros de búsqueda
+        this.trackingService.getTrackingLocations(
+            this.trackingCode, 
+            this.dateStart, 
+            this.dateEnd
+        ).subscribe(
+            (locations) => {
+                this.locations = locations;
+                this.updateDisplayedLocations();
+                this.updateMapMarkers();
+            },
+            (error) => {
+                console.error('Error al buscar ubicaciones:', error);
+            }
+        );
     }
 
     updateDisplayedLocations(): void {
@@ -129,14 +147,36 @@ export class TrackingComponent implements OnInit, AfterViewInit {
             }
         });
 
-        // Añadir nuevos marcadores
-        this.locations.forEach(location => {
-            L.marker([location.latitude, location.longitude])
-                .addTo(this.map)
-                .bindPopup(`
-                    Código: ${location.trackingCode}<br>
-                    Hora: ${location.timestamp.toLocaleString()}
-                `);
+        // Añadir nuevos marcadores con iconos personalizados y más información
+        this.locations.forEach((location, index) => {
+            // Crear un ícono personalizado
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `
+                    <div class="marker-pin bg-blue-500 text-white">
+                        <span>${index + 1}</span>
+                    </div>
+                `,
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            // Crear marcador con información detallada
+            const marker = L.marker(
+                [location.latitude, location.longitude], 
+                { icon: markerIcon }
+            ).addTo(this.map);
+
+            // Popup con información detallada
+            marker.bindPopup(`
+                <div class="popup-content">
+                    <strong>Ubicación ${index + 1}</strong><br>
+                    <p>Código: ${location.trackingCode}</p>
+                    <p>Hora: ${location.timestamp.toLocaleString()}</p>
+                    <p>Coordenadas: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}</p>
+                    <p>${location.description || 'Sin descripción adicional'}</p>
+                </div>
+            `);
         });
 
         // Ajustar vista del mapa
@@ -144,7 +184,9 @@ export class TrackingComponent implements OnInit, AfterViewInit {
             const bounds = L.latLngBounds(
                 this.locations.map(loc => [loc.latitude, loc.longitude])
             );
-            this.map.fitBounds(bounds);
+            this.map.fitBounds(bounds, {
+                padding: [50, 50] // Añadir un poco de padding
+            });
         }
     }
 
@@ -159,27 +201,27 @@ export class TrackingComponent implements OnInit, AfterViewInit {
         this.map.setView([location.latitude, location.longitude], 15);
     }
 
-    // Método de ejemplo - reemplazar con servicio real
-    getMockLocations(): TrackingLocation[] {
-        return [
-            {
-                id: '1',
-                timestamp: new Date(),
-                latitude: -34.6037,
-                longitude: -58.3816,
-                trackingCode: 'ABC123'
-            },
-            // Añadir más ubicaciones de ejemplo
-        ];
-    }
-
     loadActiveOperations(): void {
-        this._trackingService.getActiveOperations().subscribe(
+        this.trackingService.getActiveOperations().subscribe(
             (operations) => {
                 this.activeOperations = operations;
             },
             (error) => {
                 console.error('Error al cargar operaciones:', error);
+            }
+        );
+    }
+
+    updateOperationStatus(operationId: string, newStatus: string): void {
+        this.trackingService.updateOperationStatus(operationId, newStatus).subscribe(
+            (updatedOperation) => {
+                const index = this.activeOperations.findIndex(op => op.id === operationId);
+                if (index !== -1) {
+                    this.activeOperations[index] = updatedOperation;
+                }
+            },
+            (error) => {
+                console.error('Error al actualizar estado:', error);
             }
         );
     }
@@ -253,20 +295,6 @@ export class TrackingComponent implements OnInit, AfterViewInit {
 
     formatDate(date: string): string {
         return new Date(date).toLocaleString();
-    }
-
-    updateOperationStatus(operationId: string, newStatus: string): void {
-        this._trackingService.updateOperationStatus(operationId, newStatus).subscribe(
-            () => {
-                const operation = this.activeOperations.find(op => op.id === operationId);
-                if (operation) {
-                    operation.status = newStatus as 'active' | 'paused' | 'completed';
-                }
-            },
-            (error) => {
-                console.error('Error al actualizar estado:', error);
-            }
-        );
     }
 
     addUpdate(operationId: string): void {

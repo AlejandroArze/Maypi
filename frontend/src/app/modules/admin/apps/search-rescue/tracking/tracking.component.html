@@ -60,6 +60,13 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                <td mat-cell *matCellDef="let location">
+                    {{location.description || 'Sin descripción'}}
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
                 <td mat-cell *matCellDef="let location">
@@ -69,8 +76,8 @@
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="['timestamp', 'coordinates', 'actions']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['timestamp', 'coordinates', 'actions']"></tr>
+            <tr mat-header-row *matHeaderRowDef="['timestamp', 'coordinates', 'description', 'actions']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['timestamp', 'coordinates', 'description', 'actions']"></tr>
         </table>
 
         <mat-paginator 
