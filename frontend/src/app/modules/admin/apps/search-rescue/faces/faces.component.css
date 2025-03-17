@@ -1,0 +1,78 @@
+.scanparent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.scanline {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(33, 150, 243, 0.9), 
+        rgba(33, 150, 243, 0.7), 
+        transparent
+    );
+    animation: rapidScan 0.5s linear infinite;
+    z-index: 10;
+    opacity: 0.8;
+}
+
+@keyframes rapidScan {
+    0% { 
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% { 
+        transform: translateY(300%);
+        opacity: 0;
+    }
+}
+
+.scanline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: rgba(255,255,255,0.3);
+    transform: skewX(-30deg);
+}
+
+.scanline:nth-child(1) {
+    animation-delay: 0s;
+}
+.scanline:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.scanline:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.scanline:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.selected-image {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Añadir estilos adicionales si es necesario */
+.mat-progress-bar {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.mat-progress-bar-fill::after {
+    background-color: #6366f1; /* Tailwind's indigo-500 */
+} 

@@ -115,14 +115,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+           
         ]
     },
     {
@@ -314,14 +307,7 @@ export const compactNavigation: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+            
         ]
     },
     {
@@ -513,14 +499,7 @@ export const futuristicNavigation: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+            
         ]
     },
     {
@@ -712,14 +691,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+            
         ]
     },
     {

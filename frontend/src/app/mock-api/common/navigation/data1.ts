@@ -115,14 +115,7 @@ export const defaultNavigation1: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+           
         ]
     },
     {
@@ -134,7 +127,7 @@ export const defaultNavigation1: FuseNavigationItem[] = [
         children: [
             {
                 id      : 'apps.prevention.contacts',
-                title   : 'mis contactos de emergencia',
+                title   : 'Mis Contactos de Emergencia',
                 type    : 'basic',
                 icon    : 'heroicons_outline:computer-desktop',
                 link    : '/apps/prevention/contacts',
@@ -314,14 +307,7 @@ export const compactNavigation1: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+            
         ]
     },
     {
@@ -513,14 +499,7 @@ export const futuristicNavigation1: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+           
         ]
     },
     {
@@ -712,14 +691,7 @@ export const horizontalNavigation1: FuseNavigationItem[] = [
                 link    : '/apps/search-rescue/emergency',
                 roles   : [1, 2],
             },
-            {
-                id      : 'apps.search-rescue.stats',
-                title   : 'Estadisiticas',
-                type    : 'basic',
-                icon    : 'heroicons_outline:clipboard-document-check',
-                link    : '/apps/search-rescue/stats',
-                roles   : [1, 2],
-            },
+            
         ]
     },
     {
