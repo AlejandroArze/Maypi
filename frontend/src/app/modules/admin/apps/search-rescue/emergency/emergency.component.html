@@ -1,11 +1,110 @@
 <div class="flex flex-col flex-auto min-w-0">
-    <!-- Main -->
+    <!-- Main Container -->
     <div class="flex-auto p-6 sm:p-10">
-        <div class="h-full">
-            <!-- Title -->
-            <div class="text-4xl font-extrabold tracking-tight leading-none">Solicitudes de Ayuda Botón de Emergencia</div>
-            <div class="mt-2 text-lg text-secondary">
-                Gestión y seguimiento de solicitudes de ayuda mediante botón de emergencia
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="text-4xl font-extrabold tracking-tight leading-none dark:text-white">
+                Centro de Búsqueda de Personas
+            </div>
+            <div class="mt-2 text-lg text-secondary dark:text-gray-300">
+                Seguimiento y localización de personas
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Mapa -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+                <div #map class="w-full h-[500px]"></div>
+            </div>
+
+            <!-- Tabla de Solicitudes -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold dark:text-white">Solicitudes de Búsqueda</h2>
+                </div>
+
+                <table mat-table [dataSource]="emergencyRequests" class="w-full">
+                    <!-- Código de Persona -->
+                    <ng-container matColumnDef="personCode">
+                        <th mat-header-cell *matHeaderCellDef>Código MAYPI</th>
+                        <td mat-cell *matCellDef="let request">{{ request.personCode }}</td>
+                    </ng-container>
+
+                    <!-- Ubicación -->
+                    <ng-container matColumnDef="location">
+                        <th mat-header-cell *matHeaderCellDef>Dirección</th>
+                        <td mat-cell *matCellDef="let request">{{ request.location.address }}</td>
+                    </ng-container>
+
+                    <!-- Coordenadas -->
+                    <ng-container matColumnDef="coordinates">
+                        <th mat-header-cell *matHeaderCellDef>Coordenadas</th>
+                        <td mat-cell *matCellDef="let request">
+                            Lat: {{ request.location.coordinates.latitude | number:'1.4-4' }} 
+                            Lon: {{ request.location.coordinates.longitude | number:'1.4-4' }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Fecha y Hora -->
+                    <ng-container matColumnDef="timestamp">
+                        <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+                        <td mat-cell *matCellDef="let request">
+                            {{ request.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Tipo de Emergencia -->
+                    <ng-container matColumnDef="emergencyType">
+                        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                        <td mat-cell *matCellDef="let request">
+                            <span 
+                                [ngClass]="{
+                                    'bg-red-100 text-red-800': request.emergencyType === 'danger',
+                                    'bg-yellow-100 text-yellow-800': request.emergencyType === 'help',
+                                    'bg-blue-100 text-blue-800': request.emergencyType === 'missing',
+                                    'bg-green-100 text-green-800': request.emergencyType === 'medical'
+                                }"
+                                class="px-2 py-1 rounded-full text-xs font-medium">
+                                {{ request.emergencyType }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>Estado</th>
+                        <td mat-cell *matCellDef="let request">
+                            <span 
+                                [ngClass]="{
+                                    'bg-red-100 text-red-800': request.status === 'pending',
+                                    'bg-yellow-100 text-yellow-800': request.status === 'in-progress',
+                                    'bg-green-100 text-green-800': request.status === 'resolved'
+                                }"
+                                class="px-2 py-1 rounded-full text-xs font-medium">
+                                {{ request.status }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Acciones -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                        <td mat-cell *matCellDef="let request">
+                            <button mat-icon-button (click)="viewEmergencyDetails(request)">
+                                <mat-icon>location_on</mat-icon>
+                            </button>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+
+                <mat-paginator 
+                    [length]="emergencyRequests.length"
+                    [pageSize]="5"
+                    [pageSizeOptions]="[5, 10, 20]">
+                </mat-paginator>
             </div>
         </div>
     </div>
