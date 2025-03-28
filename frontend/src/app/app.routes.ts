@@ -11,7 +11,7 @@ import { AuthSignInComponent } from './modules/auth/sign-in/sign-in.component';
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 export const appRoutes: Route[] = [
 
-    // Redirect empty path to '/sign-in'
+    // Redirect empty path to '/home'
     {path: '', pathMatch : 'full', redirectTo: 'home'},
 
     // Redirect signed-in user to the '/example'

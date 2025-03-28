@@ -49,7 +49,7 @@ export class LandingHomeComponent
             last_location: 'Calle 123 Nº 1 Provincia Buenos Aires de la ciudad de Cochabamba',
         },
         {
-            name: 'Nataniel L. Heardy',
+            name: 'Lucal Obregon',
             age: 25,
             height: 1.80,
             weight: 80,
@@ -76,6 +76,25 @@ export class LandingHomeComponent
             last_location: 'Calle 123 Nº 1 Provincia Buenos Aires de la ciudad de Cochabamba',
         },
     ];
+
+    currentBlock=0;
+
+    get paginatedList() {
+        const start = this.currentBlock * 3;
+        return this.persons_list.slice(start, start + 3);
+      }
+    
+      nextBlock() {
+        if ((this.currentBlock + 1) * 3 < this.persons_list.length) {
+          this.currentBlock++;
+        }
+      }
+    
+      prevBlock() {
+        if (this.currentBlock > 0) {
+          this.currentBlock--;
+        }
+      }
     
     constructor()
     {

@@ -259,9 +259,8 @@
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Tarjeta de persona 1 -->
-                        <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 grid-rows-1">
+                        <div *ngFor="let person of paginatedList" class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                             <div class="bg-[#FFC107] p-2 flex justify-between items-center">
                                 <span class="text-[#2E4053] font-bold uppercase text-sm">Desaparecido</span>
                                 <span class="bg-[#2E4053] text-white text-xs px-2 py-1 rounded-full">
@@ -270,115 +269,33 @@
                             </div>
                             <div class="p-0">
                                 <div class="aspect-[3/4] bg-[#F2F2F2] relative">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-[#2E4053] text-opacity-50">Foto</span>
-                                    </div>
+                                    <img class="h-full transition-transform duration-500 ease-[cubic-bezier(0.25, 1, 0.5, 1)] transform group-hover:scale-110"
+                                        src="https://picsum.photos/1200"
+                                        alt="investment-seed-round" />
                                 </div>
                             </div>
                             <div class="p-4">
-                                <h3 class="text-xl text-[#2E4053] font-bold">Juan Pérez</h3>
+                                <h3 class="text-xl text-[#2E4053] font-bold">{{person.name}}</h3>
                                 <p class="flex items-center text-sm text-gray-500 mb-2">
                                     <mat-icon fontIcon="place" class="text-sm mr-1"></mat-icon>
-                                    La Paz, Bolivia - 15 de marzo
+                                    {{person.last_location}}
                                 </p>
                                 <div class="grid grid-cols-2 gap-2 text-sm mb-4">
                                     <div>
-                                        <span class="text-gray-500">Edad:</span> 32 años
+                                        <span class="text-gray-500">Edad:</span> {{person.age}} años
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Altura:</span> 1.75 m
+                                        <span class="text-gray-500">Altura:</span> {{person.height}} m
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Peso:</span> 70 kg
+                                        <span class="text-gray-500">Peso:</span> {{person.weight}} kg
                                     </div>
                                     <div>
-                                        <span class="text-gray-500">Cabello:</span> Negro
+                                        <span class="text-gray-500">Cabello:</span> {{person.hair}}
                                     </div>
                                 </div>
                                 <a href="#" class="block w-full bg-[#2E4053] text-white hover:bg-[#2E4053]/90 py-2 rounded-md text-center transition-colors" title="Ver detalles de Juan Pérez">
-                                    Ver Detalles
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Tarjeta de persona 2 -->
-                        <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                            <div class="bg-[#FFC107] p-2 flex justify-between items-center">
-                                <span class="text-[#2E4053] font-bold uppercase text-sm">Desaparecido</span>
-                                <span class="bg-[#2E4053] text-white text-xs px-2 py-1 rounded-full">
-                                    5 días
-                                </span>
-                            </div>
-                            <div class="p-0">
-                                <div class="aspect-[3/4] bg-[#F2F2F2] relative">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-[#2E4053] text-opacity-50">Foto</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-xl text-[#2E4053] font-bold">María López</h3>
-                                <p class="flex items-center text-sm text-gray-500 mb-2">
-                                    <mat-icon fontIcon="place" class="text-sm mr-1"></mat-icon>
-                                    Cochabamba, Bolivia - 20 de abril
-                                </p>
-                                <div class="grid grid-cols-2 gap-2 text-sm mb-4">
-                                    <div>
-                                        <span class="text-gray-500">Edad:</span> 28 años
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Altura:</span> 1.65 m
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Peso:</span> 58 kg
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Cabello:</span> Castaño
-                                    </div>
-                                </div>
-                                <a href="#" class="block w-full bg-[#2E4053] text-white hover:bg-[#2E4053]/90 py-2 rounded-md text-center transition-colors" title="Ver detalles de María López">
-                                    Ver Detalles
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Tarjeta de persona 3 -->
-                        <div class="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                            <div class="bg-[#FFC107] p-2 flex justify-between items-center">
-                                <span class="text-[#2E4053] font-bold uppercase text-sm">Desaparecido</span>
-                                <span class="bg-[#2E4053] text-white text-xs px-2 py-1 rounded-full">
-                                    8 días
-                                </span>
-                            </div>
-                            <div class="p-0">
-                                <div class="aspect-[3/4] bg-[#F2F2F2] relative">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-[#2E4053] text-opacity-50">Foto</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-xl text-[#2E4053] font-bold">Carlos Rodríguez</h3>
-                                <p class="flex items-center text-sm text-gray-500 mb-2">
-                                    <mat-icon fontIcon="place" class="text-sm mr-1"></mat-icon>
-                                    Santa Cruz, Bolivia - 5 de mayo
-                                </p>
-                                <div class="grid grid-cols-2 gap-2 text-sm mb-4">
-                                    <div>
-                                        <span class="text-gray-500">Edad:</span> 45 años
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Altura:</span> 1.80 m
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Peso:</span> 85 kg
-                                    </div>
-                                    <div>
-                                        <span class="text-gray-500">Cabello:</span> Canoso
-                                    </div>
-                                </div>
-                                <a href="#" class="block w-full bg-[#2E4053] text-white hover:bg-[#2E4053]/90 py-2 rounded-md text-center transition-colors" title="Ver detalles de Carlos Rodríguez">
-                                    Ver Detalles
+                                    He visto a esta persona
                                 </a>
                             </div>
                         </div>
@@ -386,12 +303,16 @@
                     
                     <div class="flex justify-center mt-8">
                         <button 
+                            (click)="prevBlock()"
+                            [disabled]="currentBlock===0"
                             class="border border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white px-4 py-2 rounded-md mr-2 transition-colors"
                             aria-label="Ir a la página anterior"
                             title="Ir a la página anterior">
                             &laquo; Anterior
                         </button>
                         <button 
+                            (click)="nextBlock()"
+                            [disabled]="(currentBlock+1)*3>=persons_list.length"
                             class="border border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white px-4 py-2 rounded-md transition-colors"
                             aria-label="Ir a la página siguiente"
                             title="Ir a la página siguiente">
