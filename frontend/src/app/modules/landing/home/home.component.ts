@@ -14,6 +14,12 @@ import { RouterLink } from '@angular/router';
 
 export class LandingHomeComponent
 {
+    // Propiedad para controlar la visibilidad del menú móvil
+    isMenuOpen: boolean = false;
+    
+    // Propiedad para mostrar el año actual en el footer
+    currentYear: number = new Date().getFullYear();
+    
     persons_list = [
         {
             name: 'Nataniel L. Heardy',
@@ -70,7 +76,13 @@ export class LandingHomeComponent
             last_location: 'Calle 123 Nº 1 Provincia Buenos Aires de la ciudad de Cochabamba',
         },
     ];
+    
     constructor()
     {
+    }
+    
+    // Método para alternar la visibilidad del menú móvil
+    toggleMenu(): void {
+        this.isMenuOpen = !this.isMenuOpen;
     }
 }

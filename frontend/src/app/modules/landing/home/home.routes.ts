@@ -3,6 +3,8 @@ import { LandingHomeComponent } from 'app/modules/landing/home/home.component';
 import { ReportComponent } from 'app/modules/landing/home/report/report.component';
 
 export default [
+    {path: '', pathMatch : 'full', redirectTo: 'landing'},
+
     {
         path     : 'landing',
         component: LandingHomeComponent,

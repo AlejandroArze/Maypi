@@ -12,7 +12,7 @@ import { AuthSignInComponent } from './modules/auth/sign-in/sign-in.component';
 export const appRoutes: Route[] = [
 
     // Redirect empty path to '/sign-in'
-    {path: '', pathMatch : 'full', redirectTo: 'sign-in'},
+    {path: '', pathMatch : 'full', redirectTo: 'home'},
 
     // Redirect signed-in user to the '/example'
     {path: 'signed-in-redirect', pathMatch : 'full', redirectTo: 'apps/search-rescue'},
