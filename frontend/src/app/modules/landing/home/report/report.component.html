@@ -4,34 +4,34 @@
         <form>
             <!-- Nombre -->
             <label class="block mb-2">Nombre (opcional)</label>
-            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su nombre">
+            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su nombre" required>
             
             <!-- Email -->
             <label class="block mb-2">Email (opcional)</label>
-            <input type="email" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su email">
+            <input type="email" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su email" required>
             
             <!-- Teléfono -->
             <label class="block mb-2">Teléfono (opcional)</label>
-            <input type="tel" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su teléfono">
+            <input type="tel" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su teléfono" required>
             
             <!-- Consentimiento -->
             <div class="flex items-center mb-4">
-                <input type="checkbox" id="consent" class="mr-2">
+                <input type="checkbox" id="consent" class="mr-2" required>
                 <label for="consent">Consentimiento para Contactar</label>
             </div>
             
             <!-- Fecha y Hora del Avistamiento -->
             <label class="block mb-2">Fecha y Hora del Avistamiento</label>
-            <input type="datetime-local" class="w-full p-2 border rounded mb-4">
+            <input type="datetime-local" class="w-full p-2 border rounded mb-4" required>
             
             <!-- Ubicación del Avistamiento -->
             <label class="block mb-2">Ubicación del Avistamiento</label>
-            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ejemplo: Puerta del Sol, Madrid">
+            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ejemplo: Puerta del Sol, Madrid" required>
             
             <!-- Imagen de Perfil del Desaparecido -->
             <label class="block mb-2">Imagen del Perfil del Desaparecido</label>
             <div class="border-dashed border-2 p-4 text-center rounded mb-4">
-                <input type="file" class="hidden" id="profileImageInput">
+                <input type="file" class="hidden" id="profileImageInput" required>
                 <label for="profileImageInput" class="cursor-pointer text-blue-500">Subir Imagen de Perfil</label>
             </div>
 
@@ -47,7 +47,7 @@
             <!-- Imagen del suceso -->
             <label class="block mb-2">Imagen del suceso (Opcional)</label>
             <div class="border-dashed border-2 p-4 text-center rounded mb-4">
-                <input type="file" class="hidden" id="fileInput">
+                <input type="file" class="hidden" id="fileInput" required>
                 <label for="fileInput" class="cursor-pointer text-blue-500">Subir Imagen</label>
             </div>
             

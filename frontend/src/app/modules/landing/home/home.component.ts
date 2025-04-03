@@ -80,12 +80,12 @@ export class LandingHomeComponent
     currentBlock=0;
 
     get paginatedList() {
-        const start = this.currentBlock * 3;
-        return this.persons_list.slice(start, start + 3);
+        const start = this.currentBlock * 6;
+        return this.persons_list.slice(start, start + 6);
       }
     
       nextBlock() {
-        if ((this.currentBlock + 1) * 3 < this.persons_list.length) {
+        if ((this.currentBlock + 1) * 6 < this.persons_list.length) {
           this.currentBlock++;
         }
       }
