@@ -1,75 +1,84 @@
-<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
-    <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
+<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0 min-h-screen">
+    <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-screen md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+            <!-- Botón de regreso -->
+            <button
+                mat-icon-button
+                class="text-[#FFC107] -ml-2 mb-4 flex items-center hover:bg-gray-100 rounded-full p-2"
+                [routerLink]="['/home/landing']"
+            >
+                <mat-icon [svgIcon]="'heroicons_solid:arrow-left'"></mat-icon>
+                <span class="ml-1">Volver</span>
+            </button>
+
             <!-- Logo -->
-            <div class="w-12">
-                <img src="assets/images/logo/logo.svg">
+            <div class="flex items-center gap-2">
+                <img src="assets/images/logo/logo.svg" class="h-10 w-auto" alt="Maypi Logo">
+                <span class="text-[#2E4053] text-xl font-bold">Maypi</span>
             </div>
 
-            <!-- Title -->
-            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Confirmation required</div>
-            <div class="mt-4">
-                A confirmation mail with instructions has been sent to your email address.
-                Follow those instructions to confirm your email address and activate your account.
+            <!-- Título -->
+            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight text-[#2E4053]">Confirmación requerida</div>
+            <div class="mt-4 text-gray-600">
+                Se ha enviado un correo de confirmación con instrucciones a tu dirección de correo electrónico.
+                Sigue esas instrucciones para confirmar tu correo y activar tu cuenta.
             </div>
 
-            <!-- Form footer -->
-            <div class="mt-8 text-md font-medium text-secondary">
-                <span>Return to</span>
+            <!-- Ilustración -->
+            <div class="flex justify-center my-8">
+                <div class="p-4 rounded-full bg-[#FFC107]/10">
+                    <mat-icon class="text-[#FFC107]" style="font-size: 48px; width: 48px; height: 48px;">mail_outline</mat-icon>
+                </div>
+            </div>
+
+            <!-- Pie del formulario -->
+            <div class="mt-8 text-md font-medium text-secondary flex items-center justify-center">
+                <span>Volver al</span>
                 <a
-                    class="ml-1 text-primary-500 hover:underline"
-                    [routerLink]="['/sign-in']">sign in
+                    class="ml-1 text-[#808000] hover:underline"
+                    [routerLink]="['/sign-in']">inicio de sesión
                 </a>
             </div>
         </div>
     </div>
-    <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l">
-        <!-- Background - @formatter:off -->
-        <!-- Rings -->
+    <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-screen p-16 lg:px-28 overflow-hidden" style="background-color: #2E4053;">
+        <!-- Fondo - @formatter:off -->
+        <!-- Anillos -->
         <svg class="absolute inset-0 pointer-events-none"
              viewBox="0 0 960 540" width="100%" height="100%" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-            <g class="text-gray-700 opacity-25" fill="none" stroke="currentColor" stroke-width="100">
-                <circle r="234" cx="196" cy="23"></circle>
-                <circle r="234" cx="790" cy="491"></circle>
+            <g fill="none" stroke-width="100">
+                <circle r="234" cx="196" cy="23" stroke="rgba(255, 193, 7, 0.3)"></circle>
+                <circle r="234" cx="790" cy="491" stroke="rgba(128, 128, 0, 0.3)"></circle>
             </g>
         </svg>
-        <!-- Dots -->
-        <svg class="absolute -top-16 -right-16 text-gray-700"
+        <!-- Puntos -->
+        <svg class="absolute -top-16 -right-16"
              viewBox="0 0 220 192" width="220" height="192" fill="none">
             <defs>
-                <pattern id="837c3e70-6c3a-44e6-8854-cc48c737b659" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <rect x="0" y="0" width="4" height="4" fill="currentColor"></rect>
+                <pattern id="pattern-circles" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="4" height="4" fill="rgba(255, 193, 7, 0.3)"></rect>
                 </pattern>
             </defs>
-            <rect width="220" height="192" fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)"></rect>
+            <rect width="220" height="192" fill="url(#pattern-circles)"></rect>
         </svg>
         <!-- @formatter:on -->
-        <!-- Content -->
+        <!-- Contenido -->
         <div class="z-10 relative w-full max-w-2xl">
-            <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Welcome to</div>
-                <div>our community</div>
+            <div class="text-7xl font-bold leading-none text-white">
+                <div>Bienvenido a</div>
+                <div class="text-[#FFC107]">Maypi</div>
             </div>
-            <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-                Fuse helps developers to build organized and well coded dashboards full of beautiful and rich modules.
-                Join us and start building your application today.
+            <div class="mt-6 text-lg tracking-tight leading-6 text-white/70">
+                Gracias por unirte a nuestra comunidad. Juntos podemos ayudar a encontrar personas desaparecidas en Bolivia.
             </div>
-            <div class="flex items-center mt-8">
-                <div class="flex flex-0 items-center -space-x-1.5">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/female-18.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/female-11.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/male-09.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/male-16.jpg">
-                </div>
-                <div class="ml-4 font-medium tracking-tight text-gray-400">More than 17k people joined us, it's your turn</div>
+            <div class="mt-8 bg-white/10 p-6 rounded-lg backdrop-blur-sm">
+                <h3 class="text-[#FFC107] text-xl font-bold mb-3">Próximos pasos</h3>
+                <ol class="space-y-2 list-decimal list-inside text-white/90">
+                    <li>Revisa tu bandeja de entrada</li>
+                    <li>Haz clic en el enlace de confirmación</li>
+                    <li>Inicia sesión con tus credenciales</li>
+                    <li>¡Comienza a usar Maypi!</li>
+                </ol>
             </div>
         </div>
     </div>

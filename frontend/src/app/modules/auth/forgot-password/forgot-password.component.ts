@@ -10,14 +10,34 @@ import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
 import { finalize } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
     selector     : 'auth-forgot-password',
     templateUrl  : './forgot-password.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations,
+    animations   : [
+        fuseAnimations,
+        trigger('fadeIn', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('600ms ease-in', style({ opacity: 1 }))
+            ])
+        ]),
+        trigger('shake', [
+            transition('* => error', [
+                style({ transform: 'translateX(0)' }),
+                animate('100ms', style({ transform: 'translateX(-10px)' })),
+                animate('100ms', style({ transform: 'translateX(10px)' })),
+                animate('100ms', style({ transform: 'translateX(-10px)' })),
+                animate('100ms', style({ transform: 'translateX(10px)' })),
+                animate('100ms', style({ transform: 'translateX(0)' }))
+            ])
+        ])
+    ],
     standalone   : true,
-    imports      : [NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule, RouterLink],
+    imports      : [NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule, RouterLink, MatIconModule],
 })
 export class AuthForgotPasswordComponent implements OnInit
 {
@@ -65,7 +85,7 @@ export class AuthForgotPasswordComponent implements OnInit
     sendResetLink(): void
     {
         // Return if the form is invalid
-        if ( this.forgotPasswordForm.invalid )
+        if (this.forgotPasswordForm.invalid)
         {
             return;
         }
@@ -97,7 +117,7 @@ export class AuthForgotPasswordComponent implements OnInit
                     // Set the alert
                     this.alert = {
                         type   : 'success',
-                        message: 'Password reset sent! You\'ll receive an email if you are registered on our system.',
+                        message: 'Se ha enviado un enlace de recuperación a tu correo electrónico.',
                     };
                 },
                 (response) =>
@@ -105,7 +125,7 @@ export class AuthForgotPasswordComponent implements OnInit
                     // Set the alert
                     this.alert = {
                         type   : 'error',
-                        message: 'Email does not found! Are you sure you are already a member?',
+                        message: 'No se encontró el correo electrónico. ¿Estás seguro de que ya eres miembro?',
                     };
                 },
             );

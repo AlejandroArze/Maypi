@@ -1,40 +1,35 @@
-<div
-    class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0 min-h-screen"
->
-    <div
-        class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-screen md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card"
-    >
+<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0 min-h-screen">
+    <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-screen md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
-            <!-- Back button -->
+            <!-- Botón de regreso -->
             <button
                 mat-icon-button
-                class="text-primary-500 -ml-2"
+                class="text-[#FFC107] -ml-2"
                 [routerLink]="['/home/landing']"
             >
                 <mat-icon [svgIcon]="'heroicons_solid:arrow-left'"></mat-icon>
             </button>
 
             <!-- Logo -->
-            <div class="w-35">
-                <img src="assets/images/logo/logo-text-on-dark.svg" />
+            <div class="flex items-center gap-2 mt-4">
+                <img src="assets/images/logo/logo.svg" class="h-10 w-auto" alt="Maypi Logo">
+                <span class="text-[#2E4053] text-xl font-bold">Maypi</span>
             </div>
 
-            <!-- Title -->
-            <div
-                class="mt-8 text-4xl font-extrabold tracking-tight leading-tight"
-            >
+            <!-- Título -->
+            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight text-[#2E4053]">
                 Inicio de Sesión
             </div>
 
-            <div class="flex items-baseline mt-0.5 font-medium">
+            <div class="flex items-baseline mt-2 font-medium">
                 <div>¿No tiene una cuenta?</div>
                 <a
-                    class="ml-1 text-primary-500 hover:underline"
+                    class="ml-1 text-[#808000] hover:underline"
                     [routerLink]="['/sign-up']">Regístrese
                 </a>
             </div>
 
-            <!-- Alert -->
+            <!-- Alerta -->
             <fuse-alert
                 class="mt-8"
                 *ngIf="showAlert"
@@ -46,31 +41,32 @@
                 {{ alert.message }}
             </fuse-alert>
 
-            <!-- Sign in form -->
+            <!-- Formulario de inicio de sesión -->
             <form class="mt-8" [formGroup]="signInForm" #signInNgForm="ngForm">
-                <!-- Email field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Correo Electronico</mat-label>
+                <!-- Campo de correo electrónico -->
+                <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Correo Electrónico</mat-label>
                     <input
                         id="email"
                         matInput
                         [formControlName]="'email'"
                         [autocomplete]="'email'"
                     />
+                    <mat-icon matPrefix class="mr-2 text-[#2E4053]">email</mat-icon>
                     <mat-error
                         *ngIf="signInForm.get('email').hasError('required')"
                     >
-                        Email es Requerido
+                        El correo electrónico es requerido
                     </mat-error>
                     <mat-error
                         *ngIf="signInForm.get('email').hasError('email')"
                     >
-                        Por favor ingrese un Email valido
+                        Por favor ingrese un correo electrónico válido
                     </mat-error>
                 </mat-form-field>
 
-                <!-- Password field -->
-                <mat-form-field class="w-full">
+                <!-- Campo de contraseña -->
+                <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Contraseña</mat-label>
                     <input
                         id="password"
@@ -80,6 +76,7 @@
                         [autocomplete]="'current-password'"
                         #passwordField
                     />
+                    <mat-icon matPrefix class="mr-2 text-[#2E4053]">lock</mat-icon>
                     <button
                         mat-icon-button
                         type="button"
@@ -101,36 +98,37 @@
                             [svgIcon]="'heroicons_solid:eye-slash'"
                         ></mat-icon>
                     </button>
-                    <mat-error> La Contraseña es Requerida </mat-error>
+                    <mat-error> La contraseña es requerida </mat-error>
                 </mat-form-field>
 
-                <!-- Actions -->
-                <div
-                    class="inline-flex items-center justify-between w-full mt-1.5"
-                >
+                <!-- Acciones -->
+                <div class="inline-flex items-center justify-between w-full mt-1.5">
                     <mat-checkbox
                         class="-ml-2"
                         [color]="'primary'"
                         [formControlName]="'rememberMe'"
                     >
-                        Recordar Contraseña
+                        Recordar contraseña
                     </mat-checkbox>
                     <a
-                        class="text-md font-medium text-primary-500 hover:underline"
+                        class="text-md font-medium text-[#808000] hover:underline"
                         [routerLink]="['/forgot-password']"
                         >¿Olvidó la contraseña?
                     </a>
                 </div>
 
-                <!-- Submit button -->
+                <!-- Botón de envío -->
                 <button
-                    class="fuse-mat-button-large w-full mt-6"
+                    class="w-full mt-6 py-3 px-4 rounded-md text-white font-medium transition-all duration-300 ease-in-out transform hover:scale-105"
+                    style="background-color: #FFC107; color: #2E4053;"
                     mat-flat-button
-                    [color]="'primary'"
                     [disabled]="signInForm.disabled"
                     (click)="signIn()"
                 >
-                    <span *ngIf="!signInForm.disabled"> Inicia Sesión </span>
+                    <span *ngIf="!signInForm.disabled" class="flex items-center justify-center">
+                        <mat-icon class="mr-2">login</mat-icon>
+                        Iniciar Sesión
+                    </span>
                     <mat-progress-spinner
                         *ngIf="signInForm.disabled"
                         [diameter]="24"
@@ -141,11 +139,11 @@
         </div>
     </div>
     <div
-        style="background-color: rgb(72, 39, 120)"
-        class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-screen p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l"
+        class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-screen p-16 lg:px-28 overflow-hidden"
+        style="background-color: #2E4053;"
     >
-        <!-- Background - @formatter:off -->
-        <!-- Rings -->
+        <!-- Fondo - @formatter:off -->
+        <!-- Anillos -->
         <svg
             class="absolute inset-0 pointer-events-none"
             viewBox="0 0 960 540"
@@ -154,25 +152,25 @@
             preserveAspectRatio="xMidYMax slice"
             xmlns="http://www.w3.org/2000/svg"
         >
-            <g class="text-gray-700 opacity-25" fill="none" stroke-width="100">
+            <g fill="none" stroke-width="100">
                 <circle
                     r="234"
                     cx="196"
                     cy="23"
-                    stroke="rgba(77, 192, 233, 0.6)"
+                    stroke="rgba(255, 193, 7, 0.3)"
                 ></circle>
                 <circle
                     r="234"
                     cx="790"
                     cy="491"
-                    stroke="rgba(79, 185, 168, 0.6)"
+                    stroke="rgba(128, 128, 0, 0.3)"
                 ></circle>
             </g>
         </svg>
 
-        <!-- Dots -->
+        <!-- Puntos -->
         <svg
-            class="absolute -top-16 -right-16 text-gray-700"
+            class="absolute -top-16 -right-16"
             viewBox="0 0 220 192"
             width="220"
             height="192"
@@ -180,7 +178,7 @@
         >
             <defs>
                 <pattern
-                    id="837c3e70-6c3a-44e6-8854-cc48c737b659"
+                    id="pattern-circles"
                     x="0"
                     y="0"
                     width="20"
@@ -192,26 +190,26 @@
                         y="0"
                         width="4"
                         height="4"
-                        fill="currentColor"
+                        fill="rgba(255, 193, 7, 0.3)"
                     ></rect>
                 </pattern>
             </defs>
             <rect
                 width="220"
                 height="192"
-                fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)"
+                fill="url(#pattern-circles)"
             ></rect>
         </svg>
         <!-- @formatter:on -->
-        <!-- Content -->
+        <!-- Contenido -->
         <div class="z-10 relative w-full max-w-2xl">
-            <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Bienvenido</div>
-                <div></div>
+            <div class="text-7xl font-bold leading-none text-white">
+                <div class="mb-2">Bienvenido a</div>
+                <div class="text-[#FFC107]">Maypi</div>
             </div>
-            <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-                Nuestro equipo de soporte está listo para ayudarte a resolver
-                cualquier problema.
+            <div class="mt-6 text-lg tracking-tight leading-6 text-white/70">
+                Conectando comunidades para encontrar personas desaparecidas en Bolivia.
+                Inicia sesión para acceder a todas las funcionalidades de la plataforma.
             </div>
         </div>
     </div>

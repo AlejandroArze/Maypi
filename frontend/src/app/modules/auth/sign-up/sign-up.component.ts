@@ -13,12 +13,37 @@ import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
     selector     : 'auth-sign-up',
     templateUrl  : './sign-up.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations,
+    animations   : [
+        fuseAnimations,
+        trigger('fadeIn', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('600ms ease-in', style({ opacity: 1 }))
+            ])
+        ]),
+        trigger('slideIn', [
+            transition(':enter', [
+                style({ transform: 'translateY(20px)', opacity: 0 }),
+                animate('400ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+            ])
+        ]),
+        trigger('shake', [
+            transition('* => error', [
+                style({ transform: 'translateX(0)' }),
+                animate('100ms', style({ transform: 'translateX(-10px)' })),
+                animate('100ms', style({ transform: 'translateX(10px)' })),
+                animate('100ms', style({ transform: 'translateX(-10px)' })),
+                animate('100ms', style({ transform: 'translateX(10px)' })),
+                animate('100ms', style({ transform: 'translateX(0)' }))
+            ])
+        ])
+    ],
     standalone   : true,
     imports      : [
         RouterLink, 
@@ -46,6 +71,7 @@ export class AuthSignUpComponent implements OnInit
     };
     signUpForm: UntypedFormGroup;
     showAlert: boolean = false;
+    isLoading: boolean = false;
 
     // Lista de líneas telefónicas
     roles = [
@@ -112,11 +138,17 @@ export class AuthSignUpComponent implements OnInit
         // Do nothing if the form is invalid
         if (this.signUpForm.invalid)
         {
+            // Marcar todos los campos como tocados para mostrar errores
+            Object.keys(this.signUpForm.controls).forEach(key => {
+                const control = this.signUpForm.get(key);
+                control.markAsTouched();
+            });
             return;
         }
 
         // Disable the form
         this.signUpForm.disable();
+        this.isLoading = true;
 
         // Hide the alert
         this.showAlert = false;
@@ -133,6 +165,7 @@ export class AuthSignUpComponent implements OnInit
                 {
                     // Re-enable the form
                     this.signUpForm.enable();
+                    this.isLoading = false;
 
                     // Reset the form
                     this.signUpNgForm.resetForm();
@@ -140,7 +173,7 @@ export class AuthSignUpComponent implements OnInit
                     // Set the alert
                     this.alert = {
                         type   : 'error',
-                        message: 'Something went wrong, please try again.',
+                        message: 'Ha ocurrido un error, por favor intente nuevamente.',
                     };
 
                     // Show the alert

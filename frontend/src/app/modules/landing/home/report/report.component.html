@@ -1,61 +1,256 @@
-<div class="bg-gray-100 w-full flex-col flex items-center justify-center min-h-screen">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl mx-auto">
-        <h2 class="text-2xl font-bold mb-4 text-center">Reportar Información del Desaparecido</h2>
-        <form>
-            <!-- Nombre -->
-            <label class="block mb-2">Nombre (opcional)</label>
-            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su nombre" required>
-            
-            <!-- Email -->
-            <label class="block mb-2">Email (opcional)</label>
-            <input type="email" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su email" required>
-            
-            <!-- Teléfono -->
-            <label class="block mb-2">Teléfono (opcional)</label>
-            <input type="tel" class="w-full p-2 border rounded mb-4" placeholder="Ingrese su teléfono" required>
-            
-            <!-- Consentimiento -->
-            <div class="flex items-center mb-4">
-                <input type="checkbox" id="consent" class="mr-2" required>
-                <label for="consent">Consentimiento para Contactar</label>
-            </div>
-            
-            <!-- Fecha y Hora del Avistamiento -->
-            <label class="block mb-2">Fecha y Hora del Avistamiento</label>
-            <input type="datetime-local" class="w-full p-2 border rounded mb-4" required>
-            
-            <!-- Ubicación del Avistamiento -->
-            <label class="block mb-2">Ubicación del Avistamiento</label>
-            <input type="text" class="w-full p-2 border rounded mb-4" placeholder="Ejemplo: Puerta del Sol, Madrid" required>
-            
-            <!-- Imagen de Perfil del Desaparecido -->
-            <label class="block mb-2">Imagen del Perfil del Desaparecido</label>
-            <div class="border-dashed border-2 p-4 text-center rounded mb-4">
-                <input type="file" class="hidden" id="profileImageInput" required>
-                <label for="profileImageInput" class="cursor-pointer text-blue-500">Subir Imagen de Perfil</label>
-            </div>
+<div class="flex flex-col w-full min-h-screen bg-[#F2F2F2]">
+    <!-- Header simplificado -->
+    <header class="bg-[#FFC107] w-full shadow-md">
+        <div class="container mx-auto">
+            <nav class="flex p-4 items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <!-- Reemplazando el div con el logo -->
+                    <img src="assets/images/logo/logoM.jpg" alt="Maypi Logo" class="h-10 w-auto" title="Maypi - Plataforma de búsqueda de personas desaparecidas">
+                    <span class="text-[#2E4053] text-xl font-bold">Maypi</span>
+                </div>
+                
+                <!-- Botón de volver -->
+                <button 
+                    type="button" 
+                    class="flex items-center gap-2 text-[#2E4053] hover:text-[#808000] transition-colors"
+                    (click)="goBack()"
+                    aria-label="Volver a la página principal"
+                    title="Volver a la página principal">
+                    <mat-icon fontIcon="arrow_back"></mat-icon>
+                    <span>Volver a la página principal</span>
+                </button>
+            </nav>
+        </div>
+    </header>
 
-            <!-- Mapa -->
-            <div class="mb-4">
-                <img src="https://via.placeholder.com/400x200" alt="Mapa" class="w-full rounded">
+    <main class="flex-1 py-10">
+        <div class="container mx-auto px-4">
+            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl mx-auto border-2 border-[#FFC107]/20">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-[#2E4053] text-center">Reportar Información de Persona Desaparecida</h2>
+                
+                <div class="mb-8 p-4 bg-[#FFC107]/10 rounded-lg border-l-4 border-[#FFC107]">
+                    <p class="text-[#2E4053]">
+                        <mat-icon fontIcon="info" class="align-middle mr-2 text-[#FFC107]"></mat-icon>
+                        Tu información puede ser crucial para encontrar a una persona desaparecida. Todos los campos marcados con * son obligatorios.
+                    </p>
+                </div>
+                
+                <form [formGroup]="reportForm" (ngSubmit)="onSubmit()"> 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Información del Informante -->
+                        <div class="md:col-span-2">
+                            <h3 class="text-xl font-semibold mb-4 text-[#2E4053] border-b-2 border-[#FFC107]/30 pb-2">Información del Informante</h3>
+                        </div>
+                        
+                        <!-- Nombre -->
+                        <div class="space-y-2">
+                            <label for="name" class="block text-sm font-medium text-[#2E4053]">Nombre *</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                formControlName="name"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]" 
+                                placeholder="Ingrese su nombre completo"
+                                aria-label="Ingrese su nombre completo">
+                            <div *ngIf="reportForm.get('name')?.invalid && reportForm.get('name')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="space-y-2">
+                            <label for="email" class="block text-sm font-medium text-[#2E4053]">Email *</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                formControlName="email"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]" 
+                                placeholder="Ingrese su correo electrónico"
+                                aria-label="Ingrese su correo electrónico">
+                            <div *ngIf="reportForm.get('email')?.invalid && reportForm.get('email')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Teléfono -->
+                        <div class="space-y-2">
+                            <label for="phone" class="block text-sm font-medium text-[#2E4053]">Teléfono *</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                formControlName="phone"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]" 
+                                placeholder="Ingrese su número de teléfono"
+                                aria-label="Ingrese su número de teléfono">
+                            <div *ngIf="reportForm.get('phone')?.invalid && reportForm.get('phone')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Consentimiento -->
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    id="consent" 
+                                    formControlName="consent"
+                                    class="w-5 h-5 text-[#FFC107] rounded focus:ring-[#FFC107]">
+                                <label for="consent" class="ml-2 block text-sm font-medium text-[#2E4053]">
+                                    Doy mi consentimiento para ser contactado
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Información del Avistamiento -->
+                        <div class="md:col-span-2 mt-4">
+                            <h3 class="text-xl font-semibold mb-4 text-[#2E4053] border-b-2 border-[#FFC107]/30 pb-2">Información del Avistamiento</h3>
+                        </div>
+                        
+                        <!-- Fecha y Hora del Avistamiento -->
+                        <div class="space-y-2">
+                            <label for="sightingDate" class="block text-sm font-medium text-[#2E4053]">Fecha y Hora del Avistamiento *</label>
+                            <input 
+                                type="datetime-local" 
+                                id="sightingDate" 
+                                formControlName="sightingDate"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
+                                aria-label="Seleccione fecha y hora del avistamiento"
+                                required>
+                            <div *ngIf="reportForm.get('sightingDate')?.invalid && reportForm.get('sightingDate')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Ubicación del Avistamiento -->
+                        <div class="space-y-2">
+                            <label for="location" class="block text-sm font-medium text-[#2E4053]">Ubicación del Avistamiento *</label>
+                            <input 
+                                type="text" 
+                                id="location" 
+                                formControlName="location"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]" 
+                                placeholder="Ejemplo: Av. América esq. Pando, Cochabamba"
+                                aria-label="Ingrese la ubicación del avistamiento"
+                                required>
+                            <div *ngIf="reportForm.get('location')?.invalid && reportForm.get('location')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Mapa -->
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="block text-sm font-medium text-[#2E4053]">Ubicación en el Mapa</label>
+                            <div class="border rounded-md overflow-hidden h-64 bg-gray-100 flex items-center justify-center">
+                                <div class="text-center">
+                                    <mat-icon fontIcon="map" class="text-4xl text-gray-400"></mat-icon>
+                                    <p class="text-gray-500 mt-2">Mapa interactivo (próximamente)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Descripción de la persona o acción observada -->
+                        <div class="md:col-span-2 space-y-2">
+                            <label for="description" class="block text-sm font-medium text-[#2E4053]">Descripción de la persona o acción observada *</label>
+                            <textarea 
+                                id="description" 
+                                formControlName="description"
+                                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC107]" 
+                                rows="4" 
+                                placeholder="Describa con detalle lo que vio, incluyendo características físicas, vestimenta, comportamiento, etc."
+                                aria-label="Describa lo que vio"
+                                required></textarea>
+                            <div *ngIf="reportForm.get('description')?.invalid && reportForm.get('description')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Imagen de Perfil del Desaparecido -->
+                        <div class="space-y-2">
+                            <label for="profileImage" class="block text-sm font-medium text-[#2E4053]">Imagen de la Persona *</label>
+                            <div 
+                                class="border-dashed border-2 border-gray-300 p-6 text-center rounded-md hover:border-[#FFC107] transition-colors cursor-pointer"
+                                (click)="triggerFileInput('profileImage')">
+                                <input 
+                                    type="file" 
+                                    class="hidden" 
+                                    id="profileImage"
+                                    #profileImageInput
+                                    (change)="onFileSelected($event, 'profileImage')"
+                                    accept="image/*">
+                                <div class="flex flex-col items-center">
+                                    <mat-icon fontIcon="add_photo_alternate" class="text-3xl text-[#FFC107]"></mat-icon>
+                                    <span class="text-[#2E4053] mt-2">Subir Imagen de la Persona</span>
+                                    <span class="text-gray-500 text-sm mt-1" *ngIf="!profileImageName">Haga clic para seleccionar</span>
+                                    <span class="text-[#2E4053] text-sm mt-1" *ngIf="profileImageName">{{profileImageName}}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="reportForm.get('profileImage')?.invalid && reportForm.get('profileImage')?.touched" class="text-red-500 text-sm mt-1">
+                                Este campo es obligatorio
+                            </div>
+                        </div>
+                        
+                        <!-- Imagen del suceso -->
+                        <div class="space-y-2">
+                            <label for="eventImage" class="block text-sm font-medium text-[#2E4053]">Imagen del Suceso (Opcional)</label>
+                            <div 
+                                class="border-dashed border-2 border-gray-300 p-6 text-center rounded-md hover:border-[#FFC107] transition-colors cursor-pointer"
+                                (click)="triggerFileInput('eventImage')">
+                                <input 
+                                    type="file" 
+                                    class="hidden" 
+                                    id="eventImage"
+                                    #eventImageInput
+                                    (change)="onFileSelected($event, 'eventImage')"
+                                    accept="image/*">
+                                <div class="flex flex-col items-center">
+                                    <mat-icon fontIcon="add_photo_alternate" class="text-3xl text-[#FFC107]"></mat-icon>
+                                    <span class="text-[#2E4053] mt-2">Subir Imagen del Suceso</span>
+                                    <span class="text-gray-500 text-sm mt-1" *ngIf="!eventImageName">Haga clic para seleccionar</span>
+                                    <span class="text-[#2E4053] text-sm mt-1" *ngIf="eventImageName">{{eventImageName}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de enviar y limpiar -->
+                    <div class="flex justify-between mt-8">
+                        <button 
+                            type="button" 
+                            (click)="resetForm()"
+                            class="bg-gray-200 hover:bg-gray-300 text-[#2E4053] px-6 py-3 rounded-md transition-colors font-medium"
+                            aria-label="Limpiar formulario"
+                            title="Limpiar formulario">
+                            <mat-icon fontIcon="refresh" class="mr-2"></mat-icon>
+                            Limpiar
+                        </button>
+                        <button 
+                            type="submit" 
+                            [disabled]="reportForm.invalid"
+                            class="bg-[#2E4053] hover:bg-[#2E4053]/90 text-white px-6 py-3 rounded-md transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Enviar reporte"
+                            title="Enviar reporte">
+                            <mat-icon fontIcon="send" class="mr-2"></mat-icon>
+                            Enviar Reporte
+                        </button>
+                    </div>
+                </form>
             </div>
-            
-            <!-- Descripción de la persona o acción observada -->
-            <label class="block mb-2">Descripción de la persona o acción observada</label>
-            <textarea class="w-full p-2 border rounded mb-4" rows="4" placeholder="Describa lo que vio..."></textarea>
-            
-            <!-- Imagen del suceso -->
-            <label class="block mb-2">Imagen del suceso (Opcional)</label>
-            <div class="border-dashed border-2 p-4 text-center rounded mb-4">
-                <input type="file" class="hidden" id="fileInput" required>
-                <label for="fileInput" class="cursor-pointer text-blue-500">Subir Imagen</label>
+        </div>
+    </main>
+
+    <!-- Footer simplificado -->
+    <footer class="bg-[#2E4053] text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <div class="w-8 h-8 bg-[#FFC107] rounded-full flex items-center justify-center">
+                    <span class="text-[#2E4053] font-bold text-sm">M</span>
+                </div>
+                <span class="text-white text-lg font-bold">Maypi</span>
             </div>
-            
-            <!-- Botones de enviar y limpiar -->
-            <div class="flex justify-between">
-                <button type="reset" class="bg-gray-300 px-4 py-2 rounded">Limpiar</button>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enviar</button>
-            </div>
-        </form>
-    </div>
+            <p class="text-white/70">
+                &copy; {{currentYear}} Maypi - Todos los derechos reservados
+            </p>
+        </div>
+    </footer>
 </div>
