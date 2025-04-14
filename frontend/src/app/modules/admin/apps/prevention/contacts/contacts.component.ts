@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, Inject, ChangeDetectorRef } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    ViewEncapsulation,
+    Inject,
+    ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +16,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContactsService } from './contacts.service';
-import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    MatDialog,
+    MatDialogModule,
+    MatDialogRef,
+    MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,59 +29,61 @@ import { map } from 'rxjs/operators';
 @Component({
     selector: 'app-contacts',
     templateUrl: './contacts.component.html',
-    styles: [`
-        :host {
-            display: block;
-        }
-        .w-full {
-            width: 100%;
-        }
-        .mt-8 {
-            margin-top: 2rem;
-        }
-        .mt-4 {
-            margin-top: 1rem;
-        }
-        .text-3xl {
-            font-size: 1.875rem;
-            line-height: 2.25rem;
-        }
-        .font-semibold {
-            font-weight: 600;
-        }
-        .tracking-tight {
-            letter-spacing: -0.025em;
-        }
-        .leading-8 {
-            line-height: 2rem;
-        }
-        .text-lg {
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-        }
-        .grid {
-            display: grid;
-        }
-        .grid-cols-1 {
-            grid-template-columns: repeat(1, minmax(0, 1fr));
-        }
-        .gap-6 {
-            gap: 1.5rem;
-        }
-        .flex {
-            display: flex;
-        }
-        .items-center {
-            align-items: center;
-        }
-        .justify-end {
-            justify-content: flex-end;
-        }
-        .custom-dialog-container .mat-dialog-container {
-            padding: 0;
-            overflow: hidden;
-        }
-    `],
+    styles: [
+        `
+            :host {
+                display: block;
+            }
+            .w-full {
+                width: 100%;
+            }
+            .mt-8 {
+                margin-top: 2rem;
+            }
+            .mt-4 {
+                margin-top: 1rem;
+            }
+            .text-3xl {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+            .font-semibold {
+                font-weight: 600;
+            }
+            .tracking-tight {
+                letter-spacing: -0.025em;
+            }
+            .leading-8 {
+                line-height: 2rem;
+            }
+            .text-lg {
+                font-size: 1.125rem;
+                line-height: 1.75rem;
+            }
+            .grid {
+                display: grid;
+            }
+            .grid-cols-1 {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+            .gap-6 {
+                gap: 1.5rem;
+            }
+            .flex {
+                display: flex;
+            }
+            .items-center {
+                align-items: center;
+            }
+            .justify-end {
+                justify-content: flex-end;
+            }
+            .custom-dialog-container .mat-dialog-container {
+                padding: 0;
+                overflow: hidden;
+            }
+        `,
+    ],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
@@ -85,93 +99,12 @@ import { map } from 'rxjs/operators';
         FormsModule,
         ReactiveFormsModule,
         MatDialogModule,
-        MatSelectModule
-    ]
+        MatSelectModule,
+    ],
 })
 export class ContactsComponent implements OnInit {
     // Usar BehaviorSubject para manejar la lista de contactos
-    private _contactsSubject = new BehaviorSubject<any[]>([
-        {
-            id: '528461STNT',
-            name: 'Morgan Page',
-            phone: '+591 79758436',
-            date: 'Oct 07, 2019',
-            teleLine: 'Viva',
-            edit: true
-        },
-        {
-            id: '421A5690YT',
-            name: 'Nito Herbert',
-            phone: '+591 68245790',
-            date: 'Dec 18, 2019',
-            teleLine: 'Tigo',
-            edit: true
-        },
-        {
-            id: '685377X2YT',
-            name: 'Marsha Chan',
-            phone: '+591 72364581',
-            date: 'Dec 25, 2019',
-            teleLine: 'Entel',
-            edit: true
-        },
-        {
-            id: '864960QHRT',
-            name: 'Charmaine',
-            phone: '+591 75692314',
-            date: 'Nov 29, 2019',
-            teleLine: 'Viva',
-            edit: true
-        },
-        {
-            id: '361402JSNT',
-            name: 'Moura Carey',
-            phone: '+591 67123456',
-            date: 'Nov 24, 2019',
-            teleLine: 'Tigo',
-            edit: true
-        },
-        {
-            id: '789012ABCD',
-            name: 'Carlos Mendoza',
-            phone: '+591 70123456',
-            date: 'Feb 15, 2020',
-            teleLine: 'Entel',
-            edit: true
-        },
-        {
-            id: '345678EFGH',
-            name: 'María Fernández',
-            phone: '+591 69876543',
-            date: 'May 03, 2020',
-            teleLine: 'Viva',
-            edit: true
-        },
-        {
-            id: '901234IJKL',
-            name: 'Juan Pérez',
-            phone: '+591 71234567',
-            date: 'Aug 22, 2020',
-            teleLine: 'Tigo',
-            edit: true
-        },
-        {
-            id: '567890MNOP',
-            name: 'Ana Rodríguez',
-            phone: '+591 76543210',
-            date: 'Nov 11, 2020',
-            teleLine: 'Entel',
-            edit: true
-        },
-        {
-            id: '234567QRST',
-            name: 'Pedro Sánchez',
-            phone: '+591 68901234',
-            date: 'Jan 30, 2021',
-            teleLine: 'Viva',
-            edit: true
-        }
-    ]);
+    private _contactsSubject = new BehaviorSubject<any[]>([]);
 
     // Observable para acceder a los contactos
     contacts$: Observable<any[]> = this._contactsSubject.asObservable();
@@ -179,18 +112,23 @@ export class ContactsComponent implements OnInit {
     // Observable para contactos paginados
     paginatedContacts$: Observable<any[]>;
 
-    displayedColumns: string[] = ['name', 'phone', 'teleLine', 'date', 'actions'];
+    displayedColumns: string[] = [
+        'nombre_contacto',
+        'numero',
+        'linea_telefonica',
+        'actions',
+    ];
     pageSize = 10;
     pageIndex = 0;
 
     constructor(
-        private _contactsService: ContactsService, 
+        private _contactsService: ContactsService,
         private dialog: MatDialog,
         private cdr: ChangeDetectorRef
     ) {
         // Configurar paginación reactiva
         this.paginatedContacts$ = this.contacts$.pipe(
-            map(contacts => {
+            map((contacts) => {
                 const startIndex = this.pageIndex * this.pageSize;
                 return contacts.slice(startIndex, startIndex + this.pageSize);
             })
@@ -198,25 +136,26 @@ export class ContactsComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        // Comentamos la carga de contactos desde el servicio
-        // this.loadContacts();
+        this.loadContacts();
     }
 
     // Método para cambiar página
     onPageChange(event: any): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
-        
+
         // Trigger change detection
         this._contactsSubject.next(this._contactsSubject.value);
     }
 
-    // Métodos CRUD existentes
     loadContacts(): void {
-        this._contactsService.getContacts()
-            .subscribe(contacts => {
-                this._contactsSubject.next(contacts);
-            });
+        this._contactsService.getContacts().subscribe((response: any) => {
+            // Mapea los datos recibidos para que coincidan con las columnas de la tabla
+
+            // Actualiza el BehaviorSubject con los datos mapeados
+            console.log(response.data);
+            this._contactsSubject.next(response.data);
+        });
     }
 
     // Método para agregar contacto
@@ -226,7 +165,7 @@ export class ContactsComponent implements OnInit {
             ...contact,
             id: this.generateUniqueId(),
             date: this.formatCurrentDate(),
-            edit: true
+            edit: true,
         };
 
         // Agregar al inicio de la lista
@@ -237,20 +176,22 @@ export class ContactsComponent implements OnInit {
     // Método para actualizar contacto
     updateContact(updatedContact: any): void {
         const currentContacts = this._contactsSubject.value;
-        const updatedContacts = currentContacts.map(contact => 
-            contact.id === updatedContact.id 
-                ? { ...contact, ...updatedContact } 
+        const updatedContacts = currentContacts.map((contact) =>
+            contact.id === updatedContact.id
+                ? { ...contact, ...updatedContact }
                 : contact
         );
-        
+
         this._contactsSubject.next(updatedContacts);
     }
 
     // Método para eliminar contacto
     deleteContact(contactId: string): void {
         const currentContacts = this._contactsSubject.value;
-        const updatedContacts = currentContacts.filter(contact => contact.id !== contactId);
-        
+        const updatedContacts = currentContacts.filter(
+            (contact) => contact.id !== contactId
+        );
+
         this._contactsSubject.next(updatedContacts);
     }
 
@@ -261,10 +202,10 @@ export class ContactsComponent implements OnInit {
 
     // Método para formatear fecha
     private formatCurrentDate(): string {
-        return new Date().toLocaleDateString('es-ES', { 
-            month: 'short', 
-            day: '2-digit', 
-            year: 'numeric' 
+        return new Date().toLocaleDateString('es-ES', {
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric',
         });
     }
 
@@ -274,10 +215,10 @@ export class ContactsComponent implements OnInit {
             width: '600px',
             height: 'auto',
             disableClose: false,
-            data: { mode: 'add' }
+            data: { mode: 'add' },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.addContact(result);
             }
@@ -290,13 +231,13 @@ export class ContactsComponent implements OnInit {
             width: '600px',
             height: 'auto',
             disableClose: false,
-            data: { 
+            data: {
                 mode: 'edit',
-                contact: {...contact} 
-            }
+                contact: { ...contact },
+            },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.updateContact(result);
             }
@@ -312,103 +253,135 @@ export class ContactsComponent implements OnInit {
 @Component({
     selector: 'add-contact-modal',
     template: `
-    <div class="p-6">
-        <h2 mat-dialog-title class="text-center text-2xl font-bold uppercase mb-4">
-            {{ isEditing ? 'ACTUALIZAR UN CONTACTO DE EMERGENCIA' : 'AGREGAR UN CONTACTO DE EMERGENCIA' }}
-        </h2>
-        <mat-dialog-content>
-            <p class="text-center mb-6 text-sm">
-                SE LE ENVIARÁ TU CODIGO DE PERSONA, Y SI SOLO ESTA LA PERSONA EN TU LISTA DE CONTACTOS CON TU CODIGO 
-                AL REPORTAR LA DENUNCIA A LAS AUTORIDADES PODRÁ UBICARTE
-            </p>
-            <form #contactForm="ngForm">
-                <div class="grid grid-cols-1 gap-4">
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>Nombre</mat-label>
-                        <input 
-                            matInput 
-                            [(ngModel)]="contact.name" 
-                            name="name" 
-                            placeholder="Ingrese nombre"
-                            required
-                            #nameInput="ngModel"
-                        >
-                        <mat-error *ngIf="nameInput.invalid && (nameInput.dirty || nameInput.touched)">
-                            El nombre es requerido
-                        </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>Teléfono</mat-label>
-                        <input 
-                            matInput 
-                            [(ngModel)]="contact.phone" 
-                            name="phone" 
-                            placeholder="Ingrese teléfono"
-                            required
-                            #phoneInput="ngModel"
-                            pattern="^\+591\s?[6-7][0-9]{7}$"
-                        >
-                        <mat-error *ngIf="phoneInput.invalid && (phoneInput.dirty || phoneInput.touched)">
-                            Ingrese un teléfono válido (+591 seguido de 8 dígitos)
-                        </mat-error>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <mat-label>Línea Telefónica</mat-label>
-                        <mat-select 
-                            [(ngModel)]="contact.teleLine" 
-                            name="teleLine" 
-                            placeholder="Seleccione línea"
-                            required
-                            #teleLineSelect="ngModel"
-                        >
-                            <mat-option value="Viva">Viva</mat-option>
-                            <mat-option value="Tigo">Tigo</mat-option>
-                            <mat-option value="Entel">Entel</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="teleLineSelect.invalid && (teleLineSelect.dirty || teleLineSelect.touched)">
-                            Seleccione una línea telefónica
-                        </mat-error>
-                    </mat-form-field>
-                </div>
-            </form>
-        </mat-dialog-content>
-        <mat-dialog-actions class="flex justify-center">
-            <button 
-                mat-flat-button 
-                color="primary" 
-                (click)="onSave()"
-                class="w-full rounded-none"
-                [disabled]="!contactForm.form.valid">
-                {{ isEditing ? 'Actualizar Contacto' : 'Enviar codigo de Persona Maypi al Contacto y Guardarlo' }}
-            </button>
-        </mat-dialog-actions>
-    </div>
+        <div class="p-6">
+            <h2
+                mat-dialog-title
+                class="text-center text-2xl font-bold uppercase mb-4"
+            >
+                {{
+                    isEditing
+                        ? 'ACTUALIZAR UN CONTACTO DE EMERGENCIA'
+                        : 'AGREGAR UN CONTACTO DE EMERGENCIA'
+                }}
+            </h2>
+            <mat-dialog-content>
+                <p class="text-center mb-6 text-sm">
+                    SE LE ENVIARÁ TU CODIGO DE PERSONA, Y SI SOLO ESTA LA
+                    PERSONA EN TU LISTA DE CONTACTOS CON TU CODIGO AL REPORTAR
+                    LA DENUNCIA A LAS AUTORIDADES PODRÁ UBICARTE
+                </p>
+                <form #contactForm="ngForm">
+                    <div class="grid grid-cols-1 gap-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Nombre</mat-label>
+                            <input
+                                matInput
+                                [(ngModel)]="contact.name"
+                                name="name"
+                                placeholder="Ingrese nombre"
+                                required
+                                #nameInput="ngModel"
+                            />
+                            <mat-error
+                                *ngIf="
+                                    nameInput.invalid &&
+                                    (nameInput.dirty || nameInput.touched)
+                                "
+                            >
+                                El nombre es requerido
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Teléfono</mat-label>
+                            <input
+                                matInput
+                                [(ngModel)]="contact.phone"
+                                name="phone"
+                                placeholder="Ingrese teléfono"
+                                required
+                                #phoneInput="ngModel"
+                                pattern="^+591s?[6-7][0-9]{7}$"
+                            />
+                            <mat-error
+                                *ngIf="
+                                    phoneInput.invalid &&
+                                    (phoneInput.dirty || phoneInput.touched)
+                                "
+                            >
+                                Ingrese un teléfono válido (+591 seguido de 8
+                                dígitos)
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Línea Telefónica</mat-label>
+                            <mat-select
+                                [(ngModel)]="contact.teleLine"
+                                name="teleLine"
+                                placeholder="Seleccione línea"
+                                required
+                                #teleLineSelect="ngModel"
+                            >
+                                <mat-option value="Viva">Viva</mat-option>
+                                <mat-option value="Tigo">Tigo</mat-option>
+                                <mat-option value="Entel">Entel</mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="
+                                    teleLineSelect.invalid &&
+                                    (teleLineSelect.dirty ||
+                                        teleLineSelect.touched)
+                                "
+                            >
+                                Seleccione una línea telefónica
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </form>
+            </mat-dialog-content>
+            <mat-dialog-actions class="flex justify-center">
+                <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="onSave()"
+                    class="w-full rounded-none"
+                    [disabled]="!contactForm.form.valid"
+                >
+                    {{
+                        isEditing
+                            ? 'Actualizar Contacto'
+                            : 'Enviar codigo de Persona Maypi al Contacto y Guardarlo'
+                    }}
+                </button>
+            </mat-dialog-actions>
+        </div>
     `,
-    styles: [`
-        .mat-mdc-dialog-content {
-            padding: 0 24px !important;
-        }
-        .mat-mdc-dialog-actions {
-            padding: 24px !important;
-            padding-top: 0 !important;
-        }
-    `],
+    styles: [
+        `
+            .mat-mdc-dialog-content {
+                padding: 0 24px !important;
+            }
+            .mat-mdc-dialog-actions {
+                padding: 24px !important;
+                padding-top: 0 !important;
+            }
+        `,
+    ],
     standalone: true,
     imports: [
-        MatDialogModule, 
-        MatInputModule, 
-        MatSelectModule, 
+        MatDialogModule,
+        MatInputModule,
+        MatSelectModule,
         FormsModule,
         MatFormFieldModule,
         CommonModule,
-        MatButtonModule
-    ]
+        MatButtonModule,
+    ],
 })
 export class AddContactModalComponent {
     contact: any = {
         name: '',
         phone: '',
-        teleLine: ''
+        teleLine: '',
     };
     isEditing: boolean = false;
 
@@ -418,7 +391,7 @@ export class AddContactModalComponent {
     ) {
         // Configurar el modo (agregar o editar)
         if (data && data.mode === 'edit' && data.contact) {
-            this.contact = {...data.contact};
+            this.contact = { ...data.contact };
             this.isEditing = true;
         }
     }
@@ -429,4 +402,4 @@ export class AddContactModalComponent {
             this.dialogRef.close(this.contact);
         }
     }
-} 
+}

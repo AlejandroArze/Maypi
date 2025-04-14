@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 import { environment } from 'environments/environment';
 
 @Injectable({
-    providedIn: 'root'
+    providedIn: 'root',
 })
 export class ContactsService {
-    private baseUrl = `${environment.baseUrl}/contacts`;
+    private baseUrl = `${environment.HTTP}/contactoss`;
 
     constructor(private _httpClient: HttpClient) {}
 
@@ -26,4 +26,4 @@ export class ContactsService {
     deleteContact(id: string): Observable<void> {
         return this._httpClient.delete<void>(`${this.baseUrl}/${id}`);
     }
-} 
+}
