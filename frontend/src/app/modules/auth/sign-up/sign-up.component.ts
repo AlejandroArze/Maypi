@@ -75,9 +75,9 @@ export class AuthSignUpComponent implements OnInit
 
     // Lista de líneas telefónicas
     roles = [
-        { id: 1, name: 'Entel' },
-        { id: 2, name: 'Viva' },
-        { id: 3, name: 'Tigo' }
+        { id: 1, name: 'ENTEL' },
+        { id: 2, name: 'VIVA' },
+        { id: 3, name: 'TIGO' }
     ];
     image: File | null = null;
 

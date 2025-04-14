@@ -21,9 +21,9 @@
                             </a>
                         </li>
                         <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
-                            <a href="#como-funciona" class="flex items-center" title="Ir a la sección de cómo funciona">
-                                <mat-icon fontIcon="book" class="mr-2"></mat-icon>
-                                <span>Cómo Funciona</span>
+                            <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                                <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                                <span>Guías</span>
                             </a>
                         </li>
                         <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
@@ -33,9 +33,9 @@
                             </a>
                         </li>
                         <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
-                            <a href="#ayuda" class="flex items-center" title="Ir a la sección de ayuda">
+                            <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
                                 <mat-icon fontIcon="help" class="mr-2"></mat-icon>
-                                <span>Ayuda</span>
+                                <span>FAQs</span>
                             </a>
                         </li>
                     </ul>
@@ -76,9 +76,9 @@
                         </a>
                     </li>
                     <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
-                        <a href="#como-funciona" class="flex items-center" title="Ir a la sección de cómo funciona">
-                            <mat-icon fontIcon="book" class="mr-2"></mat-icon>
-                            <span>Cómo Funciona</span>
+                        <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                            <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                            <span>Guías</span>
                         </a>
                     </li>
                     <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
@@ -88,9 +88,9 @@
                         </a>
                     </li>
                     <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
-                        <a href="#ayuda" class="flex items-center" title="Ir a la sección de ayuda">
+                        <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
                             <mat-icon fontIcon="help" class="mr-2"></mat-icon>
-                            <span>Ayuda</span>
+                            <span>FAQs</span>
                         </a>
                     </li>
                     <li class="pt-4">
@@ -219,7 +219,7 @@
                 </div>
                 
                 <div class="mt-16 text-center">
-                    <a href="#" class="bg-[#2E4053] text-white hover:bg-[#2E4053]/90 px-6 py-3 rounded-md text-lg font-semibold inline-flex items-center transition-colors" title="Más información sobre nuestro proceso">
+                    <a [routerLink]="['/home/guides']" class="bg-[#2E4053] text-white hover:bg-[#2E4053]/90 px-6 py-3 rounded-md text-lg font-semibold inline-flex items-center transition-colors" title="Más información sobre nuestro proceso">
                         Conoce más sobre nuestro proceso
                         <mat-icon fontIcon="chevron_right" class="ml-2"></mat-icon>
                     </a>
@@ -517,7 +517,7 @@
         </section>
         
         <!-- Contacto -->
-        <section class="py-20 bg-white">
+        <section id="contacto" class="py-20 bg-white">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto">
                     <div class="text-center mb-12">
@@ -622,9 +622,9 @@
                     <h3 class="font-semibold text-lg mb-4">Enlaces Rápidos</h3>
                     <ul class="space-y-2">
                         <li><a href="#inicio" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de inicio">Inicio</a></li>
-                        <li><a href="#como-funciona" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de cómo funciona">Cómo Funciona</a></li>
+                        <li><a [routerLink]="['/home/guides']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de guías">Guías</a></li>
                         <li><a href="#buscar" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de búsqueda">Buscar Personas</a></li>
-                        <li><a href="#ayuda" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de ayuda">Cómo Ayudar</a></li>
+                        <li><a [routerLink]="['/home/faqs']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de preguntas frecuentes">FAQs</a></li>
                     </ul>
                 </div>
                 
@@ -655,4 +655,7 @@
             </div>
         </div>
     </footer>
+
+    <!-- Chatbot Component -->
+    <app-chatbot></app-chatbot>
 </div>

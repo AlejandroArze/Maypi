@@ -8,6 +8,7 @@
                 [routerLink]="['/home/landing']"
             >
                 <mat-icon [svgIcon]="'heroicons_solid:arrow-left'"></mat-icon>
+                <span class="ml-1">Volver</span>
             </button>
 
             <!-- Logo y título -->
@@ -117,13 +118,13 @@
                         </mat-error>
                     </mat-form-field>
 
-                    <!-- Rol (Línea Telefónica) -->
+                    <!-- Línea Telefónica -->
                     <mat-form-field class="w-full" appearance="outline">
                         <mat-label>Línea Telefónica</mat-label>
                         <mat-select [formControlName]="'role'">
-                            <mat-option *ngFor="let role of roles" [value]="role.id">
-                                {{role.name}}
-                            </mat-option>
+                            <mat-option [value]="1">ENTEL</mat-option>
+                            <mat-option [value]="2">VIVA</mat-option>
+                            <mat-option [value]="3">TIGO</mat-option>
                         </mat-select>
                         <mat-icon matPrefix class="mr-2 text-[#2E4053]">sim_card</mat-icon>
                         <mat-error *ngIf="signUpForm.get('role').hasError('required')">

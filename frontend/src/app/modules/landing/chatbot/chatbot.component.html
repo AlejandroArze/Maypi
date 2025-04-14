@@ -1,0 +1,86 @@
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <!-- Botón del chatbot -->
+    <button 
+      (click)="toggleChat()" 
+      class="bg-[#FFC107] text-[#2E4053] rounded-full p-4 shadow-lg hover:bg-[#FFC107]/90 transition-all duration-300 flex items-center justify-center"
+      aria-label="Abrir chat de ayuda"
+      title="Chatbot de Maypi">
+      <mat-icon *ngIf="!isOpen">chat</mat-icon>
+      <mat-icon *ngIf="isOpen">close</mat-icon>
+    </button>
+    
+    <!-- Ventana del chat -->
+    <div 
+      *ngIf="isOpen" 
+      [@slideIn]
+      class="bg-white rounded-lg shadow-xl w-80 sm:w-96 h-[450px] mt-4 flex flex-col overflow-hidden border border-gray-200">
+      <!-- Encabezado del chat -->
+      <div class="bg-[#2E4053] text-white p-4 flex items-center">
+        <div class="w-10 h-10 bg-[#FFC107] rounded-full flex items-center justify-center mr-3">
+          <span class="text-[#2E4053] font-bold text-xl">M</span>
+        </div>
+        <div>
+          <h3 class="font-semibold">Asistente Maypi</h3>
+          <p class="text-xs text-white/70">Estamos aquí para ayudarte</p>
+        </div>
+      </div>
+      
+      <!-- Cuerpo del chat -->
+      <div class="flex-1 p-4 overflow-y-auto bg-gray-50">
+        <div *ngFor="let message of messages" [@fadeIn] class="mb-4">
+          <!-- Mensaje del usuario -->
+          <div *ngIf="message.isUser" class="flex justify-end">
+            <div class="bg-[#2E4053] text-white rounded-lg py-2 px-4 max-w-[80%]">
+              <p>{{ message.content }}</p>
+              <span class="text-xs text-white/70 block text-right mt-1">
+                {{ message.timestamp | date:'shortTime' }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Mensaje del bot -->
+          <div *ngIf="!message.isUser" class="flex justify-start">
+            <div class="bg-[#FFC107]/20 text-[#2E4053] rounded-lg py-2 px-4 max-w-[80%]">
+              <p>{{ message.content }}</p>
+              <span class="text-xs text-[#2E4053]/70 block mt-1">
+                {{ message.timestamp | date:'shortTime' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Indicador de escritura -->
+        <div *ngIf="isTyping" [@fadeIn] class="flex justify-start mb-4">
+          <div class="bg-[#FFC107]/20 text-[#2E4053] rounded-lg py-2 px-4">
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-[#2E4053]/70 rounded-full animate-bounce"></div>
+              <div class="w-2 h-2 bg-[#2E4053]/70 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              <div class="w-2 h-2 bg-[#2E4053]/70 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Pie del chat -->
+      <div class="p-4 border-t border-gray-200">
+        <form (ngSubmit)="sendMessage()" class="flex items-center">
+          <mat-form-field appearance="outline" class="flex-1">
+            <input 
+              matInput 
+              [(ngModel)]="userMessage" 
+              name="userMessage" 
+              placeholder="Escribe tu mensaje..." 
+              autocomplete="off">
+          </mat-form-field>
+          <button 
+            type="submit" 
+            mat-icon-button 
+            color="primary" 
+            [disabled]="!userMessage.trim()"
+            class="ml-2 bg-[#FFC107] text-[#2E4053] rounded-full p-2 hover:bg-[#FFC107]/90 transition-colors">
+            <mat-icon>send</mat-icon>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>

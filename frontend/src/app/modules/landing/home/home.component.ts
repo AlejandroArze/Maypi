@@ -3,13 +3,14 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { ChatbotComponent } from 'app/modules/landing/chatbot/chatbot.component';
 
 @Component({
     selector     : 'landing-home',
     templateUrl  : './home.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [MatButtonModule, RouterLink, MatIconModule, CommonModule],
+    imports      : [MatButtonModule, RouterLink, MatIconModule, CommonModule, ChatbotComponent],
 })
 
 export class LandingHomeComponent

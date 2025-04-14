@@ -1,0 +1,419 @@
+<div class="flex flex-col w-full min-h-screen">
+    <!-- Header/Navbar - Igual que en home.component.html -->
+    <header class="bg-[#FFC107] w-full sticky top-0 z-50 shadow-md">
+      <div class="container mx-auto">
+        <nav class="flex p-4 items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center gap-2">
+            <img src="assets/images/logo/logoM.jpg" alt="Maypi Logo" class="h-10 w-auto" title="Maypi - Plataforma de búsqueda de personas desaparecidas">
+            <span class="text-[#2E4053] text-xl font-bold">Maypi</span>
+          </div>
+  
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center gap-8">
+            <ul class="flex gap-6 items-center">
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/landing']" class="flex items-center" title="Ir a la sección de inicio">
+                  <mat-icon fontIcon="home" class="mr-2"></mat-icon>
+                  <span>Inicio</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                  <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                  <span>Guías</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/landing']" fragment="buscar" class="flex items-center" title="Ir a la sección de búsqueda">
+                  <mat-icon fontIcon="search" class="mr-2"></mat-icon>
+                  <span>Buscar</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
+                  <mat-icon fontIcon="help" class="mr-2"></mat-icon>
+                  <span>FAQs</span>
+                </a>
+              </li>
+            </ul>
+            
+            <div class="flex items-center gap-3">
+              <a [routerLink]="['/sign-in']" class="border-2 border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white font-medium px-4 py-2 rounded-md transition-colors" title="Iniciar sesión">
+                Ingresar
+              </a>
+              <a [routerLink]="['/sign-up']" class="bg-[#2E4053] text-white hover:bg-[#2E4053]/90 font-medium px-4 py-2 rounded-md transition-colors" title="Crear una cuenta">
+                Registrarse
+              </a>
+            </div>
+          </div>
+          
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button 
+              type="button" 
+              class="text-[#2E4053]" 
+              (click)="toggleMenu()" 
+              aria-label="Abrir menú de navegación"
+              title="Abrir menú de navegación">
+              <mat-icon fontIcon="menu"></mat-icon>
+              <span class="sr-only">Abrir menú</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+      
+      <!-- Mobile menu -->
+      <div *ngIf="isMenuOpen" class="md:hidden bg-[#FFC107] border-t border-[#2E4053]/10">
+        <div class="container mx-auto py-4">
+          <ul class="flex flex-col gap-4">
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/landing']" class="flex items-center" title="Ir a la sección de inicio">
+                <mat-icon fontIcon="home" class="mr-2"></mat-icon>
+                <span>Inicio</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                <span>Guías</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/landing']" fragment="buscar" class="flex items-center" title="Ir a la sección de búsqueda">
+                <mat-icon fontIcon="search" class="mr-2"></mat-icon>
+                <span>Buscar</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
+                <mat-icon fontIcon="help" class="mr-2"></mat-icon>
+                <span>FAQs</span>
+              </a>
+            </li>
+            <li class="pt-4">
+              <a [routerLink]="['/sign-in']" class="block w-full border-2 border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white font-medium px-4 py-2 rounded-md text-center transition-colors" title="Iniciar sesión">
+                Ingresar
+              </a>
+            </li>
+            <li class="pt-2">
+              <a [routerLink]="['/sign-up']" class="block w-full bg-[#2E4053] text-white hover:bg-[#2E4053]/90 font-medium px-4 py-2 rounded-md text-center transition-colors" title="Crear una cuenta">
+                Registrarse
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+  
+    <main class="flex-1">
+      <!-- Hero Section para Guías -->
+      <section class="bg-[#F2F2F2] py-16">
+        <div class="container mx-auto px-4">
+          <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#2E4053] mb-6">Guías y Recursos</h1>
+            <p class="text-lg text-gray-600 mb-8">
+              Encuentra información útil sobre cómo reportar desapariciones, qué hacer en caso de emergencia y cómo colaborar con la comunidad.
+            </p>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Contenido de las Guías -->
+      <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="max-w-4xl mx-auto">
+            <mat-tab-group animationDuration="300ms" class="guides-tabs">
+              <!-- Guía de Denuncias -->
+              <mat-tab label="Guía de Denuncias">
+                <div class="p-6">
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#2E4053] mb-4">Cómo Denunciar una Desaparición</h2>
+                    <p class="text-gray-600 mb-4">
+                      Reportar una desaparición de manera rápida y efectiva es crucial para aumentar las posibilidades de encontrar a la persona. Sigue estos pasos:
+                    </p>
+  
+                    <div class="border-l-4 border-[#FFC107] pl-4 py-2 bg-[#FFC107]/10 mb-6">
+                      <p class="text-[#2E4053] font-medium">
+                        Recuerda: Las primeras 72 horas son críticas en la búsqueda de personas desaparecidas.
+                      </p>
+                    </div>
+  
+                    <ol class="space-y-6 mt-6">
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">1</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Acude a la Policía</h3>
+                          <p class="text-gray-600">
+                            Dirígete a la comisaría más cercana y presenta una denuncia formal. No es necesario esperar 24 o 48 horas para reportar una desaparición.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">2</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Reúne Información</h3>
+                          <p class="text-gray-600">
+                            Prepara una descripción detallada de la persona: altura, peso, color de ojos y cabello, ropa que vestía la última vez que fue vista, y cualquier seña particular como tatuajes o cicatrices.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">3</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Proporciona Fotografías</h3>
+                          <p class="text-gray-600">
+                            Entrega fotografías recientes y de buena calidad de la persona desaparecida. Esto facilitará su identificación.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">4</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Registra el Caso en Maypi</h3>
+                          <p class="text-gray-600">
+                            Completa el formulario de reporte en nuestra plataforma para ampliar la difusión del caso y conectar con nuestra red de colaboradores.
+                          </p>
+                          <a [routerLink]="['/home/report']" class="inline-block mt-2 text-[#808000] hover:underline">Ir al formulario de reporte</a>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">5</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Difunde en Redes Sociales</h3>
+                          <p class="text-gray-600">
+                            Comparte la información en redes sociales utilizando hashtags relevantes como #PersonaDesaparecida #Bolivia #Maypi.
+                          </p>
+                        </div>
+                      </li>
+                    </ol>
+  
+                    <div class="mt-8 p-4 bg-[#2E4053]/10 rounded-lg">
+                      <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Documentos Necesarios</h3>
+                      <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Documento de identidad de la persona que realiza la denuncia</li>
+                        <li>Fotografías recientes de la persona desaparecida</li>
+                        <li>Documento de identidad de la persona desaparecida (si está disponible)</li>
+                        <li>Información de contacto para recibir actualizaciones</li>
+                      </ul>
+                    </div>
+                  </div>
+  
+                  <div class="text-center mt-8">
+                    <a [routerLink]="['/home/report']" class="bg-[#FFC107] text-[#2E4053] hover:bg-[#FFC107]/90 px-6 py-3 rounded-md font-semibold inline-flex items-center transition-colors">
+                      Reportar una Desaparición
+                      <mat-icon fontIcon="arrow_forward" class="ml-2"></mat-icon>
+                    </a>
+                  </div>
+                </div>
+              </mat-tab>
+  
+              <!-- Guía de Reportes -->
+              <mat-tab label="Guía de Reportes">
+                <div class="p-6">
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#2E4053] mb-4">Cómo Reportar Avistamientos</h2>
+                    <p class="text-gray-600 mb-4">
+                      Si has visto a una persona que coincide con la descripción de alguien reportado como desaparecido, tu información puede ser crucial. Sigue estos pasos para reportar un avistamiento:
+                    </p>
+  
+                    <ol class="space-y-6 mt-6">
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">1</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Verifica la Información</h3>
+                          <p class="text-gray-600">
+                            Compara a la persona que has visto con las fotografías disponibles en nuestra plataforma. Asegúrate de que coincidan las características físicas.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">2</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Anota Detalles</h3>
+                          <p class="text-gray-600">
+                            Registra la ubicación exacta, fecha y hora del avistamiento. También anota la ropa que vestía y cualquier otra información relevante.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">3</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Contacta a las Autoridades</h3>
+                          <p class="text-gray-600">
+                            Llama inmediatamente a la policía o a nuestra línea de emergencia 800-123-456 para reportar el avistamiento.
+                          </p>
+                        </div>
+                      </li>
+                      <li class="flex">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFC107] flex items-center justify-center text-[#2E4053] font-bold mr-4">4</div>
+                        <div>
+                          <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Completa el Formulario de Avistamiento</h3>
+                          <p class="text-gray-600">
+                            Utiliza nuestro formulario en línea para reportar el avistamiento con todos los detalles que puedas proporcionar.
+                          </p>
+                        </div>
+                      </li>
+                    </ol>
+  
+                    <div class="mt-8 p-4 bg-[#2E4053]/10 rounded-lg">
+                      <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Recomendaciones Importantes</h3>
+                      <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>No intervengas directamente si la situación parece peligrosa</li>
+                        <li>Mantén la discreción para no alertar a posibles captores</li>
+                        <li>Si es posible, toma fotografías discretas del lugar o la persona</li>
+                        <li>Proporciona tu información de contacto para posibles seguimientos</li>
+                      </ul>
+                    </div>
+                  </div>
+  
+                  <div class="text-center mt-8">
+                    <a href="#" class="bg-[#FFC107] text-[#2E4053] hover:bg-[#FFC107]/90 px-6 py-3 rounded-md font-semibold inline-flex items-center transition-colors">
+                      Reportar un Avistamiento
+                      <mat-icon fontIcon="arrow_forward" class="ml-2"></mat-icon>
+                    </a>
+                  </div>
+                </div>
+              </mat-tab>
+  
+              <!-- Guía de Ayuda -->
+              <mat-tab label="Guía de Ayuda">
+                <div class="p-6">
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#2E4053] mb-4">Cómo Ayudar en la Búsqueda</h2>
+                    <p class="text-gray-600 mb-4">
+                      Existen muchas formas en las que puedes contribuir a la búsqueda de personas desaparecidas, incluso si no conoces personalmente a la persona afectada.
+                    </p>
+  
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                      <div class="border border-[#FFC107] rounded-lg p-4">
+                        <div class="w-12 h-12 rounded-full bg-[#FFC107]/20 flex items-center justify-center mb-4">
+                          <mat-icon fontIcon="share" class="text-[#FFC107]"></mat-icon>
+                        </div>
+                        <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Comparte en Redes Sociales</h3>
+                        <p class="text-gray-600">
+                          Difunde los casos de personas desaparecidas en tus redes sociales. La viralización de la información aumenta las posibilidades de encontrarlas.
+                        </p>
+                      </div>
+  
+                      <div class="border border-[#FFC107] rounded-lg p-4">
+                        <div class="w-12 h-12 rounded-full bg-[#FFC107]/20 flex items-center justify-center mb-4">
+                          <mat-icon fontIcon="volunteer_activism" class="text-[#FFC107]"></mat-icon>
+                        </div>
+                        <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Voluntariado</h3>
+                        <p class="text-gray-600">
+                          Únete a grupos de búsqueda organizados o colabora con organizaciones dedicadas a encontrar personas desaparecidas.
+                        </p>
+                      </div>
+  
+                      <div class="border border-[#FFC107] rounded-lg p-4">
+                        <div class="w-12 h-12 rounded-full bg-[#FFC107]/20 flex items-center justify-center mb-4">
+                          <mat-icon fontIcon="attach_money" class="text-[#FFC107]"></mat-icon>
+                        </div>
+                        <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Donaciones</h3>
+                        <p class="text-gray-600">
+                          Apoya económicamente a las familias o a organizaciones que trabajan en la búsqueda de personas desaparecidas.
+                        </p>
+                      </div>
+  
+                      <div class="border border-[#FFC107] rounded-lg p-4">
+                        <div class="w-12 h-12 rounded-full bg-[#FFC107]/20 flex items-center justify-center mb-4">
+                          <mat-icon fontIcon="visibility" class="text-[#FFC107]"></mat-icon>
+                        </div>
+                        <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Mantente Alerta</h3>
+                        <p class="text-gray-600">
+                          Presta atención a tu entorno y reporta cualquier avistamiento que coincida con las descripciones de personas desaparecidas.
+                        </p>
+                      </div>
+                    </div>
+  
+                    <div class="mt-8 p-4 bg-[#2E4053]/10 rounded-lg">
+                      <h3 class="font-semibold text-lg text-[#2E4053] mb-2">Recursos Adicionales</h3>
+                      <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Materiales imprimibles para difusión</li>
+                        <li>Guías para organizar búsquedas comunitarias</li>
+                        <li>Información sobre apoyo psicológico para familias</li>
+                        <li>Directorio de organizaciones colaboradoras</li>
+                      </ul>
+                    </div>
+                  </div>
+  
+                  <div class="text-center mt-8">
+                    <a href="#" class="bg-[#FFC107] text-[#2E4053] hover:bg-[#FFC107]/90 px-6 py-3 rounded-md font-semibold inline-flex items-center transition-colors">
+                      Descargar Recursos
+                      <mat-icon fontIcon="download" class="ml-2"></mat-icon>
+                    </a>
+                  </div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+      </section>
+    </main>
+  
+    <!-- Footer - Igual que en home.component.html -->
+    <footer class="bg-[#2E4053] text-white">
+      <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-10 h-10 bg-[#FFC107] rounded-full flex items-center justify-center">
+                <span class="text-[#2E4053] font-bold text-xl">M</span>
+              </div>
+              <span class="text-white text-xl font-bold">Maypi</span>
+            </div>
+            <p class="text-white/70 mb-4">
+              Conectando comunidades para encontrar personas desaparecidas en Bolivia.
+            </p>
+            <div class="flex gap-4">
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Facebook" aria-label="Síguenos en Facebook">
+                <mat-icon fontIcon="facebook"></mat-icon>
+              </a>
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Twitter" aria-label="Síguenos en Twitter">
+                <mat-icon fontIcon="twitter"></mat-icon>
+              </a>
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Instagram" aria-label="Síguenos en Instagram">
+                <mat-icon fontIcon="instagram"></mat-icon>
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Enlaces Rápidos</h3>
+            <ul class="space-y-2">
+              <li><a [routerLink]="['/home/landing']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de inicio">Inicio</a></li>
+              <li><a [routerLink]="['/home/guides']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de guías">Guías</a></li>
+              <li><a [routerLink]="['/home/landing']" fragment="buscar" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de búsqueda">Buscar Personas</a></li>
+              <li><a [routerLink]="['/home/faqs']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de preguntas frecuentes">FAQs</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Recursos</h3>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver guía para familias">Guía para Familias</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver materiales educativos">Materiales Educativos</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver preguntas frecuentes">Preguntas Frecuentes</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Visitar nuestro blog">Blog</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Legal</h3>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver términos y condiciones">Términos y Condiciones</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver política de privacidad">Política de Privacidad</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver política de cookies">Política de Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-white/20 mt-12 pt-8 text-center">
+          <p class="text-white/70">
+            &copy; {{currentYear}} Maypi - Todos los derechos reservados
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>

@@ -1,0 +1,242 @@
+<div class="flex flex-col w-full min-h-screen">
+    <!-- Header/Navbar - Igual que en home.component.html -->
+    <header class="bg-[#FFC107] w-full sticky top-0 z-50 shadow-md">
+      <div class="container mx-auto">
+        <nav class="flex p-4 items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center gap-2">
+            <img src="assets/images/logo/logoM.jpg" alt="Maypi Logo" class="h-10 w-auto" title="Maypi - Plataforma de búsqueda de personas desaparecidas">
+            <span class="text-[#2E4053] text-xl font-bold">Maypi</span>
+          </div>
+  
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center gap-8">
+            <ul class="flex gap-6 items-center">
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/landing']" class="flex items-center" title="Ir a la sección de inicio">
+                  <mat-icon fontIcon="home" class="mr-2"></mat-icon>
+                  <span>Inicio</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                  <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                  <span>Guías</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/landing']" fragment="buscar" class="flex items-center" title="Ir a la sección de búsqueda">
+                  <mat-icon fontIcon="search" class="mr-2"></mat-icon>
+                  <span>Buscar</span>
+                </a>
+              </li>
+              <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+                <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
+                  <mat-icon fontIcon="help" class="mr-2"></mat-icon>
+                  <span>FAQs</span>
+                </a>
+              </li>
+            </ul>
+            
+            <div class="flex items-center gap-3">
+              <a [routerLink]="['/sign-in']" class="border-2 border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white font-medium px-4 py-2 rounded-md transition-colors" title="Iniciar sesión">
+                Ingresar
+              </a>
+              <a [routerLink]="['/sign-up']" class="bg-[#2E4053] text-white hover:bg-[#2E4053]/90 font-medium px-4 py-2 rounded-md transition-colors" title="Crear una cuenta">
+                Registrarse
+              </a>
+            </div>
+          </div>
+          
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button 
+              type="button" 
+              class="text-[#2E4053]" 
+              (click)="toggleMenu()" 
+              aria-label="Abrir menú de navegación"
+              title="Abrir menú de navegación">
+              <mat-icon fontIcon="menu"></mat-icon>
+              <span class="sr-only">Abrir menú</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+      
+      <!-- Mobile menu -->
+      <div *ngIf="isMenuOpen" class="md:hidden bg-[#FFC107] border-t border-[#2E4053]/10">
+        <div class="container mx-auto py-4">
+          <ul class="flex flex-col gap-4">
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/landing']" class="flex items-center" title="Ir a la sección de inicio">
+                <mat-icon fontIcon="home" class="mr-2"></mat-icon>
+                <span>Inicio</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/guides']" class="flex items-center" title="Ir a la sección de guías">
+                <mat-icon fontIcon="menu_book" class="mr-2"></mat-icon>
+                <span>Guías</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/landing']" fragment="buscar" class="flex items-center" title="Ir a la sección de búsqueda">
+                <mat-icon fontIcon="search" class="mr-2"></mat-icon>
+                <span>Buscar</span>
+              </a>
+            </li>
+            <li class="text-[#2E4053] hover:text-[#808000] transition-colors">
+              <a [routerLink]="['/home/faqs']" class="flex items-center" title="Ir a la sección de preguntas frecuentes">
+                <mat-icon fontIcon="help" class="mr-2"></mat-icon>
+                <span>FAQs</span>
+              </a>
+            </li>
+            <li class="pt-4">
+              <a [routerLink]="['/sign-in']" class="block w-full border-2 border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white font-medium px-4 py-2 rounded-md text-center transition-colors" title="Iniciar sesión">
+                Ingresar
+              </a>
+            </li>
+            <li class="pt-2">
+              <a [routerLink]="['/sign-up']" class="block w-full bg-[#2E4053] text-white hover:bg-[#2E4053]/90 font-medium px-4 py-2 rounded-md text-center transition-colors" title="Crear una cuenta">
+                Registrarse
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+  
+    <main class="flex-1">
+      <!-- Hero Section para FAQs -->
+      <section class="bg-[#F2F2F2] py-16">
+        <div class="container mx-auto px-4">
+          <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#2E4053] mb-6">Preguntas Frecuentes</h1>
+            <p class="text-lg text-gray-600 mb-8">
+              Encuentra respuestas a las preguntas más comunes sobre Maypi y el proceso de búsqueda de personas desaparecidas.
+            </p>
+          </div>
+        </div>
+      </section>
+  
+      <!-- Contenido de FAQs -->
+      <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="max-w-4xl mx-auto">
+            <!-- Buscador de FAQs -->
+            <div class="mb-12">
+              <div class="relative">
+                <input 
+                  type="text" 
+                  placeholder="Buscar preguntas frecuentes..." 
+                  class="w-full p-4 pl-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:border-transparent"
+                  aria-label="Buscar preguntas frecuentes">
+                <mat-icon class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">search</mat-icon>
+              </div>
+            </div>
+  
+            <!-- Categorías de FAQs -->
+            <div class="space-y-8">
+              <div *ngFor="let category of faqCategories" class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-[#2E4053] text-white p-4">
+                  <h2 class="text-xl font-bold">{{ category.title }}</h2>
+                </div>
+                
+                <mat-accordion>
+                  <mat-expansion-panel *ngFor="let faq of category.faqs">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        {{ faq.question }}
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <p class="text-gray-600">{{ faq.answer }}</p>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </div>
+            </div>
+  
+            <!-- Sección de contacto -->
+            <div class="mt-12 p-6 bg-[#FFC107]/10 rounded-lg">
+              <h2 class="text-2xl font-bold text-[#2E4053] mb-4">¿No encontraste lo que buscabas?</h2>
+              <p class="text-gray-600 mb-6">
+                Si tienes alguna pregunta adicional o necesitas más información, no dudes en contactarnos.
+              </p>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#" class="bg-[#2E4053] text-white hover:bg-[#2E4053]/90 px-6 py-3 rounded-md text-center transition-colors">
+                  Contactar al Soporte
+                </a>
+                <a [routerLink]="['/home/landing']" fragment="contacto" class="border border-[#2E4053] text-[#2E4053] hover:bg-[#2E4053] hover:text-white px-6 py-3 rounded-md text-center transition-colors">
+                  Ver Información de Contacto
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  
+    <!-- Footer - Igual que en home.component.html -->
+    <footer class="bg-[#2E4053] text-white">
+      <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-10 h-10 bg-[#FFC107] rounded-full flex items-center justify-center">
+                <span class="text-[#2E4053] font-bold text-xl">M</span>
+              </div>
+              <span class="text-white text-xl font-bold">Maypi</span>
+            </div>
+            <p class="text-white/70 mb-4">
+              Conectando comunidades para encontrar personas desaparecidas en Bolivia.
+            </p>
+            <div class="flex gap-4">
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Facebook" aria-label="Síguenos en Facebook">
+                <mat-icon fontIcon="facebook"></mat-icon>
+              </a>
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Twitter" aria-label="Síguenos en Twitter">
+                <mat-icon fontIcon="twitter"></mat-icon>
+              </a>
+              <a href="#" class="text-white hover:text-[#FFC107]" title="Síguenos en Instagram" aria-label="Síguenos en Instagram">
+                <mat-icon fontIcon="instagram"></mat-icon>
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Enlaces Rápidos</h3>
+            <ul class="space-y-2">
+              <li><a [routerLink]="['/home/landing']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de inicio">Inicio</a></li>
+              <li><a [routerLink]="['/home/guides']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de guías">Guías</a></li>
+              <li><a [routerLink]="['/home/landing']" fragment="buscar" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de búsqueda">Buscar Personas</a></li>
+              <li><a [routerLink]="['/home/faqs']" class="text-white/70 hover:text-[#FFC107]" title="Ir a la sección de preguntas frecuentes">FAQs</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Recursos</h3>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver guía para familias">Guía para Familias</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver materiales educativos">Materiales Educativos</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver preguntas frecuentes">Preguntas Frecuentes</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Visitar nuestro blog">Blog</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Legal</h3>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver términos y condiciones">Términos y Condiciones</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver política de privacidad">Política de Privacidad</a></li>
+              <li><a href="#" class="text-white/70 hover:text-[#FFC107]" title="Ver política de cookies">Política de Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-white/20 mt-12 pt-8 text-center">
+          <p class="text-white/70">
+            &copy; {{currentYear}} Maypi - Todos los derechos reservados
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
